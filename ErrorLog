@@ -1,0 +1,11 @@
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(7) : warning 61 - Line has been truncated (line is longer than 132 characters)
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(56) : error 215 - Invalid expression on left hand side of assignment
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(57) : error 215 - Invalid expression on left hand side of assignment
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(58) : error 215 - Invalid expression on left hand side of assignment
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(82) : error 270 - Missing width count for 'I' descriptor
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(88) : error 270 - Missing width count for 'I' descriptor
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(102) : error 270 - Missing width count for 'I' descriptor
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(7) : error 1055 - COLPOSC is not a dummy argument, or a POINTER or ALLOCATABLE array, so cannot be assumed-shape
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(60) : error 283 - RCOLLIMTAOR must appear in a type declaration because IMPLICIT NONE has been used
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(60) : error 283 - COLLPOSCOLLIMATOR must appear in a type declaration because IMPLICIT NONE has been used
+C:\Users\adam\OneDrive - Heriot-Watt University\PhD\Fortran Code\Fortran\getdirectionsnew.F90(119) : warning 684 - There are (at least) 1 truncated line(s) in this file

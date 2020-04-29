@@ -1,0 +1,11 @@
+1000000	!number of data points
+.TRUE.	!Wheel in? i.e. do you want scattering directions weighted by costheta randomly assigned
+0.020	!Heriot Cell positions z direction / m
+0.1730	!Skimmer Position z direction / m
+0.2150 	!Valve position z direction / m
+0.1330  !Collimator position in z direction / m
+0.0005	!radius of skimmer / m
+0.0015	!radius of valve / m
+0.0015  !radius of collimator /m
+.FALSE.	!Should beam size and traj positions be saved at heriot cell
+0		!Molecular beam angle to the surface normal
