@@ -38,22 +38,22 @@ module class_directions
     end function fitLine
 
     !Calcualtes unit vectors from gradients of the lines in the x and y directions. 
-    function unitVector (mx, my) result(vx, vy, vz, a)
+    function unitVector (mx, my) result(vx, vy, vz, magnitude)
         implicit none
 
-        double precision :: mx, my, vx, vy, vz, a
+        double precision :: mx, my, vx, vy, vz, magnitude
 
-        a = sqrt(mx**2 + my**2 + 1**2)
-        vx = mx/a
-        vy = my/a
+        magnitude = sqrt(mx**2 + my**2 + 1**2)
+        vx = mx/magnitude
+        vy = my/magnitude
 
         if (z2.gt.z1) then
 
-            vz = 1/a 
+            vz = 1/magnitude
 
             else
 
-            vz = -1/a 
+            vz = -1/magnitude
 
         end if
 
