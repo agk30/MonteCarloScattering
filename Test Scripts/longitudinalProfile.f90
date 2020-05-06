@@ -7,7 +7,7 @@ program longitudinalProfile
     xPx = 420
     yPx = 420
 
-    open(unit=11,file='Images/Image 9.txt')
+    open(unit=11,file='Images/Image 8.txt')
     open(unit=12,file='longitudinalProfile.txt')
 
     do row = 1, yPx
