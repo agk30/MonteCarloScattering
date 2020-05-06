@@ -17,8 +17,10 @@ program transverseProfile
     end do
 
     do column = 1, yPx
+
     
-        write(12,*) column, SUM(intensityCount(:,column), DIM=1)
+        write(12,*) column, SUM(intensityCount(220:250,column))
+
 
     end do
 

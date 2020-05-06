@@ -1,0 +1,25 @@
+128.30344D0	!x0
+1.00082D0	!Amax
+-0.00851D0	!Amin
+24.98601D0	!h
+1.45285D0		!s
+230.0D-03		!single-point LIF valve-probe laser distance (TODO check distance is correct with current laser sheet)
+10.0D-06		!discharge pulse length / s
+.TRUE.      !Set true scattering
+2.8240519D-26 !Mass of molecule in kg
+298.0D0         !T in K
+10	    !number of data points
+0.1730D0	!Skimmer Position z direction / m
+0.2150D0 	!Valve position z direction / m
+0.1330D0    !Collimator position in z direction / m
+0.0005D0	!radius of skimmer / m
+0.0015D0	!radius of valve / m
+0.0015D0    !radius of collimator /m
+0.021D0  	!z-position of the centre of the laser sheet / m
+0.002D0 	!half height of the laser sheet / m
+0.03D0    	!width of the laser sheet / m
+67.0D-06 		!initial time of probe / s
+163.0D-06 	!final time of probe / s
+4.0D-06 		!time step between probes / s
+0.17D-03	!px to mm ratio
+3000.0D0      !max speed used in calculation of Maxwell-Boltzmann ditribution. Set higher for possiblity of higher speed being sampled.

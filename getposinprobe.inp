@@ -1,8 +1,0 @@
-0.021   	!z-position of the centre of the laser sheet / m
-0.002 		!half height of the laser sheet / m
-0.03    	!width of the laser sheet / m
-0 			!Input for circle line intersect part of the code 0 if circle is in the YZ plane (FM set up) and 1 if in the XZ plane(LIF set up)
-67E-06 		!initial time of probe / s
-163E-06 	!final time of probe / s
-4E-06 		!time step between probes / s
-0.17E-03	!px to mm ratio
