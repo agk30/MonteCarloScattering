@@ -8,7 +8,7 @@
 .TRUE.      !Set true scattering
 2.8240519D-26 !Mass of molecule in kg
 298.0D0         !T in K
-10	    !number of data points
+100000000	    !number of data points
 0.1730D0	!Skimmer Position z direction / m
 0.2150D0 	!Valve position z direction / m
 0.1330D0    !Collimator position in z direction / m
@@ -20,6 +20,6 @@
 0.03D0    	!width of the laser sheet / m
 67.0D-06 		!initial time of probe / s
 163.0D-06 	!final time of probe / s
-4.0D-06 		!time step between probes / s
+1.0D-06 		!time step between probes / s
 0.17D-03	!px to mm ratio
 3000.0D0      !max speed used in calculation of Maxwell-Boltzmann ditribution. Set higher for possiblity of higher speed being sampled.

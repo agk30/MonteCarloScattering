@@ -2,13 +2,13 @@ program transverseProfile
     implicit none
 
     integer :: row, column, xPx, yPx
-    integer, dimension (420,420) :: intensityCount
+    real, dimension (420,420) :: intensityCount
 
     xPx = 420
     yPx = 420
 
-    open(unit=11,file='Images/Image 9.txt')
-    open(unit=12,file='transverseProfile.txt')
+    open(unit=11,file='Real Images/01102019_1_Q11_IB TOF Profile_ChC102')
+    open(unit=12,file='realTransverseProfile.txt')
 
     do row = 1, xPx
 

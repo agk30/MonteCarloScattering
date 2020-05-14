@@ -4,18 +4,20 @@ module getDirections
 
     contains
 
-        subroutine ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, ingoingUnitVector)
+        ! Finds a trajectory that passes though skimmer and collimator
+        subroutine ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, ingoingUnitVector, valve)
             implicit none
 
             ! valve(1), valve(2) and valve(3) correspond to x y and z coordinates of valve position with which to draw line. Likewise with skimmer() and collimator()
-            real(kind=r14), dimension(3) :: valve, skimmer, collimator
+            real(kind=r14), dimension(3) :: skimmer, collimator
             real(kind=r14), intent (in) :: valveRad, valvePos, skimRad, skimPos, colRad, colPos
-            real(kind=r14), intent(out), dimension(3) :: ingoingUnitVector
+            real(kind=r14), intent(out), dimension(3) :: ingoingUnitVector, valve
             real(kind=r14) :: mx, my, cx, cy, z
             logical :: hit
 
             hit = .FALSE.
 
+            ! Loops until a suitable trajectory is found
             do while (hit == .FALSE.)
 
                 ! Finds random point on valve for particle origin
@@ -51,6 +53,7 @@ module getDirections
 
         end subroutine ingoingDirection
 
+        ! Finds thermal desorption trajetory based on a cos(theta) distribution of scattering angles
         subroutine thermalDesorptionDirection(scatteredDirection)
 
             integer :: i
@@ -70,7 +73,7 @@ module getDirections
     
             call random_number(rand3)
             
-            if (rand3 .gt. 0.5) then
+            if (rand3 .gt. 0.5D0) then
 
                 scatteredDirection(1) = (cos(phi))*(sin(theta))
     
@@ -81,7 +84,7 @@ module getDirections
     
             call random_number(rand4)
     
-            if (rand4 .gt. 0.5) then
+            if (rand4 .gt. 0.5D0) then
                 
                 scatteredDirection(2) = (sin(phi))*(sin(theta))
     

@@ -5,14 +5,14 @@ module getSpeeds
     contains
 
         ! Calculates speed of ingoing particle based on cumulative integral function
-        subroutine ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, speed)
+        subroutine ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, speed, t0)
             implicit none
 
             ! variables relating to cumulative integral function of arrival times
             real(kind=r14), intent(in) :: x0, aMax, aMin, h, s
             real(kind=r14), intent(in) :: dist, pulseLength
-            real(kind=r14), intent(out) :: speed
-            real(kind=r14) :: t0, t, x, arrivalTime
+            real(kind=r14), intent(out) :: speed, t0
+            real(kind=r14) :: t, x, arrivalTime
 
             ! Calculate random time of creation
             call random_number(t)
@@ -25,7 +25,7 @@ module getSpeeds
 
         end subroutine ingoingSpeed
 
-        ! Calculates speed based on Maxwell-Distribution of speeds
+        ! Calculates speed based on Maxwell-Boltzmann Distribution of speeds
         subroutine MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, scatteredSpeed)
             implicit none
 
