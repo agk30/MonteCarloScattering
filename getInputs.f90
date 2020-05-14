@@ -7,6 +7,7 @@ module getInputs
         ! See inputs.inp for details on parameter definitions
         ! TODO pass over hash table instead of individual variables
          subroutine loadInputs (ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering)
+            implicit none
 
             integer, parameter :: r14 = selected_real_kind(14,30)
             integer, intent(out) :: ncyc

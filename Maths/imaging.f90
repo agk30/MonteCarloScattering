@@ -7,7 +7,7 @@ module imaging
     contains
 
             ! Uses the entry time and exit time to find the corresponding timepoint for imaging
-            subroutine startEndTimePoints(NumberOfTimepoints, entryTime, exitTime, probeStart, probeEnd, tStep, startTimePoint, endTimePoint)
+        subroutine startEndTimePoints(NumberOfTimepoints, entryTime, exitTime, probeStart, probeEnd, tStep, startTimePoint, endTimePoint)
             implicit none
 
             integer, intent(in) :: NumberOfTimePoints

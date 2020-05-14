@@ -1,6 +1,7 @@
 Images/
 Very Test Code/
 Old Modules/
+.VSCodeCounter/
 
 *.txt
 *.obj

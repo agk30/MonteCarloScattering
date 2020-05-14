@@ -55,6 +55,7 @@ module getDirections
 
         ! Finds thermal desorption trajetory based on a cos(theta) distribution of scattering angles
         subroutine thermalDesorptionDirection(scatteredDirection)
+            implicit none
 
             integer :: i
             logical :: hit
