@@ -35,8 +35,8 @@ module getDirections
                 call fitline(valve(2), valve(3), skimmer(2), skimmer(3), my, cy)
 
                 ! Caclulates positoin of particle at collimator and decides if it passes through or not
-                collimator(1) = mx*(valvePos - colPos) + cx
-                collimator(2) = my*(valvePos - colPos) + cy
+                collimator(1) = mx*(colPos) + cx
+                collimator(2) = my*(colPos) + cy
                 collimator(3) = colPos
                 ! z is the hypotenuse of the triangle formed using x and y coordinates of the particle's collimator position
                 z = SQRT(collimator(1)**2 + collimator(2)**2)
