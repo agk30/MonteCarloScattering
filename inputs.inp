@@ -13,7 +13,7 @@
 0.2150D0 	!Valve position z direction / m
 0.1330D0    !Collimator position in z direction / m
 0.0005D0	!radius of skimmer / m
-0.0015D0	!radius of valve / m
+0.0005D0	!radius of valve / m
 0.0015D0    !radius of collimator /m
 0.021D0  	!z-position of the centre of the laser sheet / m
 0.002D0 	!half height of the laser sheet / m
