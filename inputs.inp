@@ -1,3 +1,4 @@
+-45         ! angle of incidence in degrees. Must be given as negative angle if rotation is to be anti-clockwise
 128.30344D0	!x0
 1.00082D0	!Amax
 -0.00851D0	!Amin
@@ -8,7 +9,7 @@
 .TRUE.      !Set true scattering
 2.8240519D-26 !Mass of molecule in kg
 298.0D0         !T in K
-100000000	    !number of data points
+10000000	    !number of data points
 0.1730D0	!Skimmer Position z direction / m
 0.2150D0 	!Valve position z direction / m
 0.1330D0    !Collimator position in z direction / m

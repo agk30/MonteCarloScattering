@@ -53,6 +53,32 @@ module getDirections
 
         end subroutine ingoingDirection
 
+        subroutine rotation(oldVector, theta, newVector)
+
+            implicit none
+
+            real(kind=r14), intent(in), dimension(3) :: oldVector
+            real(kind=r14), intent(out), dimension(3) :: newVector
+            real(kind=r14), dimension(3,3) :: rotationMatrix
+            real(kind=r14), intent(in) :: theta
+            real(kind=r14) :: costheta, sintheta
+            
+            costheta = cosd(theta)
+            sintheta = sind(theta)
+
+            ! this matrix is for roation about the y axis only. Rotation about any other axis will require a different matrix.
+            rotationMatrix = 0
+            rotationMatrix(1,1) = costheta
+            rotationMatrix(1,3) = sintheta
+            rotationMatrix(2,2) = 1
+            rotationMatrix(3,1) = -sintheta
+            rotationMatrix(3,3) = costheta
+
+            ! multiplies the rotation matrix by the vector in question
+            newVector = MATMUL(rotationMatrix, oldVector)
+
+        end subroutine rotation
+
         ! Finds thermal desorption trajetory based on a cos(theta) distribution of scattering angles
         subroutine thermalDesorptionDirection(scatteredDirection)
             implicit none

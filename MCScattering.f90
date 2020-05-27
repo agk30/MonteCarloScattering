@@ -17,7 +17,7 @@ program MCScattering
 
     ! Variables concerning input parameters
     integer :: ncyc
-    real(kind=r14) :: x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
+    real(kind=r14) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed
     logical :: scattering
 
@@ -40,7 +40,7 @@ program MCScattering
     call cpu_time(startTime)
 
     ! Loads parameters from input file into main body of code for use in other functions
-    call loadInputs(ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering)
+    call loadInputs(incidenceAngle, ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -80,14 +80,19 @@ program MCScattering
         call ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
         call ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
+        ! changes the angle of incidence and starting point of the particle using a rotation matrix
+        call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
+        call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+
         ! time taken to travel to the wheel (NOT time of origin for scattered particle)
-        tWheel = abs(particleStartPos(1,3) / particleSpeed(1))
+        tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
         
         ! Establishes scattered particle parameters based on ingoing beam particle
         particleTime(2) = particleTime(1) + tWheel
-        particleStartPos(2,:) = particleStartPos(1,:) + (particleVector(1,:)*tWheel*particleSpeed(1))
+        particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
+        particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
-       
+
         if (scattering == .TRUE.) then
 
             ! Obtains Maxwell Boltzmann speed as well as scattered direction
@@ -118,10 +123,7 @@ program MCScattering
 
         end do
     
-
-    end do
-    
-    !print *, SUM(image)
+     end do
 
     call writeImage(xPx, zPx, NumberOfTimePoints)
 
