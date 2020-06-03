@@ -22,7 +22,7 @@ program MCScattering
     logical :: scattering
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounter, totalTraj, NumberOfTimePoints, xPx, zPx, startTimePoint, endTimePoint
-    real(kind=r14) :: tWheel
+    real(kind=r14) :: tWheel, gaussdev
     real(kind=r14) :: t0, mostLikelyProbability, speed, scatteredSpeed, startTime, endTime, runTime, acceptanceRatio, entryTime, exitTime
     real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre, topInter, bottomInter, frontInter, backInter
     ! particle vectors, speeds and start times are given in these arrays with (1,:) for ingoing and (2,:) for scattered for use in do loop
@@ -30,6 +30,7 @@ program MCScattering
     real(kind=r14), dimension(2) :: particleSpeed, particleTime
     ! intersection of planes for top (1,:) bottom (2,:) front (3,:) and back (4,:)
     real(kind=r14), dimension(2,4,3) :: intersection
+    real(kind=r14), dimension(:,:,:,:), allocatable :: image
     logical, dimension(4) :: hitsSheet
 
     acceptedCounter = 0
@@ -49,7 +50,7 @@ program MCScattering
     zPx = 420
 
     ! allocates the image array, which is shared from the imaging class
-    allocate(image(zPx,xPx,NumberOfTimePoints))
+    allocate(image(zPx,xPx,NumberOfTimePoints,2))
 
     image = 0
     
@@ -115,7 +116,7 @@ program MCScattering
                 ! Finds corresponding image timepoints for entry and exit times
                 call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
-                call getPosInProbe(NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions)
+                call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions)
                 
                 acceptedCounter = acceptedCounter + 1
 
@@ -123,9 +124,19 @@ program MCScattering
 
         end do
     
-     end do
+    end do
 
-    call writeImage(xPx, zPx, NumberOfTimePoints)
+    gaussdev = 2
+
+    do k = 1, NumberOfTimePoints
+    
+        call convim(image(:,:,k,1), xPx, zPx, gaussdev, image(:,:,k,2))
+
+    end do
+
+    print *, sum(image(:,:,:,2))
+
+    call writeImage(image, xPx, zPx, NumberOfTimePoints)
 
     call cpu_time(endTime)
 
