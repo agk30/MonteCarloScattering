@@ -1,5 +1,4 @@
 module mathConstants
-    implicit none
 
     ! General use mathematical constants for use in all subroutines
     ! The r14 parameter is very important and the program will not compile without it

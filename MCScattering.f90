@@ -18,14 +18,17 @@ program MCScattering
     ! Variables concerning input parameters
     integer :: ncyc
     real(kind=r14) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
-    real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed
+    real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
+     pxMmRatio, maxSpeed
     logical :: scattering
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounter, totalTraj, NumberOfTimePoints, xPx, zPx, startTimePoint, endTimePoint
     real(kind=r14) :: tWheel, gaussdev
-    real(kind=r14) :: t0, mostLikelyProbability, speed, scatteredSpeed, startTime, endTime, runTime, acceptanceRatio, entryTime, exitTime
-    real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre, topInter, bottomInter, frontInter, backInter
-    ! particle vectors, speeds and start times are given in these arrays with (1,:) for ingoing and (2,:) for scattered for use in do loop
+    real(kind=r14) :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
+     entryTime, exitTime
+    real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre
+    ! particle vectors, speeds and start times are given in these arrays with (1,:) for ingoing and (2,:)
+    ! for scattered for use in do loop
     real(kind=r14), dimension(2,3) :: particleVector, particleStartPos
     real(kind=r14), dimension(2) :: particleSpeed, particleTime
     ! intersection of planes for top (1,:) bottom (2,:) front (3,:) and back (4,:)
@@ -41,7 +44,9 @@ program MCScattering
     call cpu_time(startTime)
 
     ! Loads parameters from input file into main body of code for use in other functions
-    call loadInputs(incidenceAngle, ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering)
+    call loadInputs(incidenceAngle, ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, &
+     skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
+     pxMmRatio, maxSpeed, scattering)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -62,7 +67,7 @@ program MCScattering
     sheetDimensions(2) = halfSheetHeight*2D0
     sheetDimensions(3) = sheetWidth
 
-    if (scattering == .TRUE.) then
+    if (scattering .eqv. .TRUE.) then
 
         ! Calculates probability of most probable speed at given temperature for use in thermal desorption subroutines
         mostLikelyProbability = MBMostLikely(temp, mass)
@@ -94,7 +99,7 @@ program MCScattering
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
 
-        if (scattering == .TRUE.) then
+        if (scattering .eqv. .TRUE.) then
 
             ! Obtains Maxwell Boltzmann speed as well as scattered direction
             call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
@@ -112,11 +117,14 @@ program MCScattering
             if (ANY(hitsSheet)) then
 
                 ! If any sheet faces are hit, then intersection times are calculated
-                call getIntersectionTime(hitsSheet, intersection(j,:,:), particleStartPos(j,:), particleVector(j,:), particleSpeed(j), particleTime(j), entryTime, exitTime)
+                call getIntersectionTime(hitsSheet, intersection(j,:,:), particleStartPos(j,:), particleVector(j,:), &
+                 particleSpeed(j), particleTime(j), entryTime, exitTime)
                 ! Finds corresponding image timepoints for entry and exit times
-                call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, startTimePoint, endTimePoint)
+                call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
+                 startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
-                call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions)
+                call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
+                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions)
                 
                 acceptedCounter = acceptedCounter + 1
 

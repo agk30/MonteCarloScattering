@@ -1,14 +1,13 @@
 module getDirections
     use mathConstants
-    implicit none
 
     contains
 
         ! Finds a trajectory that passes though skimmer and collimator
         subroutine ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, ingoingUnitVector, valve)
-            implicit none
 
-            ! valve(1), valve(2) and valve(3) correspond to x y and z coordinates of valve position with which to draw line. Likewise with skimmer() and collimator()
+            ! valve(1), valve(2) and valve(3) correspond to x y and z coordinates of valve position with which to draw line.
+            ! Likewise with skimmer() and collimator()
             real(kind=r14), dimension(3) :: skimmer, collimator
             real(kind=r14), intent (in) :: valveRad, valvePos, skimRad, skimPos, colRad, colPos
             real(kind=r14), intent(out), dimension(3) :: ingoingUnitVector, valve
@@ -18,7 +17,7 @@ module getDirections
             hit = .FALSE.
 
             ! Loops until a suitable trajectory is found
-            do while (hit == .FALSE.)
+            do while (hit .eqv. .FALSE.)
 
                 ! Finds random point on valve for particle origin
                 call discPick(valve(1),valve(2))
@@ -55,8 +54,6 @@ module getDirections
 
         subroutine rotation(oldVector, theta, newVector)
 
-            implicit none
-
             real(kind=r14), intent(in), dimension(3) :: oldVector
             real(kind=r14), intent(out), dimension(3) :: newVector
             real(kind=r14), dimension(3,3) :: rotationMatrix
@@ -81,7 +78,6 @@ module getDirections
 
         ! Finds thermal desorption trajetory based on a cos(theta) distribution of scattering angles
         subroutine thermalDesorptionDirection(scatteredDirection)
-            implicit none
 
             integer :: i
             logical :: hit
@@ -93,7 +89,8 @@ module getDirections
             phi = rand1 * pi / 2
     
             call random_number(rand2)
-            ! see paper by J. Greenwood, Vacuum 2002 for explanation of how to generate angle distribution, not as simple as cos(theta)!
+            ! see paper by J. Greenwood, Vacuum 2002 for explanation of how to generate angle distribution,
+            ! not as simple as cos(theta)!
             theta = asin(SQRT(rand2))
     
             scatteredDirection(3) = (cos(theta))
@@ -125,11 +122,12 @@ module getDirections
 
         !Randomly pick a points from a unit radius circle.
         subroutine discPick(x,y)
-            implicit none
+
             real(kind=r14), intent(out) :: x, y
             real(kind=r14) :: rand1, rand2
 
-            !Random number for distance point is from centre of unit circle the value is square rooted so that the points alone this line will result in an even distribution of point on the unit circle rather than at a higher density at the centre
+            !Random number for distance point is from centre of unit circle the value is square rooted so that the points alone
+            ! this line will result in an even distribution of point on the unit circle rather than at a higher density at the centre
             call random_number(rand1)
             rand1 = sqrt(rand1)
 
@@ -146,7 +144,6 @@ module getDirections
         !calculates the gradient and intercept of the line which connect the point on the skimmer and valve
         !note x and y are used here to mean y=mx+c not in reference to chamber coordinates (z chamber is x here)
         subroutine fitLine (y2, x2, y1, x1, m, c)
-            implicit none
 
             real(kind=r14), intent(in) :: y2, x2, y1, x1 
             real(kind=r14), intent(out) :: m, c
@@ -158,7 +155,6 @@ module getDirections
 
         !Calcualtes unit vectors from gradients of the lines in the x and y directions. 
         subroutine unitVector (mx, my, v)
-            implicit none
 
             real(kind=r14), intent(in) :: mx, my
             ! v(1), v(2), v(3) correspond to vector component in x, y, z direction

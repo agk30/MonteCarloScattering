@@ -5,16 +5,17 @@ module sheetIntersection
 
         ! Returns intersection coordinates for top, bottom, front and back planes of the sheet
         subroutine getSheetIntersection (particleVector, startPos, sheetCentre, sheetDimensions, intersection)
-            implicit none
 
             real(kind=r14), intent(in), dimension(3) :: particleVector, startPos, sheetCentre, sheetDimensions
-            ! intersection contains x y z coordinates of intersection for each plane, in order of top, bottom, front and back from 1 - 4
+            ! intersection contains x y z coordinates of intersection for each plane, in order of top, bottom,
+            ! front and back from 1 - 4
             real(kind=r14), intent(out), dimension(4,3) :: intersection
             real(kind=r14), dimension(4,3) ::  pointOnPlane, planeVector
             real(kind=r14) :: topOfFraction, bottomOfFraction, D
             integer :: row
 
-            !since the parametric equation of a line can be given from a vector and a point, the eqution may be expressed as x = x0 + at or x = startPos(1) + (vector(1)*t)
+            !since the parametric equation of a line can be given from a vector and a point, the eqution may be expressed as
+            ! x = x0 + at or x = startPos(1) + (vector(1)*t)
             !equation for a plane is also required, using input values. the plane equation takes the form of Ax + By + Cz + D = 0
             !A B and C correspond to x y and z components of the vector orthogonal to the plane. D = -(A*x0 + By0 + Cz0)
             !intersection of a line with a plane can be found with equation x = x0 - (a*(Ax0 + By0 + Cz0 + D)/(a*A + b*B + c*C))
@@ -36,10 +37,13 @@ module sheetIntersection
 
             do row = 1, 4
 
-                D = -((planeVector(row,1)*pointOnPlane(row,1)) + (planeVector(row,2)*pointOnPlane(row,2)) + (planeVector(row,3)*pointOnPlane(row,3)))
+                D = -((planeVector(row,1)*pointOnPlane(row,1)) + (planeVector(row,2)*pointOnPlane(row,2)) &
+                 + (planeVector(row,3)*pointOnPlane(row,3)))
                 
-                topOfFraction = (planeVector(row,1)*startPos(1)) + (planeVector(row,2)*startPos(2)) + (planeVector(row,3)*startPos(3)) + D
-                bottomOfFraction = (planeVector(row,1)*particleVector(1)) + (planeVector(row,2)*particleVector(2)) + (planeVector(row,3)*particleVector(3))
+                topOfFraction = (planeVector(row,1)*startPos(1)) + (planeVector(row,2)*startPos(2)) &
+                 + (planeVector(row,3)*startPos(3)) + D
+                bottomOfFraction = (planeVector(row,1)*particleVector(1)) + (planeVector(row,2)*particleVector(2)) &
+                 + (planeVector(row,3)*particleVector(3))
                 
                 intersection(row,1) = startPos(1) - (particleVector(1)*(topOfFraction/bottomOfFraction))
                 intersection(row,2) = startPos(2) - (particleVector(2)*(topOfFraction/bottomOfFraction))
@@ -51,7 +55,6 @@ module sheetIntersection
 
         ! Returns a logical array showing which faces of the sheet were intersected if any
         subroutine withinSheet (intersection, sheetCentre, sheetDimensions, within)
-            implicit none
 
             real(kind=r14), intent(in), dimension(4,3) :: intersection
             real(kind=r14), intent(in), dimension(3) :: sheetCentre, sheetDimensions
@@ -99,9 +102,9 @@ module sheetIntersection
         end subroutine withinSheet
 
         ! Returns time of entry and exit from the sheet
-        subroutine getIntersectionTIme(hitsSheet, intersection, particleStartPos, particleVector, particleSpeed, particleTime, entryTime, exitTime)
-            implicit none
-
+        subroutine getIntersectionTIme(hitsSheet, intersection, particleStartPos, particleVector, &
+             particleSpeed, particleTime, entryTime, exitTime)
+             
             logical, dimension(4), intent(in) :: hitsSheet
             real(kind=r14), dimension(4,3), intent(in) :: intersection
             real(kind=r14), dimension(3), intent(in) :: particleStartPos, particleVector
@@ -118,7 +121,8 @@ module sheetIntersection
 
                 if (hitsSheet(i)) then
 
-                    intersectionTime(i) = particleTime + (abs(particleStartPos(3) - intersection(i,3))) / abs(particleVector(3)*particleSpeed)
+                    intersectionTime(i) = particleTime + (abs(particleStartPos(3) - intersection(i,3))) &
+                     / abs(particleVector(3)*particleSpeed)
 
                 end if
 

@@ -8,7 +8,8 @@ module imaging
     contains
 
             ! Uses the entry time and exit time to find the corresponding timepoint for imaging
-        subroutine startEndTimePoints(NumberOfTimepoints, entryTime, exitTime, probeStart, probeEnd, tStep, startTimePoint, endTimePoint)
+        subroutine startEndTimePoints(NumberOfTimepoints, entryTime, exitTime, probeStart, probeEnd, &
+             tStep, startTimePoint, endTimePoint)
             implicit none
 
             integer, intent(in) :: NumberOfTimePoints
@@ -28,7 +29,8 @@ module imaging
 
             end if
 
-           ! If exit time is greater than end of probe, then end timepoint then particle is imaged all the way til the end of the probe time
+            ! If exit time is greater than end of probe, then end timepoint then particle is imaged 
+            ! all the way til the end of the probe time
             if (exitTime .gt. probeEnd) then
 
                 endTimePoint = NumberOfTimepoints
@@ -44,7 +46,8 @@ module imaging
 
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
-        subroutine getPosInProbe(image, NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions)
+        subroutine getPosInProbe(image, NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
+             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions)
             implicit none
 
             real(kind=r14), intent(inout), dimension(:,:,:) :: image
@@ -56,7 +59,8 @@ module imaging
             real(kind=r14), dimension(3) :: posInProbe
             logical :: zImage
 
-            ! testing purpose: should be left as false for normal operation, other inputs would be required in normal operation to enable this properly.
+            ! testing purpose: should be left as false for normal operation, other inputs would be required in normal 
+            ! operation to enable this properly.
             zImage = .false.
 
             ! for sake of creating image viewed along z axis, y pixels are the same as z but can be changed if needed
@@ -77,7 +81,8 @@ module imaging
                 ! Relative pixel position for particle
                 ! Note: the subtraction at the end of each statement alters the position of the particle within the image array.
                 ! Altering the x-postion by half the width of the image centres the beam
-                ! Similarly, the z position can be altered however a factor of 1.3 was found to centre the sheet within the middle of the image quite well
+                ! Similarly, the z position can be altered however a factor of 1.3 was found to centre the sheet within the middle
+                ! of the image quite well
                 posInProbexPx = (ceiling(posInProbe(1)/pxMmRatio) + floor(real(xPx/2)))
                 posInProbeyPx = (ceiling(posInProbe(2)/pxMmRatio) + floor(real(yPx/2)))
                 posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
@@ -144,8 +149,10 @@ module imaging
 
         end subroutine writeImage
 
-        ! for testing purposes only. Be careful using this in main code as you may need to adjust what variables are being input and output
-        subroutine getPosInProbeTest(NumberOfTimePoints, startTimePoint, endTimePoint, xPx, yPx, zPx, t0, probeStart, tStep, particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions)
+        ! for testing purposes only. Be careful using this in main code as you may need to adjust what
+        ! variables are being input and output
+        subroutine getPosInProbeTest(NumberOfTimePoints, startTimePoint, endTimePoint, xPx, yPx, zPx, t0, probeStart, &
+             tStep, particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions)
             implicit none
 
             integer, intent(in) :: NumberOfTimePoints, startTimePoint, endTimePoint, xPx, yPx, zPx
@@ -171,13 +178,16 @@ module imaging
 
                 !print *, currentTime, posInProbe(2)
                 
-                if ((posInProbe(3) .ge. (0.021D0 - sheetDimensions(3)/2)) .and. ((posInProbe(3) .lt. (0.021D0 + sheetDimensions(3)/2)) )) then
+                if ((posInProbe(3) .ge. (0.021D0 - sheetDimensions(3)/2)) .and. ((posInProbe(3) .lt. &
+                 (0.021D0 + sheetDimensions(3)/2)) )) then
                     if((posinProbe(2) .gt. (sheetDimensions(2)/-2)) .and. (posinProbe(2) .lt. (sheetDimensions(2)/2))) then
                         
                         ! Relative pixel position for particle
-                        ! Note: the subtraction at the end of each statement alters the position of the particle within the image array.
+                        ! Note: the subtraction at the end of each statement alters the position of the
+                        ! particle within the image array.
                         ! Altering the x-postion by half the width of the image centres the beam
-                        ! Similarly, the z position can be altered however a factor of 1.3 was found to centre the sheet within the middle of the image quite well
+                        ! Similarly, the z position can be altered however a factor of 1.3 was found to centre the sheet
+                        ! within the middle of the image quite well
                         posInProbexPx = abs(ceiling(posInProbe(1)/pxMmRatio) - floor(real(xPx/2)))
                         posInProbeyPx = abs(ceiling(posInProbe(2)/pxMmRatio) - floor(real(yPx/2)))
                         posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
@@ -253,7 +263,8 @@ module imaging
                 double precision :: lim1,lim2
                 double precision :: dblej
                         
-            !Calculate size of gaussian array required. This can just be a 1D gaussian since 2D Gaussian is separable and hence convolution can be applied stepwise for each dimension.
+            !Calculate size of gaussian array required. This can just be a 1D gaussian since 2D Gaussian is separable
+            ! and hence convolution can be applied stepwise for each dimension.
                 if ((gaussdev .eq. 0.0d0) .and. (sum(imin) .gt. 0)) then
                         imout = imin
                 else

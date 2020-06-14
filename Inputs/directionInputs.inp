@@ -4,6 +4,7 @@
 -0.00851D0	!Amin
 24.98601D0	!h
 1.45285D0		!s
+230.0D-03  !single-point LIF valve-probe laser distance (TODO check distance is correct
 .TRUE.      !Set true scattering
 2.8240519D-26 !Mass of molecule in kg
 298.0D0         !T in K

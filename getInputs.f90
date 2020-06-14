@@ -6,13 +6,18 @@ module getInputs
         ! Loads input parameters into the main section of code, MCScattering.f90
         ! See inputs.inp for details on parameter definitions
         ! TODO pass over hash table instead of individual variables
-         subroutine loadInputs (incidenceAngle, ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering)
+         subroutine loadInputs (incidenceAngle, ncyc, x0, aMax, aMin, &
+             h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, &
+             skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
+              probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering)
             implicit none
 
             integer, parameter :: r14 = selected_real_kind(14,30)
             integer, intent(out) :: ncyc
-            real(kind=r14), intent(out) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
-            real(kind=r14), intent(out) :: colPos, skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed
+            real(kind=r14), intent(out) :: incidenceAngle, x0, aMax, aMin, &
+            h, s, dist, pulseLength, mass, temp, skimPos, valvePos
+            real(kind=r14), intent(out) :: colPos, skimRad, valveRad, colRad, sheetCentre, &
+             halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed
             logical, intent(out) :: scattering
 
             open(unit=11,file='Inputs/directionInputs.inp')
@@ -26,6 +31,7 @@ module getInputs
             read(11,*) aMin
             read(11,*) h
             read(11,*) s
+            read(11,*) dist
             read(11,*) scattering
             read(11,*) mass
             read(11,*) temp
