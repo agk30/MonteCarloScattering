@@ -4,6 +4,7 @@ include "Maths/getSpeeds.f90"
 include "Maths/getDirections.f90"
 include "Maths/sheetIntersection.f90"
 include "Maths/imaging.f90"
+include "SGArray.f90"
 
 program MCScattering
     use getInputs
@@ -12,6 +13,7 @@ program MCScattering
     use mathConstants
     use sheetIntersection
     use imaging
+    use sgconv
  
     implicit none
 
@@ -34,6 +36,7 @@ program MCScattering
     ! intersection of planes for top (1,:) bottom (2,:) front (3,:) and back (4,:)
     real(kind=r14), dimension(2,4,3) :: intersection
     real(kind=r14), dimension(:,:,:,:), allocatable :: image
+    real(kind=r14), dimension(:,:), allocatable :: ifoutput
     logical, dimension(4) :: hitsSheet
 
     acceptedCounter = 0
@@ -55,7 +58,8 @@ program MCScattering
     zPx = 420
 
     ! allocates the image array, which is shared from the imaging class
-    allocate(image(zPx,xPx,NumberOfTimePoints,2))
+    allocate(image(zPx,xPx,NumberOfTimePoints,3))
+    allocate(ifoutput(zPx,xPx))
 
     image = 0
     
@@ -142,9 +146,47 @@ program MCScattering
 
     end do
 
-    print *, sum(image(:,:,:,2))
+    call sgarray(ifoutput)
+
+    print *, sum(ifoutput)
+
+    do i = 1, 420
+
+        do j = 1, 420
+
+            do k = 1, NumberOfTimePoints
+
+                if (image(i,j,k,2) .gt. 0) then
+                
+                    image(i,j,k,3) = image(i,j,k,2) * ifoutput(i-50,j)
+
+                end if
+
+            end do
+
+        end do
+
+
+    end do
+
+    do i = 1, 420
+        do j = 1, 420
+            do k = 1, NumberOfTimePoints
+
+                if (image(i,j,k,3) .lt. 0) then
+
+                    image(i,j,k,3) = 0
+
+                end if
+
+            end do
+        end do
+    end do
 
     call writeImage(image, xPx, zPx, NumberOfTimePoints)
+
+    ! testing purposes, to be moved to testing module.
+    !call writeangles
 
     call cpu_time(endTime)
 

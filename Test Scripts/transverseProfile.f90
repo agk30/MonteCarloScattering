@@ -1,26 +1,43 @@
 program transverseProfile
     implicit none
 
-    integer :: row, column, xPx, yPx
+    integer :: row, column, xPx, yPx, pxSelection, currPx, i
     real, dimension (420,420) :: intensityCount
+    character*100 :: filename, ifname, rowString
 
     xPx = 420
     yPx = 420
 
-    open(unit=11,file='Real Images/01102019_1_Q11_IB TOF Profile_ChC102')
-    open(unit=12,file='realTransverseProfile.txt')
+    filename = "CC_007x007_001x001"
+
+    print *, "Enter name of IF file"
+
+    read(*,*) ifname
+
+    open(unit=11,file= 'Real Images/'//trim(ifname))
 
     do row = 1, xPx
 
         read(11,*) (intensityCount(row,column),column=1,yPx)
 
     end do
-
-    do column = 1, yPx
-
     
-        write(12,*) column, SUM(intensityCount(220:250,column))
+    do i = 1, 9
 
+        currPx = (80 + ((i-1)*30))
+
+        write(rowString,'(I3)') currPx
+    
+        open(unit=(12+i),file= 'Slices/'//trim(rowString)//'_'//'transverse_slice_'//trim(ifname)//'.txt')
+
+
+        do column = 1, yPx
+
+        
+            write((12+i),*) intensityCount(currPx,column)
+
+
+        end do
 
     end do
 

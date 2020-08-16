@@ -1,23 +1,44 @@
-program longitudinalProfile
+program transverseProfile
     implicit none
 
-    integer :: row, column, xPx, yPx
-    integer, dimension (420,420) :: intensityCount
+    integer :: row, column, xPx, yPx, pxSelection, currPx, i
+    real, dimension (420,420) :: intensityCount
+    character*100 :: filename, ifname, rowString
 
     xPx = 420
     yPx = 420
 
-    open(unit=11,file='Images/Image 9.txt')
-    open(unit=12,file='longitudinalProfile.txt')
+    filename = "CC_007x007_001x001"
 
-    do row = 1, yPx
+    print *, "Enter name of IF file"
 
-        intensityCount = 0
+    read(*,*) ifname
 
-        read(11,*) (intensityCount(row,column),column=1,xPx)
+    open(unit=11,file= 'Smoothed Images/'//trim(ifname))
 
-        write(12,*) row, SUM(intensityCount)
+    do row = 1, xPx
+
+        read(11,*) (intensityCount(row,column),column=1,yPx)
+
+    end do
+    
+    do i = 1, 9
+
+        currPx = (80 + ((i-1)*30))
+
+        write(rowString,'(I3)') currPx
+    
+        open(unit=(12+i),file= 'Slices/'//trim(rowString)//'_'//'longi_slice_'//trim(ifname)//'.txt')
+
+
+        do row = 1, yPx
+
+        
+            write((12+i),*) intensityCount(row,currPx)
+
+
+        end do
 
     end do
 
-end program longitudinalProfile
+end program transverseProfile

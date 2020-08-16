@@ -1,0 +1,37 @@
+! ================================== tart of File ====================================
+! patial dimensions = 2
+! Kernel size = 5x5
+! Polynomial order = 1x1
+! ize of the convolution coefficient matrix = 4x25
+!
+! Column! 1:
+!    /A => The left and the right halves of the row are symmetric()/anti-symmetric(A) about the middle column.
+!           If symmetric elements on the right half, their signs are same as the corresponding elements on the left side.
+!           If anti-symmetric elements, the signs are opposite.
+! Column! 2~13 = the left-half columns of the row.
+! Column! 14 = the middle column of the row.
+! Column! 15~26, which are the right-half columns, are not stored, because they are symmetric/anti-symmetric
+!           of the elements in the column! 13~2, respectively.
+! Matrix starts:
+		+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02	+4.000000E-02
+	A	-4.000000E-02	-2.000000E-02	+0.000000E+00	+2.000000E-02	+4.000000E-02	-4.000000E-02	-2.000000E-02	+0.000000E+00	+2.000000E-02	+4.000000E-02	-4.000000E-02	-2.000000E-02	+0.000000E+00
+	A	-4.000000E-02	-4.000000E-02	-4.000000E-02	-4.000000E-02	-4.000000E-02	-2.000000E-02	-2.000000E-02	-2.000000E-02	-2.000000E-02	-2.000000E-02	+0.000000E+00	+0.000000E+00	+0.000000E+00
+		+4.000000E-02	+2.000000E-02	+0.000000E+00	-2.000000E-02	-4.000000E-02	+2.000000E-02	+1.000000E-02	+0.000000E+00	-1.000000E-02	-2.000000E-02	+0.000000E+00	+0.000000E+00	+0.000000E+00
+! Matrix ends.
+!
+!
+! ---------------------------------- LICENE NOTICE -----------------------------------
+! THI DATA I RELEAED UNDER THE CREATIVE COMMON LICENE "CC BY-NC-A 4.0".
+!   This license lets you remix, tweak, and build upon this work non-commercially,
+!   as long as you credit me and license your new creations under the terms identical
+!   to the current license.
+! EE "https://creativecommons.org/licenses/by-nc-sa/4.0" FOR DETAIL.
+!
+! RELEAED BY: Chandra hekhar
+!      E-mail: chandraiitk[AT]yahoo[DOT]co[DOT]in
+!    Homepage: https://sites.google.com/site/chandraacads
+! FOR ANY QUETION OR COMMENT, OR FOR A COMMERCIAL LICENE, PLEAE EMAIL ME.
+!
+! For additional details, please visit my homepage.
+!
+! ==================================== End of File ====================================

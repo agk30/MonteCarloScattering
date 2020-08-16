@@ -4,6 +4,8 @@ module imaging
     ! Array shared by entire class - REMEMBER ALWAYS TO ALLOCATE BEFORE USE
     ! image2 is used in the writing of images viewed from along z axis (see writeImageTest)
     integer*8, dimension(:,:,:), allocatable :: image2!, image
+    integer, dimension(180) :: angledist
+    logical :: anglestats
 
     contains
 
@@ -54,10 +56,13 @@ module imaging
             integer, intent(in) :: NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx
             real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0
             real(kind=r14), dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
-            integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx
-            real(kind=r14) :: currentTime
+            integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
+            real(kind=r14) :: currentTime, angle
             real(kind=r14), dimension(3) :: posInProbe
             logical :: zImage
+            
+            ! for testing angle distribution. To be moved to separate module.
+            anglestats = .false.
 
             ! testing purpose: should be left as false for normal operation, other inputs would be required in normal 
             ! operation to enable this properly.
@@ -87,6 +92,29 @@ module imaging
                 posInProbeyPx = (ceiling(posInProbe(2)/pxMmRatio) + floor(real(yPx/2)))
                 posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
 
+                if ((anglestats .eq. .true.) .and. (t == 84)) then
+
+                    angle = asind(particleVector(1)/1)
+
+                    !if (particleVector(1) .lt. 0) then
+
+                        !angle = angle * -1
+
+                    !end if
+
+                    do i = 1, 180
+
+                        if ((angle .gt. (i - 91)) .and. (angle .lt. (i - 90))) then
+
+                            angledist(i) = angledist(i) + 1
+
+                        end if
+
+                    end do
+
+                end if
+
+
                 ! Only writes to array if particle is within bounds of the image
                 if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0)) then
 
@@ -104,6 +132,20 @@ module imaging
 
         end subroutine getPosInProbe
 
+        subroutine writeangles
+
+            integer :: i
+
+            open(unit=200,file='angledist.txt')
+
+            do i = 1, 180
+
+                write(200,*) angledist(i)
+
+            end do
+
+        end subroutine writeangles
+
         ! Writes out image array into a sequence of images
         subroutine writeImage(image, xPx, zPx, NumberOfTimePoints)
             implicit none
@@ -114,7 +156,7 @@ module imaging
 
             print *, 'entering write'
 
-            do k = 1, 2
+            do k = 1, 3
             
                 do t = 1, NumberOfTimePoints
 
@@ -122,9 +164,13 @@ module imaging
                     
                         write(fileName,'("Images/Image",I2,".txt")')t
 
-                    else
+                    else if (k == 2) then
 
                         write(fileName,'("Images2/Image",I2,".txt")')t
+
+                    else
+
+                        write(fileName,'("Images3/Image",I2,".txt")')t
 
                     end if
 
@@ -320,4 +366,3 @@ module imaging
         
 
 end module imaging
-
