@@ -1,22 +1,23 @@
 module getDirections
     use mathConstants
-    implicit none
 
     contains
 
-        subroutine ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, ingoingUnitVector)
-            implicit none
+        ! Finds a trajectory that passes though skimmer and collimator
+        subroutine ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, ingoingUnitVector, valve)
 
-            ! valve(1), valve(2) and valve(3) correspond to x y and z coordinates of valve position with which to draw line. Likewise with skimmer() and collimator()
-            real(kind=r14), dimension(3) :: valve, skimmer, collimator
+            ! valve(1), valve(2) and valve(3) correspond to x y and z coordinates of valve position with which to draw line.
+            ! Likewise with skimmer() and collimator()
+            real(kind=r14), dimension(3) :: skimmer, collimator
             real(kind=r14), intent (in) :: valveRad, valvePos, skimRad, skimPos, colRad, colPos
-            real(kind=r14), intent(out), dimension(3) :: ingoingUnitVector
+            real(kind=r14), intent(out), dimension(3) :: ingoingUnitVector, valve
             real(kind=r14) :: mx, my, cx, cy, z
             logical :: hit
 
             hit = .FALSE.
 
-            do while (hit == .FALSE.)
+            ! Loops until a suitable trajectory is found
+            do while (hit .eqv. .FALSE.)
 
                 ! Finds random point on valve for particle origin
                 call discPick(valve(1),valve(2))
@@ -51,6 +52,31 @@ module getDirections
 
         end subroutine ingoingDirection
 
+        subroutine rotation(oldVector, theta, newVector)
+
+            real(kind=r14), intent(in), dimension(3) :: oldVector
+            real(kind=r14), intent(out), dimension(3) :: newVector
+            real(kind=r14), dimension(3,3) :: rotationMatrix
+            real(kind=r14), intent(in) :: theta
+            real(kind=r14) :: costheta, sintheta
+            
+            costheta = cosd(theta)
+            sintheta = sind(theta)
+
+            ! this matrix is for roation about the y axis only. Rotation about any other axis will require a different matrix.
+            rotationMatrix = 0
+            rotationMatrix(1,1) = costheta
+            rotationMatrix(1,3) = sintheta
+            rotationMatrix(2,2) = 1
+            rotationMatrix(3,1) = -sintheta
+            rotationMatrix(3,3) = costheta
+
+            ! multiplies the rotation matrix by the vector in question
+            newVector = MATMUL(rotationMatrix, oldVector)
+
+        end subroutine rotation
+
+        ! Finds thermal desorption trajetory based on a cos(theta) distribution of scattering angles
         subroutine thermalDesorptionDirection(scatteredDirection)
 
             integer :: i
@@ -63,14 +89,15 @@ module getDirections
             phi = rand1 * pi / 2
     
             call random_number(rand2)
-            ! see paper by J. Greenwood, Vacuum 2002 for explanation of how to generate angle distribution, not as simple as cos(theta)!
+            ! see paper by J. Greenwood, Vacuum 2002 for explanation of how to generate angle distribution,
+            ! not as simple as cos(theta)!
             theta = asin(SQRT(rand2))
     
             scatteredDirection(3) = (cos(theta))
     
             call random_number(rand3)
             
-            if (rand3 .gt. 0.5) then
+            if (rand3 .gt. 0.5D0) then
 
                 scatteredDirection(1) = (cos(phi))*(sin(theta))
     
@@ -81,7 +108,7 @@ module getDirections
     
             call random_number(rand4)
     
-            if (rand4 .gt. 0.5) then
+            if (rand4 .gt. 0.5D0) then
                 
                 scatteredDirection(2) = (sin(phi))*(sin(theta))
     
@@ -93,13 +120,40 @@ module getDirections
     
         end subroutine thermalDesorptionDirection
 
+        ! This subroutine takes the cos^4(theta) dsitribution observed by Minton et.al. Distribution is around surface normal and
+        ! must be rotated with the rotation matrix function to obtain desired scattering angle.
+        subroutine impulsiveScatter(scatteredDirection)
+
+            implicit none
+        
+            real(kind=r14) :: rand1, rand2, phi, theta, x5
+            real(kind=r14), dimension(3), intent(out) :: scatteredDirection
+        
+            call random_seed
+        
+            call random_number(rand1)
+            call random_number(rand2)
+        
+            phi = rand1*2*pi
+        
+            x5 = rand2**(1.0/5.0)
+        
+            theta = dacos(x5)
+
+            scatteredDirection(1) = sin(theta)*cos(phi)
+            scatteredDirection(2) = sin(theta)*sin(phi)
+            scatteredDirection(3) = cos(theta)
+            
+        end subroutine impulsiveScatter
+
         !Randomly pick a points from a unit radius circle.
         subroutine discPick(x,y)
-            implicit none
+
             real(kind=r14), intent(out) :: x, y
             real(kind=r14) :: rand1, rand2
 
-            !Random number for distance point is from centre of unit circle the value is square rooted so that the points alone this line will result in an even distribution of point on the unit circle rather than at a higher density at the centre
+            !Random number for distance point is from centre of unit circle the value is square rooted so that the points alone
+            ! this line will result in an even distribution of point on the unit circle rather than at a higher density at the centre
             call random_number(rand1)
             rand1 = sqrt(rand1)
 
@@ -116,7 +170,6 @@ module getDirections
         !calculates the gradient and intercept of the line which connect the point on the skimmer and valve
         !note x and y are used here to mean y=mx+c not in reference to chamber coordinates (z chamber is x here)
         subroutine fitLine (y2, x2, y1, x1, m, c)
-            implicit none
 
             real(kind=r14), intent(in) :: y2, x2, y1, x1 
             real(kind=r14), intent(out) :: m, c
@@ -128,7 +181,6 @@ module getDirections
 
         !Calcualtes unit vectors from gradients of the lines in the x and y directions. 
         subroutine unitVector (mx, my, v)
-            implicit none
 
             real(kind=r14), intent(in) :: mx, my
             ! v(1), v(2), v(3) correspond to vector component in x, y, z direction
