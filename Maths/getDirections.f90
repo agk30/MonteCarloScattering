@@ -120,6 +120,32 @@ module getDirections
     
         end subroutine thermalDesorptionDirection
 
+        ! This subroutine takes the cos^4(theta) dsitribution observed by Minton et.al. Distribution is around surface normal and
+        ! must be rotated with the rotation matrix function to obtain desired scattering angle.
+        subroutine impulsiveScatter(scatteredDirection)
+
+            implicit none
+        
+            real(kind=r14) :: rand1, rand2, phi, theta, x5
+            real(kind=r14), dimension(3), intent(out) :: scatteredDirection
+        
+            call random_seed
+        
+            call random_number(rand1)
+            call random_number(rand2)
+        
+            phi = rand1*2*pi
+        
+            x5 = rand2**(1.0/5.0)
+        
+            theta = dacos(x5)
+
+            scatteredDirection(1) = sin(theta)*cos(phi)
+            scatteredDirection(2) = sin(theta)*sin(phi)
+            scatteredDirection(3) = cos(theta)
+            
+        end subroutine impulsiveScatter
+
         !Randomly pick a points from a unit radius circle.
         subroutine discPick(x,y)
 

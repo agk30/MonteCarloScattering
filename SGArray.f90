@@ -74,24 +74,14 @@ module sgconv
         
             end do
         
-            !print *, sgmatrix(177), sgmatrix(181), sgmatrix(185)
-        
-            print *, '1'
-        
-            
             do row = 1, xPx
         
                 read(11,*) (input(row,column),column=1,yPx)
         
             end do
-        
-            !print *, input(100,100)
-            
-            
+
             input = input - 950
             padInput = 0D0
-        
-            print *, '2'
         
             do i = 1, 420
         
@@ -103,16 +93,12 @@ module sgconv
         
             end do
         
-            print *, '3'
-        
             do i = 1, 420
         
                 do j = 1, 420
         
                     call constructKernel(i, j, ksize, nd, columnKernel, padInput)
         
-                    !print *, columnKernel(346)
-                    
                     dotprod = dot_product(columnKernel, sgmatrix)
         
                     output(i,j) = dotprod
@@ -123,13 +109,9 @@ module sgconv
 
                     end if
         
-                    !print *, output(i,j)
-        
                 end do
         
             end do
-        
-            print *, '4'
         
             do i = 1, 420
         
@@ -140,11 +122,6 @@ module sgconv
                 end do
         
             end do
-        
-            print *, input(220,220), output(220,220), diffinput(220,220)
-        
-        
-        
         end subroutine sgarray
 
 end module sgconv

@@ -21,7 +21,7 @@ program MCScattering
     integer :: ncyc
     real(kind=r14) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed
+     pxMmRatio, maxSpeed, rand1
     logical :: scattering
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounter, totalTraj, NumberOfTimePoints, xPx, zPx, startTimePoint, endTimePoint
@@ -38,6 +38,7 @@ program MCScattering
     real(kind=r14), dimension(:,:,:,:), allocatable :: image
     real(kind=r14), dimension(:,:), allocatable :: ifoutput
     logical, dimension(4) :: hitsSheet
+    logical :: correctDirection
 
     acceptedCounter = 0
 
@@ -105,10 +106,33 @@ program MCScattering
 
         if (scattering .eqv. .TRUE.) then
 
-            ! Obtains Maxwell Boltzmann speed as well as scattered direction
-            call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
-            call thermalDesorptionDirection(particleVector(2,:))
+            call random_number(rand1)
 
+            if (rand1 .gt. 0.5) then
+
+                ! Obtains Maxwell Boltzmann speed as well as scattered direction
+                call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                call thermalDesorptionDirection(particleVector(2,:))
+
+            else 
+
+                correctDirection = .false.
+
+                do while (correctDirection .eqv. .false.)
+
+                    call impulsiveScatter(particleVector(2,:))
+                    call rotation(particleVector(2,:), 34D0, particleVector(2,:))
+
+                    if (particleVector(2,3) .gt. 0) then
+
+                        correctDirection = .true.
+
+                    end if
+                end do
+
+                call softSphereSpeed(particleSpeed(1), particleVector(1,:), particleVector(2,:), particleSpeed(2))
+                
+            end if
         end if
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
@@ -147,8 +171,6 @@ program MCScattering
     end do
 
     call sgarray(ifoutput)
-
-    print *, sum(ifoutput)
 
     do i = 1, 420
 

@@ -219,10 +219,6 @@ module imaging
                 posInProbe(1) = particleStartPos(1) + (particleVector(1)*particleSpeed*currentTime)
                 posInProbe(2) = particleStartPos(2) + (particleVector(2)*particleSpeed*currentTime)
                 posInProbe(3) = particleStartPos(3) + (particleVector(3)*particleSpeed*currentTime)
-
-                !print *, posinProbe(1), posinProbe(3)
-
-                !print *, currentTime, posInProbe(2)
                 
                 if ((posInProbe(3) .ge. (0.021D0 - sheetDimensions(3)/2)) .and. ((posInProbe(3) .lt. &
                  (0.021D0 + sheetDimensions(3)/2)) )) then
@@ -237,11 +233,6 @@ module imaging
                         posInProbexPx = abs(ceiling(posInProbe(1)/pxMmRatio) - floor(real(xPx/2)))
                         posInProbeyPx = abs(ceiling(posInProbe(2)/pxMmRatio) - floor(real(yPx/2)))
                         posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
-
-                        !print *, posInProbexPx
-                        !print *, posInProbezPx
-                        !print *, t
-                        !print *, 'in probe'
 
                         ! Only writes to array if particle is within bounds of the image
                         if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0)) then
