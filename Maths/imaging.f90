@@ -1,10 +1,10 @@
 module imaging    
     use mathConstants
+    use tests
 
     ! Array shared by entire class - REMEMBER ALWAYS TO ALLOCATE BEFORE USE
     ! image2 is used in the writing of images viewed from along z axis (see writeImageTest)
     integer*8, dimension(:,:,:), allocatable :: image2!, image
-    integer, dimension(180) :: angledist
     logical :: anglestats
 
     contains
@@ -62,7 +62,7 @@ module imaging
             logical :: zImage
             
             ! for testing angle distribution. To be moved to separate module.
-            anglestats = .false.
+            anglestats = .true.
 
             ! testing purpose: should be left as false for normal operation, other inputs would be required in normal 
             ! operation to enable this properly.
@@ -92,25 +92,14 @@ module imaging
                 posInProbeyPx = (ceiling(posInProbe(2)/pxMmRatio) + floor(real(yPx/2)))
                 posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
 
-                if ((anglestats .eq. .true.) .and. (t == 84)) then
+                if ((anglestats .eqv. .true.) .and. (t == 83)) then
 
-                    angle = asind(particleVector(1)/1)
+                    if (((SQRT(posInProbe(1)**2 + posInProbe(3)**2)) .lt. 0.015) .and. ((SQRT(posInProbe(1)**2 + posInProbe(3)**2)) &
+                    .gt. 0.013)) then
 
-                    !if (particleVector(1) .lt. 0) then
+                     call angleDistribution(posInProbe)
 
-                        !angle = angle * -1
-
-                    !end if
-
-                    do i = 1, 180
-
-                        if ((angle .gt. (i - 91)) .and. (angle .lt. (i - 90))) then
-
-                            angledist(i) = angledist(i) + 1
-
-                        end if
-
-                    end do
+                    end if
 
                 end if
 
@@ -131,20 +120,6 @@ module imaging
             end do
 
         end subroutine getPosInProbe
-
-        subroutine writeangles
-
-            integer :: i
-
-            open(unit=200,file='angledist.txt')
-
-            do i = 1, 180
-
-                write(200,*) angledist(i)
-
-            end do
-
-        end subroutine writeangles
 
         ! Writes out image array into a sequence of images
         subroutine writeImage(image, xPx, zPx, NumberOfTimePoints)

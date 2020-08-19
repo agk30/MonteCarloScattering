@@ -141,7 +141,7 @@ program MCScattering
         end if
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
-        do j = 1, vectorsPerParticle
+        do j = 2, vectorsPerParticle
 
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
             call getSheetIntersection(particleVector(j,:), particleStartPos(j,:), sheetCentre, sheetDimensions, intersection(j,:,:))
@@ -218,7 +218,9 @@ program MCScattering
 
     if (testMods .eqv. .true.) then
 
-        call angleDistribution(image(:,:,83,2))
+        print *, "writing angles"
+
+        call writeAngleDistribution
 
     end if
 
