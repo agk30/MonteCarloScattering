@@ -6,5 +6,5 @@
 0.0015D0    !radius of collimator /m
 0.021D0  	!z-position of the centre of the laser sheet / m
 0.002D0 	!half height of the laser sheet / m
-0.03D0    	!width of the laser sheet / m
+0.042D0    	!width of the laser sheet / m
 0.25D-03	!px to mm ratio

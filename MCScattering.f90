@@ -5,6 +5,7 @@ include "Maths/getDirections.f90"
 include "Maths/sheetIntersection.f90"
 include "Maths/imaging.f90"
 include "SGArray.f90"
+include "tests.f90"
 
 program MCScattering
     use getInputs
@@ -14,6 +15,7 @@ program MCScattering
     use sheetIntersection
     use imaging
     use sgconv
+    use tests
  
     implicit none
 
@@ -38,7 +40,10 @@ program MCScattering
     real(kind=r14), dimension(:,:,:,:), allocatable :: image
     real(kind=r14), dimension(:,:), allocatable :: ifoutput
     logical, dimension(4) :: hitsSheet
-    logical :: correctDirection
+    logical :: correctDirection, testMods, writeImages
+
+    testMods = .true.
+    writeImages = .false.
 
     acceptedCounter = 0
 
@@ -108,7 +113,7 @@ program MCScattering
 
             call random_number(rand1)
 
-            if (rand1 .gt. 0.5) then
+            if (rand1 .gt. 0) then
 
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
                 call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
@@ -205,7 +210,17 @@ program MCScattering
         end do
     end do
 
-    call writeImage(image, xPx, zPx, NumberOfTimePoints)
+    if (writeImages .eqv. .true.) then
+
+        call writeImage(image, xPx, zPx, NumberOfTimePoints)
+
+    end if
+
+    if (testMods .eqv. .true.) then
+
+        call angleDistribution(image(:,:,83,2))
+
+    end if
 
     ! testing purposes, to be moved to testing module.
     !call writeangles
