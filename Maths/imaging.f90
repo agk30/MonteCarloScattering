@@ -94,13 +94,6 @@ module imaging
 
                 if ((anglestats .eqv. .true.) .and. (t == 83)) then
 
-                    if (((SQRT(posInProbe(1)**2 + posInProbe(3)**2)) .lt. 0.015) .and. ((SQRT(posInProbe(1)**2 + posInProbe(3)**2)) &
-                    .gt. 0.013)) then
-
-                     call angleDistribution(posInProbe)
-
-                    end if
-
                 end if
 
 

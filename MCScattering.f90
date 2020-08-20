@@ -1,11 +1,11 @@
-include "Constants/mathConstants.f90"
+include "Maths/mathConstants.f90"
 include "getInputs.f90"
 include "Maths/getSpeeds.f90"
 include "Maths/getDirections.f90"
 include "Maths/sheetIntersection.f90"
 include "Maths/imaging.f90"
 include "SGArray.f90"
-include "tests.f90"
+include "Maths/tests.f90"
 
 program MCScattering
     use getInputs
@@ -43,7 +43,7 @@ program MCScattering
     logical :: correctDirection, testMods, writeImages
 
     testMods = .true.
-    writeImages = .false.
+    writeImages = .true.
 
     acceptedCounter = 0
 
@@ -113,7 +113,7 @@ program MCScattering
 
             call random_number(rand1)
 
-            if (rand1 .gt. 0) then
+            if (rand1 .gt. 0.5) then
 
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
                 call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
@@ -141,7 +141,7 @@ program MCScattering
         end if
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
-        do j = 2, vectorsPerParticle
+        do j = 1, vectorsPerParticle
 
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
             call getSheetIntersection(particleVector(j,:), particleStartPos(j,:), sheetCentre, sheetDimensions, intersection(j,:,:))
