@@ -1,11 +1,11 @@
-include "Maths/mathConstants.f90"
+include "Constants/mathConstants.f90"
 include "getInputs.f90"
 include "Maths/getSpeeds.f90"
 include "Maths/getDirections.f90"
 include "Maths/sheetIntersection.f90"
 include "Maths/imaging.f90"
 include "SGArray.f90"
-include "Maths/tests.f90"
+include "tests.f90"
 
 program MCScattering
     use getInputs
