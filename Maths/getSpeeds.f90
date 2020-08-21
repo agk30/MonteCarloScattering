@@ -85,7 +85,7 @@ module getSpeeds
 
         end function MBMostLikely
 
-        subroutine softSphereSpeed(initialSpeed, ingoing, outgoing, finalSpeed)
+        subroutine softSphereSpeed(mass, internalRatio, surfaceMass, initialSpeed, ingoing, outgoing, finalSpeed)
             implicit none
 
             real(kind=r14) :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
@@ -95,10 +95,6 @@ module getSpeeds
             real(kind=r14), intent(out) :: finalSpeed
 
             angle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
-            
-            mass = 0.018D0
-            internalRatio = 0.3D0
-            surfaceMass = 100
             
             deflectionAngle = 180 - angle
             massRatio = particleMass/surfaceMass

@@ -49,7 +49,7 @@ module imaging
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
         subroutine getPosInProbe(image, NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
-             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions)
+             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods)
             implicit none
 
             real(kind=r14), intent(inout), dimension(:,:,:) :: image
@@ -59,10 +59,8 @@ module imaging
             integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
             real(kind=r14) :: currentTime, angle
             real(kind=r14), dimension(3) :: posInProbe
+            logical, intent(in) :: testMods
             logical :: zImage
-            
-            ! for testing angle distribution. To be moved to separate module.
-            anglestats = .true.
 
             ! testing purpose: should be left as false for normal operation, other inputs would be required in normal 
             ! operation to enable this properly.
@@ -92,15 +90,16 @@ module imaging
                 posInProbeyPx = (ceiling(posInProbe(2)/pxMmRatio) + floor(real(yPx/2)))
                 posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
 
-                if ((anglestats .eqv. .true.) .and. (t == 83)) then
-
-                end if
-
-
                 ! Only writes to array if particle is within bounds of the image
                 if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0)) then
 
                     image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
+
+                    if ((testMods .eqv. .true.) .and. (t == 83)) then
+
+                        call angleDistribution(particleVector)
+    
+                    end if
                     
                     if (zImage) then
                     

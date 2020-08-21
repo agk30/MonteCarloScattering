@@ -20,14 +20,15 @@ program MCScattering
     implicit none
 
     ! Variables concerning input parameters
-    integer :: ncyc
+    integer :: ncyc, ksize, polyOrder
     real(kind=r14) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed, rand1
-    logical :: scattering
+     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
+    logical :: scattering, testMods, writeImages, fullSim
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounter, totalTraj, NumberOfTimePoints, xPx, zPx, startTimePoint, endTimePoint
-    real(kind=r14) :: tWheel, gaussdev
+    integer :: startVector
+    real(kind=r14) :: tWheel, rand1
     real(kind=r14) :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
      entryTime, exitTime
     real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre
@@ -40,10 +41,7 @@ program MCScattering
     real(kind=r14), dimension(:,:,:,:), allocatable :: image
     real(kind=r14), dimension(:,:), allocatable :: ifoutput
     logical, dimension(4) :: hitsSheet
-    logical :: correctDirection, testMods, writeImages
-
-    testMods = .true.
-    writeImages = .true.
+    logical :: correctDirection
 
     acceptedCounter = 0
 
@@ -53,15 +51,13 @@ program MCScattering
     call cpu_time(startTime)
 
     ! Loads parameters from input file into main body of code for use in other functions
-    call loadInputs(incidenceAngle, ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, &
-     skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed, scattering)
+    call loadInputs (xPx, zPx, incidenceAngle, ncyc, x0, aMax, aMin, &
+     h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
+      skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
+       probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
+        writeImages, fullSim)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
-
-    ! TODO make pixel dimensions an input parameter
-    xPx = 420
-    zPx = 420
 
     ! allocates the image array, which is shared from the imaging class
     allocate(image(zPx,xPx,NumberOfTimePoints,3))
@@ -88,6 +84,16 @@ program MCScattering
     else
 
         vectorsPerParticle = 1
+
+    end if
+
+    if (fullSim) then
+
+        startVector = 1
+
+    else
+
+        startVector = 2
 
     end if
 
@@ -126,7 +132,7 @@ program MCScattering
                 do while (correctDirection .eqv. .false.)
 
                     call impulsiveScatter(particleVector(2,:))
-                    call rotation(particleVector(2,:), 34D0, particleVector(2,:))
+                    call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
 
                     if (particleVector(2,3) .gt. 0) then
 
@@ -135,13 +141,14 @@ program MCScattering
                     end if
                 end do
 
-                call softSphereSpeed(particleSpeed(1), particleVector(1,:), particleVector(2,:), particleSpeed(2))
+                call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), particleVector(1,:),&
+                 particleVector(2,:), particleSpeed(2))
                 
             end if
         end if
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
-        do j = 1, vectorsPerParticle
+        do j = startVector, vectorsPerParticle
 
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
             call getSheetIntersection(particleVector(j,:), particleStartPos(j,:), sheetCentre, sheetDimensions, intersection(j,:,:))
@@ -157,7 +164,7 @@ program MCScattering
                  startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
-                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions)
+                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions, testMods)
                 
                 acceptedCounter = acceptedCounter + 1
 
@@ -167,15 +174,13 @@ program MCScattering
     
     end do
 
-    gaussdev = 2
-
     do k = 1, NumberOfTimePoints
     
-        call convim(image(:,:,k,1), xPx, zPx, gaussdev, image(:,:,k,2))
+        call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
 
     end do
 
-    call sgarray(ifoutput)
+    call sgarray(xPx, zPx, ksize, polyOrder, ifoutput)
 
     do i = 1, 420
 

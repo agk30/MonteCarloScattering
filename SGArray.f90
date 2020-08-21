@@ -15,24 +15,17 @@ module sgconv
             
             do k = 1, ksize
 
-                !do l = 1, ksize
-                
-                !print *, k
-
-
                 columnKernel(((k-1)*ksize)+1 : k*ksize) = padInput(i+nd-k+nd, j:j+ksize)
-
-                !end do
 
             end do
 
         end subroutine constructKernel
 
-        subroutine sgarray(output)
+        subroutine sgarray(xPx, zPx, ksize, polyOrder, output)
         
             implicit none
         
-            integer :: xPx, yPx, row, column, i, j, k, l, m, ksize, nd, nk
+            integer :: xPx, zPx, row, column, i, j, k, l, m, ksize, nd, nk, polyOrder
             double precision, allocatable, dimension(:,:) :: input, diffinput
             double precision, allocatable, dimension(:,:), intent (out) :: output
             double precision, allocatable, dimension(:,:) :: padInput
@@ -40,26 +33,21 @@ module sgconv
             double precision, allocatable, dimension(:,:) :: kernel
             double precision, allocatable, dimension(:) :: columnKernel
             double precision :: dotprod
-            character*100 :: filename, ifname
             
-        
-            xPx = 420
-            yPx = 420
-            ksize = 27
             nd = (ksize-1)/2
             nk = ((ksize**2) - 1)/2
         
-        
-            allocate(input(xPx,yPx))
-            allocate(output(xPx,yPx))
-            allocate(diffinput(xPx,yPx))
-            allocate(padInput(xPx+ksize-1,yPx+ksize-1))
+            allocate(input(xPx,zPx))
+            allocate(output(xPx,zPx))
+            allocate(diffinput(xPx,zPx))
+            allocate(padInput(xPx+ksize-1,zPx+ksize-1))
             allocate(sgmatrix(ksize**2))
             allocate(kernel(-nd:nd,-nd:nd))
             allocate(columnKernel(ksize**2))
         
-            
+            ! TODO ask for input of real IF file on start up, fix concatenation
             open(11,file='Real Images/02032020_1_Q11_IF')
+           ! open(12,file='SG Matrices/CC_027x027_00'//char(polyOrder)//'x00'//char(polyOrder)//'.dat')
             open(12,file='SG Matrices/CC_027x027_003x003.dat')
         
         
@@ -76,7 +64,7 @@ module sgconv
         
             do row = 1, xPx
         
-                read(11,*) (input(row,column),column=1,yPx)
+                read(11,*) (input(row,column),column=1,zPx)
         
             end do
 
