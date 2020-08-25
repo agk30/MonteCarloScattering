@@ -97,6 +97,7 @@ module getDirections
     
             call random_number(rand3)
             
+            ! TODO clean this up, no reason to be dealing with changing to negative numbers. bad. sad.
             if (rand3 .gt. 0.5D0) then
 
                 scatteredDirection(1) = (cos(phi))*(sin(theta))
@@ -122,6 +123,7 @@ module getDirections
 
         ! This subroutine takes the cos^4(theta) dsitribution observed by Minton et.al. Distribution is around surface normal and
         ! must be rotated with the rotation matrix function to obtain desired scattering angle.
+        ! similar to thermal distribution. take cos^4(theta)*sin(theta), integrate, then take inverse of that function
         subroutine impulsiveScatter(scatteredDirection)
 
             implicit none

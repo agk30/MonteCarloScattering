@@ -1,16 +1,19 @@
 !TODO fix this damn thing. Bad hardcoded variables - get it done pls
 
 module sgconv
+    use mathConstants
 
     contains
 
-        subroutine constructKernel(i, j, ksize, nd, columnKernel, padInput)
+    ! builds the kernel used in 3D SG smoothing subroutine 
+    ! returns 1D array in wraparound order from the 2D padded input array   
+    subroutine constructKernel(i, j, ksize, nd, columnKernel, padInput)
             implicit none
             
             integer :: k, l
             integer, intent(in) :: ksize, nd, i, j
-            double precision, intent(inout), dimension(:,:) :: padInput
-            double precision, intent(inout), dimension(:) :: columnKernel
+            real(kind=r14), intent(inout), dimension(:,:) :: padInput
+            real(kind=r14), intent(inout), dimension(:) :: columnKernel
 
             
             do k = 1, ksize
@@ -26,13 +29,13 @@ module sgconv
             implicit none
         
             integer :: xPx, zPx, row, column, i, j, k, l, m, ksize, nd, nk, polyOrder
-            double precision, allocatable, dimension(:,:) :: input, diffinput
-            double precision, allocatable, dimension(:,:), intent (out) :: output
-            double precision, allocatable, dimension(:,:) :: padInput
-            double precision, allocatable, dimension(:) :: sgmatrix
-            double precision, allocatable, dimension(:,:) :: kernel
-            double precision, allocatable, dimension(:) :: columnKernel
-            double precision :: dotprod
+            real(kind=r14), allocatable, dimension(:,:) :: input, diffinput
+            real(kind=r14), allocatable, dimension(:,:), intent (out) :: output
+            real(kind=r14), allocatable, dimension(:,:) :: padInput
+            real(kind=r14), allocatable, dimension(:) :: sgmatrix
+            real(kind=r14), allocatable, dimension(:,:) :: kernel
+            real(kind=r14), allocatable, dimension(:) :: columnKernel
+            real(kind=r14) :: dotprod
             
             nd = (ksize-1)/2
             nk = ((ksize**2) - 1)/2
@@ -50,27 +53,29 @@ module sgconv
            ! open(12,file='SG Matrices/CC_027x027_00'//char(polyOrder)//'x00'//char(polyOrder)//'.dat')
             open(12,file='SG Matrices/CC_027x027_003x003.dat')
         
-        
             read(12,*) sgmatrix(1:(((ksize**2)-1)/2)+1)
         
-            
-        
+            ! input SG matrices only contain half + 1 of the required array, symmetric about the last entry. this loop builds
+            ! the rest of the array
             do i = 1, nk
         
                 sgmatrix(i + nk + 1) = sgmatrix(nk+1-i)
-                !sgmatrix((ksize**2 - 1)/2 + 2: ksize**2) = sgmatrix((ksize**2 - 1)/2 : 1)
         
             end do
         
+            ! reads IF image into array
             do row = 1, xPx
         
                 read(11,*) (input(row,column),column=1,zPx)
         
             end do
 
+            ! TODO make this a variable. Sets the baseline of the image to 0, or close to 0
             input = input - 950
             padInput = 0D0
         
+            ! builds a padded array. the image array requires padding outside of its bounds with the addition of nd fields on 
+            ! either side of the image and also above and below it
             do i = 1, 420
         
                 do j = 1, 420
@@ -87,10 +92,12 @@ module sgconv
         
                     call constructKernel(i, j, ksize, nd, columnKernel, padInput)
         
+                    ! convolutes image with SG cooefficients
                     dotprod = dot_product(columnKernel, sgmatrix)
         
                     output(i,j) = dotprod
 
+                   ! ensures no negative numbers in output (not really needed, should be fixed)
                     if (output(i,j) .lt. 0) then
 
                         output(i,j) = 0
@@ -101,6 +108,7 @@ module sgconv
         
             end do
         
+            ! extra info. shows differences in input image and the output image.
             do i = 1, 420
         
                 do j = 1, 420

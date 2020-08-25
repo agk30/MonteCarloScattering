@@ -5,7 +5,8 @@ module tests
 
     contains
 
-     subroutine angleDistribution(position)
+    ! produces a file of binned angle distributions. 
+    subroutine angleDistribution(position)
         implicit none
 
         real(kind=r14), dimension(3), intent(in) :: position
@@ -13,6 +14,7 @@ module tests
 
         angle = floor(atand(position(1) / position(3)))
 
+        ! if angle angle is less is within 90 degrees of surface normal, its angle is recorded in its respective bin
         if ((angle .gt. -90) .and. (angle .lt. 90)) then
 
             angleDist(angle) = angleDist(angle) + 1

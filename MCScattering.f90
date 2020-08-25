@@ -73,7 +73,7 @@ program MCScattering
     sheetDimensions(2) = halfSheetHeight*2D0
     sheetDimensions(3) = sheetWidth
 
-    if (scattering .eqv. .TRUE.) then
+    if (scattering) then
 
         ! Calculates probability of most probable speed at given temperature for use in thermal desorption subroutines
         mostLikelyProbability = MBMostLikely(temp, mass)
@@ -99,6 +99,7 @@ program MCScattering
 
     do i = 1, ncyc
 
+        ! sets the ingoing speed, directional unit vector and start time and point 
         call ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
         call ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
@@ -115,23 +116,31 @@ program MCScattering
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
 
-        if (scattering .eqv. .TRUE.) then
+        if (scattering) then
 
             call random_number(rand1)
 
+            ! alter this if statement to have a higher or lower fraction of TD vs IS scattering
+            ! TODO replace as input variable
+            
+            ! first case: TD scattering
             if (rand1 .gt. 0.5) then
 
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
                 call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
                 call thermalDesorptionDirection(particleVector(2,:))
 
+            ! second case: IS scattering
             else 
 
                 correctDirection = .false.
 
+                ! rejects parrticles not scattering in positive z-direction from surface
                 do while (correctDirection .eqv. .false.)
 
+                    ! sets impulsive scattering direction based on some cosine distribution in IS subroutine
                     call impulsiveScatter(particleVector(2,:))
+                    ! rotates scattered vector about the y-axis (this may not respresent scattered distribution properly)
                     call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
 
                     if (particleVector(2,3) .gt. 0) then
@@ -139,8 +148,10 @@ program MCScattering
                         correctDirection = .true.
 
                     end if
+
                 end do
 
+                ! sets IS speed based on scattered direction using soft sphere model
                 call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), particleVector(1,:),&
                  particleVector(2,:), particleSpeed(2))
                 
@@ -174,14 +185,17 @@ program MCScattering
     
     end do
 
+    ! convolutes image with a Gaussian blur
     do k = 1, NumberOfTimePoints
     
         call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
 
     end do
 
+    ! prepares smoothed IF image
     call sgarray(xPx, zPx, ksize, polyOrder, ifoutput)
 
+    ! convolutes image with smoothed IF image
     do i = 1, 420
 
         do j = 1, 420
@@ -201,6 +215,7 @@ program MCScattering
 
     end do
 
+    ! TODO is this really needed? makes sure there are no negative values in image. Don't be lazy here
     do i = 1, 420
         do j = 1, 420
             do k = 1, NumberOfTimePoints
@@ -215,22 +230,21 @@ program MCScattering
         end do
     end do
 
-    if (writeImages .eqv. .true.) then
+    ! writes image arrays out into files if writeimages is set to .true.
+    if (writeImages) then
 
         call writeImage(image, xPx, zPx, NumberOfTimePoints)
 
     end if
 
-    if (testMods .eqv. .true.) then
+    ! writes angle distribution if testMods is set to .true.
+    if (testMods) then
 
         print *, "writing angles"
 
         call writeAngleDistribution
 
     end if
-
-    ! testing purposes, to be moved to testing module.
-    !call writeangles
 
     call cpu_time(endTime)
 
