@@ -239,5 +239,39 @@ module imaging
                         
                 end if
             end subroutine convim
+
+            subroutine sensitivity(sens, transition)
+
+                real(kind=r14), dimension(5), intent(in) :: sens
+                real(kind=r14) :: rand
+                integer, intent(out) :: transition
+
+                call random_number(rand)
+
+                select case (rand)
+
+                case (0:sens(1))
+
+                    transition = 1
+
+                case (sens(1):sens(1)+sens(2))
+
+                    transition = 2
+
+                case (sens(1)+sens(2):sens(1)+sens(2)+sens(3))
+
+                    transition = 3
+
+                case (sens(1)+sens(2)+sens(3):sens(1)+sens(2)+sens(3)+sens(4))
+
+                    transition = 4
+
+                case (sens(1)+sens(2)+sens(3)+sens(4):1)
+
+                    transition = 5
+
+                end select
+
+            end subroutine
         
 end module imaging
