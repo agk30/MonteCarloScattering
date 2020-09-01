@@ -89,23 +89,28 @@ module getSpeeds
             implicit none
 
             real(kind=r14) :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
-            ,part1, part2, deflectionAngle, internalEnergyLoss, internalRatio, energyDiff, angle, mass
+            ,part1, part2, part3, part4, part5, deflectionAngle, internalEnergyLoss, internalRatio, energyDiff, mass
             real(kind=r14), intent(in) :: initialSpeed
             real(kind=r14), intent(in), dimension(3) :: ingoing, outgoing
             real(kind=r14), intent(out) :: finalSpeed
 
-            angle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
+            ! since this dot product finds the angle between the two vectors, it necessarily finds the deflection angle
+            ! this is because the vectors are assumed to begin at the same point, and this is not the case with
+            ! the ingoing and outgoing vectors, so the step where the angle is subtracted from 180 is not necessary
+            deflectionAngle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
             
-            deflectionAngle = 180 - angle
             massRatio = particleMass/surfaceMass
             initialEnergy = 0.5D0 * mass * initialSpeed * initialSpeed
-            internalRatio = internalEnergyLoss/initialEnergy
 
             part1 = (2.0D0*massRatio)/((1+massRatio)**2.0D0)
+
+            part2 = 1 + (massRatio*(sind(deflectionAngle)**2.0))
         
-            part2 = 1 + (massRatio*(sind(deflectionAngle)**2.0D0)) &
-            - cosd(deflectionAngle)*SQRT(1 - ((massRatio)**2.0D0)*(sind(deflectionAngle)**2.0D0) &
-            - (internalRatio*((massRatio + 1)/2.0D0*massRatio)))
+            part3 = cosd(deflectionAngle)
+        
+            part4 = SQRT(1 - (massRatio*massRatio*(sind(deflectionAngle)**2)) - internalRatio*(massRatio + 1))
+        
+            part5 = internalRatio*((massRatio + 1.0)/(2.0*massRatio))
 
             energyDiff = part1*part2*initialEnergy
 
