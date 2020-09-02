@@ -99,7 +99,7 @@ module getSpeeds
             ! the ingoing and outgoing vectors, so the step where the angle is subtracted from 180 is not necessary
             deflectionAngle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
             
-            massRatio = particleMass/surfaceMass
+            massRatio = mass/surfaceMass*1000.0D0
             initialEnergy = 0.5D0 * mass * initialSpeed * initialSpeed
 
             part1 = (2.0D0*massRatio)/((1+massRatio)**2.0D0)
@@ -112,11 +112,13 @@ module getSpeeds
         
             part5 = internalRatio*((massRatio + 1.0)/(2.0*massRatio))
 
-            energyDiff = part1*part2*initialEnergy
+            energyDiff = part1*(part2 - (part3 * part4) + part5) * initialEnergy
 
             finalEnergy = initialEnergy - energyDiff
 
             finalSpeed = SQRT(2*finalEnergy/mass)
+
+            !print *, finalSpeed
 
         end subroutine softSphereSpeed
 

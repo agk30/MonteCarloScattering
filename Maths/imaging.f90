@@ -91,9 +91,17 @@ module imaging
                 posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
 
                 ! Only writes to array if particle is within bounds of the image
-                if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0)) then
+                if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0) .and. (posInProbe(3) .ge. 0)) then
 
-                    image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
+                    if (particleVector(3) .gt. 0) then
+
+                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 20D0
+
+                    else
+
+                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
+
+                    end if
 
                     ! bins the angle of each trajectory into an angle bin (0-1 degree, 1-2 degrees etc.) for only the t = 83 timepoint
                     ! TODO change this timepoint to be an input variable

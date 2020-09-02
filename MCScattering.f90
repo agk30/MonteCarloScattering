@@ -139,7 +139,7 @@ program MCScattering
                 do while (correctDirection .eqv. .false.)
 
                     ! sets impulsive scattering direction based on some cosine distribution in IS subroutine
-                    call impulsiveScatter2(particleVector(2,:))
+                    call impulsiveScatter(particleVector(2,:))
                     ! rotates scattered vector about the y-axis (this may not respresent scattered distribution properly)
                     call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
 
