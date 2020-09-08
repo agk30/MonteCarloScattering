@@ -1,6 +1,6 @@
 420             !number of pixels in x axis (must be integer)
 420             !number of pixels in z axis (must be integer)
--45             ! angle of incidence in degrees. Must be given as negative angle if rotation is to be anti-clockwise
+0            ! angle of incidence in degrees. Must be given as negative angle if rotation is to be anti-clockwise
 128.30344D0	    !x0
 1.00082D0	    !Amax
 -0.00851D0	    !Amin
@@ -12,16 +12,16 @@
 0.017D0         !Mass of molecule in kg / mol
 0.3D0           !Faction of energy lost to internal motion upon colision with surface
 100D0           !Effective surface mass
-37             !Final angle at which distribution will be based around for impulseively scattered particles
+0             !Final angle at which distribution will be based around for impulseively scattered particles
 298.0D0         !T in K
-1000000	    !number of data points
+10000000	    !number of data points
 3000.0D0        !max speed used in calculation of Maxwell-Boltzmann ditribution. Set higher for possiblity of higher speed being sampled.
 0.1730D0	    !Skimmer Position z direction / m
 0.2150D0 	    !Valve position z direction / m
 0.1330D0        !Collimator position in z direction / m
-0.00005D0	    !radius of skimmer / m
-0.00015D0    	!radius of valve / m
-0.00015D0        !radius of collimator /m
+0.0005D0	    !radius of skimmer / m
+0.0015D0    	!radius of valve / m
+0.0015D0        !radius of collimator /m
 0.021D0     	!z-position of the centre of the laser sheet / m
 0.002D0 	    !half height of the laser sheet / m
 0.300D0    	    !width of the laser sheet / m defaut should be 0.030
@@ -33,6 +33,6 @@
 2.0D0               !Guassian deviation for use in gaussian blur subroutine
 27              !kernel size of SG filter smoothing subroutine (carefully choose a correct number that matches an included matrix)
 3               !polynomial order for use in SG smoothing (choose carefully as above to match an existing matrix)
-.TRUE.          !enable imaging of ingoing beam with scattered particles? set false for only scattering
+.FALSE.          !enable imaging of ingoing beam with scattered particles? set false for only scattering
 .FALSE.          !include testing modules? set true to obtain angle distributions etc.
 .TRUE.         !write images? set true to enable writing of images to files.

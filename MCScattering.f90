@@ -28,7 +28,7 @@ program MCScattering
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounter, totalTraj, NumberOfTimePoints, xPx, zPx, startTimePoint, endTimePoint
     integer :: startVector
-    real(kind=r14) :: tWheel, rand1, energyTotal
+    real(kind=r14) :: tWheel, rand1, energyTotal, deflectionAngle
     real(kind=r14) :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
      entryTime, exitTime
     real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre
@@ -152,8 +152,8 @@ program MCScattering
                 end do
 
                 ! sets IS speed based on scattered direction using soft sphere model
-                call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), particleVector(1,:),&
-                 particleVector(2,:), particleSpeed(2))
+                call getDeflectionAngle(particleVector(1,:), particleVector(2,:), deflectionAngle)
+                call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
 
                  energyTotal = energyTotal + (0.5*0.017*particleSpeed(2)*particleSpeed(2))
                 

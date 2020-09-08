@@ -85,19 +85,27 @@ module getSpeeds
 
         end function MBMostLikely
 
-        subroutine softSphereSpeed(mass, internalRatio, surfaceMass, initialSpeed, ingoing, outgoing, finalSpeed)
+        subroutine getDeflectionAngle(ingoing, outgoing, deflectionAngle)
             implicit none
 
-            real(kind=r14) :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
-            ,part1, part2, part3, part4, part5, deflectionAngle, internalEnergyLoss, internalRatio, energyDiff, mass
-            real(kind=r14), intent(in) :: initialSpeed
             real(kind=r14), intent(in), dimension(3) :: ingoing, outgoing
-            real(kind=r14), intent(out) :: finalSpeed
+            real(kind=r14), intent(out) :: deflectionAngle
 
             ! since this dot product finds the angle between the two vectors, it necessarily finds the deflection angle
             ! this is because the vectors are assumed to begin at the same point, and this is not the case with
             ! the ingoing and outgoing vectors, so the step where the angle is subtracted from 180 is not necessary
             deflectionAngle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
+
+
+        end subroutine getDeflectionAngle
+
+        subroutine softSphereSpeed(mass, internalRatio, surfaceMass, initialSpeed, deflectionAngle, finalSpeed)
+            implicit none
+
+            real(kind=r14) :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
+            ,part1, part2, part3, part4, part5, internalEnergyLoss, internalRatio, energyDiff, mass
+            real(kind=r14), intent(in) :: initialSpeed, deflectionAngle
+            real(kind=r14), intent(out) :: finalSpeed
             
             massRatio = mass/surfaceMass*1000.0D0
             initialEnergy = 0.5D0 * mass * initialSpeed * initialSpeed
