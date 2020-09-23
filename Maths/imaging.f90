@@ -105,7 +105,7 @@ module imaging
 
                     ! bins the angle of each trajectory into an angle bin (0-1 degree, 1-2 degrees etc.) for only the t = 83 timepoint
                     ! TODO change this timepoint to be an input variable
-                    if ((testMods) .and. (t == 55)) then
+                    if ((testMods) .and. (t == 60)) then
 
                         call angleDistribution(particleVector)
     
