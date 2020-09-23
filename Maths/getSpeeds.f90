@@ -115,8 +115,10 @@ module getSpeeds
             part2 = 1 + (massRatio*(sind(deflectionAngle)**2.0))
         
             part3 = cosd(deflectionAngle)
-        
+
             part4 = SQRT(1 - (massRatio*massRatio*(sind(deflectionAngle)**2)) - internalRatio*(massRatio + 1))
+
+            !print *, part4, massRatio, deflectionAngle, internalRatio
         
             part5 = internalRatio*((massRatio + 1.0)/(2.0*massRatio))
 

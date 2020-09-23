@@ -154,6 +154,7 @@ program MCScattering
                 ! sets IS speed based on scattered direction using soft sphere model
                 call getDeflectionAngle(particleVector(1,:), particleVector(2,:), deflectionAngle)
                 call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
+                particleSpeed(2) = particleSpeed(1)
 
                  energyTotal = energyTotal + (0.5*0.017*particleSpeed(2)*particleSpeed(2))
                 
@@ -176,6 +177,11 @@ program MCScattering
                 call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
                  startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
+
+                 !TODO GET THIS OUT OF HERE FOR REAL
+                 !startTimePoint = 1
+                 !endTimePoint = NumberOfTimePoints
+
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions, testMods)
                 

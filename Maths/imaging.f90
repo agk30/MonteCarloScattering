@@ -105,7 +105,7 @@ module imaging
 
                     ! bins the angle of each trajectory into an angle bin (0-1 degree, 1-2 degrees etc.) for only the t = 83 timepoint
                     ! TODO change this timepoint to be an input variable
-                    if ((testMods) .and. (t == 83)) then
+                    if ((testMods) .and. (t == 55)) then
 
                         call angleDistribution(particleVector)
     
@@ -140,15 +140,15 @@ module imaging
 
                     if (k == 1) then
                     
-                        write(fileName,'("Images/Image",I2,".txt")')t
+                        write(fileName,'("Images/Image",I3,".txt")')t
 
                     else if (k == 2) then
 
-                        write(fileName,'("Images2/Image",I2,".txt")')t
+                        write(fileName,'("Images2/Image",I3,".txt")')t
 
                     else
 
-                        write(fileName,'("Images3/Image",I2,".txt")')t
+                        write(fileName,'("Images3/Image",I3,".txt")')t
 
                     end if
 

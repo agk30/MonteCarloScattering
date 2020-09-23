@@ -1,7 +1,7 @@
 module tests
     use mathConstants
 
-    integer, dimension(-9:9) :: angleDist
+    integer, dimension(-90:90) :: angleDist
 
     contains
 
@@ -13,9 +13,9 @@ module tests
         integer :: i
         real(kind=r14) :: angle
 
-        angle = atand(position(1) / position(3)) / 10
+        angle = atand(position(1) / position(3))
 
-        do i = -9, 9
+        do i = -90, 90
 
             if ((angle .gt. i) .and. (angle .lt. i+1)) then
 
@@ -36,9 +36,9 @@ module tests
 
         open(unit=500,file='angledist.txt')
 
-        do i = -9, 9
+        do i = -90, 90
 
-            write(500,*) angleDist(i), i
+            write(500,*) angleDist(i), (i)
 
         end do
 
