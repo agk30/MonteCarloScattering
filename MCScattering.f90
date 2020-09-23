@@ -154,7 +154,6 @@ program MCScattering
                 ! sets IS speed based on scattered direction using soft sphere model
                 call getDeflectionAngle(particleVector(1,:), particleVector(2,:), deflectionAngle)
                 call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
-                particleSpeed(2) = particleSpeed(1)
 
                  energyTotal = energyTotal + (0.5*0.017*particleSpeed(2)*particleSpeed(2))
                 

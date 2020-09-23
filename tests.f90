@@ -6,14 +6,17 @@ module tests
     contains
 
     ! produces a file of binned angle distributions. 
-    subroutine angleDistribution(position)
+    subroutine angleDistribution(outgoing)
         implicit none
 
-        real(kind=r14), dimension(3), intent(in) :: position
+        real(kind=r14), dimension(3), intent(in) :: outgoing
+        real(kind=r14), dimension(3) :: ingoing
         integer :: i
         real(kind=r14) :: angle
 
-        angle = atand(position(1) / position(3))
+        ingoing(1) = 0 ; ingoing(2) = 0 ; ingoing(3) = 1
+
+        angle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
 
         do i = -90, 90
 

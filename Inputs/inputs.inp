@@ -1,6 +1,6 @@
 420             !number of pixels in x axis (must be integer)
 420             !number of pixels in z axis (must be integer)
-0            ! angle of incidence in degrees. Must be given as negative angle if rotation is to be anti-clockwise
+0           ! angle of incidence in degrees. Must be given as negative angle if rotation is to be anti-clockwise
 128.30344D0	    !x0
 1.00082D0	    !Amax
 -0.00851D0	    !Amin
