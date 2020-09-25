@@ -1,10 +1,10 @@
 module imaging    
     use mathConstants
+    use tests
 
     ! Array shared by entire class - REMEMBER ALWAYS TO ALLOCATE BEFORE USE
     ! image2 is used in the writing of images viewed from along z axis (see writeImageTest)
     integer*8, dimension(:,:,:), allocatable :: image2!, image
-    integer, dimension(180) :: angledist
     logical :: anglestats
 
     contains
@@ -49,7 +49,7 @@ module imaging
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
         subroutine getPosInProbe(image, NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
-             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions)
+             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods)
             implicit none
 
             real(kind=r14), intent(inout), dimension(:,:,:) :: image
@@ -59,10 +59,8 @@ module imaging
             integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
             real(kind=r14) :: currentTime, angle
             real(kind=r14), dimension(3) :: posInProbe
+            logical, intent(in) :: testMods
             logical :: zImage
-            
-            ! for testing angle distribution. To be moved to separate module.
-            anglestats = .false.
 
             ! testing purpose: should be left as false for normal operation, other inputs would be required in normal 
             ! operation to enable this properly.
@@ -92,34 +90,28 @@ module imaging
                 posInProbeyPx = (ceiling(posInProbe(2)/pxMmRatio) + floor(real(yPx/2)))
                 posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
 
-                if ((anglestats .eq. .true.) .and. (t == 84)) then
-
-                    angle = asind(particleVector(1)/1)
-
-                    !if (particleVector(1) .lt. 0) then
-
-                        !angle = angle * -1
-
-                    !end if
-
-                    do i = 1, 180
-
-                        if ((angle .gt. (i - 91)) .and. (angle .lt. (i - 90))) then
-
-                            angledist(i) = angledist(i) + 1
-
-                        end if
-
-                    end do
-
-                end if
-
-
                 ! Only writes to array if particle is within bounds of the image
-                if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0)) then
+                if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0) .and. (posInProbe(3) .ge. 0)) then
 
-                    image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
+                    if (particleVector(3) .gt. 0) then
+
+                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 10D0
+
+                    else
+
+                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
+
+                    end if
+
+                    ! bins the angle of each trajectory into an angle bin (0-1 degree, 1-2 degrees etc.) for only the t = 83 timepoint
+                    ! TODO change this timepoint to be an input variable
+                    if ((testMods) .and. (t == 60)) then
+
+                        call angleDistribution(particleVector)
+    
+                    end if
                     
+                    ! for testing purposes to view an image along the z axis
                     if (zImage) then
                     
                         image2(posInProbeyPx,posInProbexPx,t) = image2(posInProbeyPx,posInProbexPx,t) + 1D0
@@ -131,20 +123,6 @@ module imaging
             end do
 
         end subroutine getPosInProbe
-
-        subroutine writeangles
-
-            integer :: i
-
-            open(unit=200,file='angledist.txt')
-
-            do i = 1, 180
-
-                write(200,*) angledist(i)
-
-            end do
-
-        end subroutine writeangles
 
         ! Writes out image array into a sequence of images
         subroutine writeImage(image, xPx, zPx, NumberOfTimePoints)
@@ -162,15 +140,15 @@ module imaging
 
                     if (k == 1) then
                     
-                        write(fileName,'("Images/Image",I2,".txt")')t
+                        write(fileName,'("Images/Image",I3,".txt")')t
 
                     else if (k == 2) then
 
-                        write(fileName,'("Images2/Image",I2,".txt")')t
+                        write(fileName,'("Images2/Image",I3,".txt")')t
 
                     else
 
-                        write(fileName,'("Images3/Image",I2,".txt")')t
+                        write(fileName,'("Images3/Image",I3,".txt")')t
 
                     end if
 
@@ -194,91 +172,6 @@ module imaging
             end do
 
         end subroutine writeImage
-
-        ! for testing purposes only. Be careful using this in main code as you may need to adjust what
-        ! variables are being input and output
-        subroutine getPosInProbeTest(NumberOfTimePoints, startTimePoint, endTimePoint, xPx, yPx, zPx, t0, probeStart, &
-             tStep, particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions)
-            implicit none
-
-            integer, intent(in) :: NumberOfTimePoints, startTimePoint, endTimePoint, xPx, yPx, zPx
-            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0
-            real(kind=r14), dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
-            integer :: t, posInProbexPx, posInProbeyPx, posInProbezPx, sheetCentrePx
-            real(kind=r14) :: currentTime
-            real(kind=r14), dimension(3) :: posInProbe
-
-            ! Loops from entry timepont to exit timepoint to avoic wasting cycles when particle is not within sheet
-            do t = startTimePoint, endTimePoint
-
-                ! currentTime refers to the time it has taken the particle to travel from its starting point
-                ! to the point in space at the given timepoint
-                currentTime = probeStart + (t-1)*tStep - t0
-
-                ! Real space position for particle
-                posInProbe(1) = particleStartPos(1) + (particleVector(1)*particleSpeed*currentTime)
-                posInProbe(2) = particleStartPos(2) + (particleVector(2)*particleSpeed*currentTime)
-                posInProbe(3) = particleStartPos(3) + (particleVector(3)*particleSpeed*currentTime)
-                
-                if ((posInProbe(3) .ge. (0.021D0 - sheetDimensions(3)/2)) .and. ((posInProbe(3) .lt. &
-                 (0.021D0 + sheetDimensions(3)/2)) )) then
-                    if((posinProbe(2) .gt. (sheetDimensions(2)/-2)) .and. (posinProbe(2) .lt. (sheetDimensions(2)/2))) then
-                        
-                        ! Relative pixel position for particle
-                        ! Note: the subtraction at the end of each statement alters the position of the
-                        ! particle within the image array.
-                        ! Altering the x-postion by half the width of the image centres the beam
-                        ! Similarly, the z position can be altered however a factor of 1.3 was found to centre the sheet
-                        ! within the middle of the image quite well
-                        posInProbexPx = abs(ceiling(posInProbe(1)/pxMmRatio) - floor(real(xPx/2)))
-                        posInProbeyPx = abs(ceiling(posInProbe(2)/pxMmRatio) - floor(real(yPx/2)))
-                        posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
-
-                        ! Only writes to array if particle is within bounds of the image
-                        if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0)) then
-
-                            !image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1
-                            image2(posInProbeyPx,posInProbexPx,t) = image2(posInProbeyPx,posInProbexPx,t) + 1
-
-
-                        end if
-                    end if
-                end if
-
-            end do
-
-        end subroutine getPosInProbeTest
-
-        ! for testing purposes only: produces a set of images viewed along z axis
-        subroutine writeImageTest(xPx, yPx, NumberOfTimePoints)
-            implicit none
-
-            integer :: t, i, j, NumberOfTimePoints, xPx, yPx
-            character(30) :: fileName
-
-            print *, 'entering write'
-
-            do t = 1, NumberOfTimePoints
-
-
-                write(fileName,'("Images2/Image",I2,".txt")')t
-                open(unit=20+t,file=filename)
-
-                do i = 1, yPx
-
-                    do j = 1, xPx
-
-                        write(20+t,'(i7)',advance='no') image2(i,j,t)
-
-                    end do
-
-                    write(20+t,*)
-
-                end do
-
-            end do
-
-        end subroutine writeImageTest
 
         subroutine convim(imin,nx,ny,gaussdev,imout)
             !Convolutes input image imin with a gaussian of st. dev. gaussdev (in pixels), to produce imout.
@@ -355,5 +248,4 @@ module imaging
                 end if
             end subroutine convim
         
-
 end module imaging

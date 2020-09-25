@@ -1,4 +1,0 @@
-10.0D-06		!discharge pulse length / s
-67.0D-06 		!initial time of probe / s
-163.0D-06 	    !final time of probe / s
-1.0D-06 		!time step between probes / s

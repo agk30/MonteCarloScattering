@@ -85,37 +85,50 @@ module getSpeeds
 
         end function MBMostLikely
 
-        subroutine softSphereSpeed(initialSpeed, ingoing, outgoing, finalSpeed)
+        subroutine getDeflectionAngle(ingoing, outgoing, deflectionAngle)
+            implicit none
+
+            real(kind=r14), intent(in), dimension(3) :: ingoing, outgoing
+            real(kind=r14), intent(out) :: deflectionAngle
+
+            ! since this dot product finds the angle between the two vectors, it necessarily finds the deflection angle
+            ! this is because the vectors are assumed to begin at the same point, and this is not the case with
+            ! the ingoing and outgoing vectors, so the step where the angle is subtracted from 180 is not necessary
+            deflectionAngle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
+
+
+        end subroutine getDeflectionAngle
+
+        subroutine softSphereSpeed(mass, internalRatio, surfaceMass, initialSpeed, deflectionAngle, finalSpeed)
             implicit none
 
             real(kind=r14) :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
-            ,part1, part2, deflectionAngle, internalEnergyLoss, internalRatio, energyDiff, angle, mass
-            real(kind=r14), intent(in) :: initialSpeed
-            real(kind=r14), intent(in), dimension(3) :: ingoing, outgoing
+            ,part1, part2, part3, part4, part5, internalEnergyLoss, internalRatio, energyDiff, mass
+            real(kind=r14), intent(in) :: initialSpeed, deflectionAngle
             real(kind=r14), intent(out) :: finalSpeed
-
-            angle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
             
-            mass = 0.018D0
-            internalRatio = 0.3D0
-            surfaceMass = 100
-            
-            deflectionAngle = 180 - angle
-            massRatio = particleMass/surfaceMass
+            massRatio = mass/surfaceMass*1000.0D0
             initialEnergy = 0.5D0 * mass * initialSpeed * initialSpeed
-            internalRatio = internalEnergyLoss/initialEnergy
 
             part1 = (2.0D0*massRatio)/((1+massRatio)**2.0D0)
-        
-            part2 = 1 + (massRatio*(sind(deflectionAngle)**2.0D0)) &
-            - cosd(deflectionAngle)*SQRT(1 - ((massRatio)**2.0D0)*(sind(deflectionAngle)**2.0D0) &
-            - (internalRatio*((massRatio + 1)/2.0D0*massRatio)))
 
-            energyDiff = part1*part2*initialEnergy
+            part2 = 1 + (massRatio*(sind(deflectionAngle)**2.0))
+        
+            part3 = cosd(deflectionAngle)
+
+            part4 = SQRT(1 - (massRatio*massRatio*(sind(deflectionAngle)**2)) - internalRatio*(massRatio + 1))
+
+            !print *, part4, massRatio, deflectionAngle, internalRatio
+        
+            part5 = internalRatio*((massRatio + 1.0)/(2.0*massRatio))
+
+            energyDiff = part1*(part2 - (part3 * part4) + part5) * initialEnergy
 
             finalEnergy = initialEnergy - energyDiff
 
             finalSpeed = SQRT(2*finalEnergy/mass)
+
+            !print *, finalSpeed
 
         end subroutine softSphereSpeed
 

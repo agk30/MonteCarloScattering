@@ -5,6 +5,7 @@ include "Maths/getDirections.f90"
 include "Maths/sheetIntersection.f90"
 include "Maths/imaging.f90"
 include "SGArray.f90"
+include "tests.f90"
 
 program MCScattering
     use getInputs
@@ -14,18 +15,20 @@ program MCScattering
     use sheetIntersection
     use imaging
     use sgconv
+    use tests
  
     implicit none
 
     ! Variables concerning input parameters
-    integer :: ncyc
+    integer :: ncyc, ksize, polyOrder
     real(kind=r14) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed, rand1
-    logical :: scattering
+     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
+    logical :: scattering, testMods, writeImages, fullSim
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounter, totalTraj, NumberOfTimePoints, xPx, zPx, startTimePoint, endTimePoint
-    real(kind=r14) :: tWheel, gaussdev
+    integer :: startVector
+    real(kind=r14) :: tWheel, rand1, deflectionAngle
     real(kind=r14) :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
      entryTime, exitTime
     real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre
@@ -48,15 +51,13 @@ program MCScattering
     call cpu_time(startTime)
 
     ! Loads parameters from input file into main body of code for use in other functions
-    call loadInputs(incidenceAngle, ncyc, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos, colPos, &
-     skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed, scattering)
+    call loadInputs (xPx, zPx, incidenceAngle, ncyc, x0, aMax, aMin, &
+     h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
+      skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
+       probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
+        writeImages, fullSim)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
-
-    ! TODO make pixel dimensions an input parameter
-    xPx = 420
-    zPx = 420
 
     ! allocates the image array, which is shared from the imaging class
     allocate(image(zPx,xPx,NumberOfTimePoints,3))
@@ -72,7 +73,7 @@ program MCScattering
     sheetDimensions(2) = halfSheetHeight*2D0
     sheetDimensions(3) = sheetWidth
 
-    if (scattering .eqv. .TRUE.) then
+    if (scattering) then
 
         ! Calculates probability of most probable speed at given temperature for use in thermal desorption subroutines
         mostLikelyProbability = MBMostLikely(temp, mass)
@@ -86,8 +87,19 @@ program MCScattering
 
     end if
 
+    if (fullSim) then
+
+        startVector = 1
+
+    else
+
+        startVector = 2
+
+    end if
+
     do i = 1, ncyc
 
+        ! sets the ingoing speed, directional unit vector and start time and point 
         call ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
         call ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
@@ -104,39 +116,50 @@ program MCScattering
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
 
-        if (scattering .eqv. .TRUE.) then
+        if (scattering) then
 
             call random_number(rand1)
 
+            ! alter this if statement to have a higher or lower fraction of TD vs IS scattering
+            ! TODO replace as input variable
+            
+            ! first case: TD scattering
             if (rand1 .gt. 0.5) then
 
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
                 call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
                 call thermalDesorptionDirection(particleVector(2,:))
 
+            ! second case: IS scattering
             else 
 
                 correctDirection = .false.
 
+                ! rejects parrticles not scattering in positive z-direction from surface
                 do while (correctDirection .eqv. .false.)
 
+                    ! sets impulsive scattering direction based on some cosine distribution in IS subroutine
                     call impulsiveScatter(particleVector(2,:))
-                    call rotation(particleVector(2,:), 34D0, particleVector(2,:))
+                    ! rotates scattered vector about the y-axis (this may not respresent scattered distribution properly)
+                    call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
 
                     if (particleVector(2,3) .gt. 0) then
 
                         correctDirection = .true.
 
                     end if
+
                 end do
 
-                call softSphereSpeed(particleSpeed(1), particleVector(1,:), particleVector(2,:), particleSpeed(2))
+                ! sets IS speed based on scattered direction using soft sphere model
+                call getDeflectionAngle(particleVector(1,:), particleVector(2,:), deflectionAngle)
+                call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
                 
             end if
         end if
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
-        do j = 1, vectorsPerParticle
+        do j = startVector, vectorsPerParticle
 
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
             call getSheetIntersection(particleVector(j,:), particleStartPos(j,:), sheetCentre, sheetDimensions, intersection(j,:,:))
@@ -151,8 +174,13 @@ program MCScattering
                 call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
                  startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
+
+                 !TODO GET THIS OUT OF HERE FOR REAL
+                 !startTimePoint = 1
+                 !endTimePoint = NumberOfTimePoints
+
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
-                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions)
+                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions, testMods)
                 
                 acceptedCounter = acceptedCounter + 1
 
@@ -162,16 +190,18 @@ program MCScattering
     
     end do
 
-    gaussdev = 2
-
+    ! convolutes image with a Gaussian blur
     do k = 1, NumberOfTimePoints
     
-        call convim(image(:,:,k,1), xPx, zPx, gaussdev, image(:,:,k,2))
+        call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
 
     end do
 
-    call sgarray(ifoutput)
+    ! prepares smoothed IF image
+    call sgarray(xPx, zPx, ksize, polyOrder, ifoutput)
 
+    ! TODO put in its own subroutine somewhere, keep out of main body
+    ! convolutes image with smoothed IF image
     do i = 1, 420
 
         do j = 1, 420
@@ -191,6 +221,7 @@ program MCScattering
 
     end do
 
+    ! TODO is this really needed? makes sure there are no negative values in image. Don't be lazy here
     do i = 1, 420
         do j = 1, 420
             do k = 1, NumberOfTimePoints
@@ -205,10 +236,21 @@ program MCScattering
         end do
     end do
 
-    call writeImage(image, xPx, zPx, NumberOfTimePoints)
+    ! writes image arrays out into files if writeimages is set to .true.
+    if (writeImages) then
 
-    ! testing purposes, to be moved to testing module.
-    !call writeangles
+        call writeImage(image, xPx, zPx, NumberOfTimePoints)
+
+    end if
+
+    ! writes angle distribution if testMods is set to .true.
+    if (testMods) then
+
+        print *, "writing angles"
+
+        call writeAngleDistribution
+
+    end if
 
     call cpu_time(endTime)
 
