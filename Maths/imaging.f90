@@ -95,7 +95,7 @@ module imaging
 
                     if (particleVector(3) .gt. 0) then
 
-                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 20D0
+                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 10D0
 
                     else
 

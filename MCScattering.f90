@@ -28,7 +28,7 @@ program MCScattering
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounter, totalTraj, NumberOfTimePoints, xPx, zPx, startTimePoint, endTimePoint
     integer :: startVector
-    real(kind=r14) :: tWheel, rand1, energyTotal, deflectionAngle
+    real(kind=r14) :: tWheel, rand1, deflectionAngle
     real(kind=r14) :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
      entryTime, exitTime
     real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre
@@ -124,7 +124,7 @@ program MCScattering
             ! TODO replace as input variable
             
             ! first case: TD scattering
-            if (rand1 .gt. 1) then
+            if (rand1 .gt. 0.5) then
 
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
                 call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
@@ -154,8 +154,6 @@ program MCScattering
                 ! sets IS speed based on scattered direction using soft sphere model
                 call getDeflectionAngle(particleVector(1,:), particleVector(2,:), deflectionAngle)
                 call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
-
-                 energyTotal = energyTotal + (0.5*0.017*particleSpeed(2)*particleSpeed(2))
                 
             end if
         end if
@@ -260,13 +258,10 @@ program MCScattering
 
     totalTraj = ncyc*vectorsPerParticle
     acceptanceRatio = real(acceptedCounter)/((real(ncyc)*real(vectorsPerParticle)))
-    
-    energyTotal = energyTotal/ncyc
 
     print *, "Finished in", runTime, "seconds"
     print *, totalTraj, "Total trajectories"
     print *, acceptedCounter, "accepted trajectories"
     print "(a, F4.2, a)","  ", acceptanceRatio, " acceptance ratio"
-    print *, energyTotal
 
 end program MCScattering
