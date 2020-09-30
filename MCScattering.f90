@@ -180,7 +180,8 @@ program MCScattering
                  !endTimePoint = NumberOfTimePoints
 
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
-                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:), sheetDimensions, testMods)
+                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
+                  sheetDimensions, testMods)
                 
                 acceptedCounter = acceptedCounter + 1
 
