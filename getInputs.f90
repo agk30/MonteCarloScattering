@@ -10,7 +10,7 @@ module getInputs
              h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
              skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
               probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-               writeImages, fullSim, scatterFraction)
+               writeImages, fullSim, scatterFraction, scatterIntensity)
             implicit none
 
             integer, parameter :: r14 = selected_real_kind(14,30)
@@ -18,7 +18,7 @@ module getInputs
             real(kind=r14), intent(out) :: incidenceAngle, x0, aMax, aMin, &
             h, s, dist, pulseLength, mass, temp, skimPos, valvePos, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
             real(kind=r14), intent(out) :: colPos, skimRad, valveRad, colRad, sheetCentre, &
-             halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scatterFraction
+             halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scatterFraction, scatterIntensity
             logical, intent(out) :: scattering, testMods, writeImages, fullSim
 
             open(unit=11,file="Inputs/experimentalInputs.inp")
@@ -65,7 +65,8 @@ module getInputs
             read(13,*) scattering
             read(13,*) fullSim
             read(13,*) testMods
-            read(13,*) writeImages        
+            read(13,*) writeImages
+            read(13,*) scatterIntensity        
 
         end subroutine loadInputs
         

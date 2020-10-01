@@ -49,12 +49,12 @@ module imaging
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
         subroutine getPosInProbe(image, NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
-             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods)
+             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods, scatterIntensity)
             implicit none
 
             real(kind=r14), intent(inout), dimension(:,:,:) :: image
             integer, intent(in) :: NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx
-            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0
+            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity
             real(kind=r14), dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
             integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
             real(kind=r14) :: currentTime, angle
@@ -95,7 +95,7 @@ module imaging
 
                     if (particleVector(3) .gt. 0) then
 
-                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 10D0
+                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + scatterIntensity
 
                     else
 
