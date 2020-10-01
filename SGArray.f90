@@ -18,7 +18,7 @@ module sgconv
             
             do k = 1, ksize
 
-                columnKernel(((k-1)*ksize)+1 : k*ksize) = padInput(i+nd-k+nd, j:j+ksize)
+                columnKernel(((k-1)*ksize)+1 : k*ksize) = padInput((i+nd+nd-k+1), j:(j+ksize-1))
 
             end do
 
@@ -47,7 +47,7 @@ module sgconv
             allocate(sgmatrix(ksize**2))
             allocate(kernel(-nd:nd,-nd:nd))
             allocate(columnKernel(ksize**2))
-        
+
             ! TODO ask for input of real IF file on start up, fix concatenation
             open(11,file='Real Images/02032020_1_Q11_IF')
            ! open(12,file='SG Matrices/CC_027x027_00'//char(polyOrder)//'x00'//char(polyOrder)//'.dat')
@@ -85,29 +85,29 @@ module sgconv
                 end do
         
             end do
-        
+      
             do i = 1, 420
         
                 do j = 1, 420
         
                     call constructKernel(i, j, ksize, nd, columnKernel, padInput)
-        
+       
                     ! convolutes image with SG cooefficients
                     dotprod = dot_product(columnKernel, sgmatrix)
         
                     output(i,j) = dotprod
 
-                   ! ensures no negative numbers in output (not really needed, should be fixed)
+                    !ensures no negative numbers in output (not really needed, should be fixed)
                     if (output(i,j) .lt. 0) then
 
-                        output(i,j) = 0
+                        !output(i,j) = 0
 
                     end if
         
                 end do
         
             end do
-        
+
             ! extra info. shows differences in input image and the output image.
             do i = 1, 420
         

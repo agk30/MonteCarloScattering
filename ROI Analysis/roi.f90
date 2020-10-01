@@ -50,7 +50,8 @@ program roiAnalysis
                 do i = -4, 4
                     do j = -4, 4
 
-                        roi(i,j,k,l,m) = image((int(centrePx(1)) + int(roiCentre(1)) + i), (int(centrePx(2)) - int(roiCentre(2) + j)))
+                        roi(i,j,k,l,m) = image((int(centrePx(1)) + int(roiCentre(1)) + i),&
+                         (int(centrePx(2)) - int(roiCentre(2) + j)))
 
                         !print *, roiCentre(1)
 
@@ -73,7 +74,7 @@ program roiAnalysis
 
     do i = 1, 12
 
-        print *, SUM(roi(:,:,5,5,i))
+        print *, SUM(roi(:,:,5,2,i))
 
     end do
 

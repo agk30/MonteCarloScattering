@@ -16,12 +16,12 @@ module tests
 
         ingoing(1) = 0 ; ingoing(2) = 0 ; ingoing(3) = 1
 
-        angle = acosd(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing)))
+        angle = acos(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing))) * (360/2*pi)
         
         if (outgoing(1) .lt. 0) then
 
             angle = -angle
-
+            
         end if
 
         do i = -90, 90
