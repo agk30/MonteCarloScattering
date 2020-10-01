@@ -1,0 +1,12 @@
+0.25D-03	    !px to mm ratio
+67.0D-06 		!initial time of probe / s
+180.0D-06 	    !final time of probe / s
+1.0D-06 		!time step between probes / s
+2.0D0            !Guassian deviation for use in gaussian blur subroutine
+27              !kernel size of SG filter smoothing subroutine (carefully choose a correct number that matches an included matrix)
+3               !polynomial order for use in SG smoothing (choose carefully as above to match an existing matrix)
+.TRUE.          !Set true scattering
+.TRUE.          !enable imaging of ingoing beam with scattered particles? set false for only scattering
+.TRUE.          !include testing modules? set true to obtain angle distributions etc.
+.TRUE.          !write images? set true to enable writing of images to files.
+20.0D0          !Relative sensitvity of the scattered molecules. higher number means 'brighter' scattered particles.
