@@ -59,6 +59,18 @@ program MCScattering
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
+    if (.not. fullSim) then
+
+        print *, "Scattering only"
+
+    end if
+    
+    if (.not. writeImages) then
+
+        print *, "Image writing disabled"
+
+    end if
+
     ! allocates the image array, which is shared from the imaging class
     allocate(image(zPx,xPx,NumberOfTimePoints,3))
     allocate(ifoutput(zPx,xPx))
@@ -124,7 +136,7 @@ program MCScattering
             ! TODO replace as input variable
             
             ! first case: TD scattering
-            if (rand1 .gt. 0.5) then
+            if (rand1 .gt. 1) then
 
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
                 call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
@@ -237,6 +249,8 @@ program MCScattering
         end do
     end do
 
+    call cpu_time(endTime)
+
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
 
@@ -253,14 +267,12 @@ program MCScattering
 
     end if
 
-    call cpu_time(endTime)
-
     runTime = endTime - startTime
 
     totalTraj = ncyc*vectorsPerParticle
     acceptanceRatio = real(acceptedCounter)/((real(ncyc)*real(vectorsPerParticle)))
 
-    print *, "Finished in", runTime, "seconds"
+    print *, "Compute finished in", runTime, "seconds"
     print *, totalTraj, "Total trajectories"
     print *, acceptedCounter, "accepted trajectories"
     print "(a, F4.2, a)","  ", acceptanceRatio, " acceptance ratio"

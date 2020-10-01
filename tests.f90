@@ -21,7 +21,7 @@ module tests
         if (outgoing(1) .lt. 0) then
 
             angle = -angle
-
+            
         end if
 
         do i = -90, 90

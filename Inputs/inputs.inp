@@ -12,7 +12,7 @@
 0.017D0         !Mass of molecule in kg / mol
 0.0D0           !Faction of energy lost to internal motion upon colision with surface
 100D0           !Effective surface mass
-37             !Final angle at which distribution will be based around for impulseively scattered particles
+45             !Final angle at which distribution will be based around for impulseively scattered particles
 298.0D0         !T in K
 10000000	    !number of data points
 3000.0D0        !max speed used in calculation of Maxwell-Boltzmann ditribution. Set higher for possiblity of higher speed being sampled.
