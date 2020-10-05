@@ -1,11 +1,11 @@
-include "Constants/mathConstants.f90"
-include "getInputs.f90"
-include "Maths/getSpeeds.f90"
-include "Maths/getDirections.f90"
-include "Maths/sheetIntersection.f90"
-include "Maths/imaging.f90"
-include "SGArray.f90"
-include "tests.f90"
+include "Modules/mathConstants.f90"
+include "Modules/getInputs.f90"
+include "Modules/getSpeeds.f90"
+include "Modules/getDirections.f90"
+include "Modules/sheetIntersection.f90"
+include "Modules/imaging.f90"
+include "Modules/SGArray.f90"
+include "Modules/testingMods.f90"
 
 program MCScattering
     use getInputs
@@ -15,7 +15,7 @@ program MCScattering
     use sheetIntersection
     use imaging
     use sgconv
-    use tests
+    use mod_tests
  
     implicit none
 
