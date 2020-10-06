@@ -60,8 +60,8 @@ module getDirections
             real(kind=r14), intent(in) :: theta
             real(kind=r14) :: costheta, sintheta
             
-            costheta = cos(theta*(2*pi/360.0D0))
-            sintheta = sin(theta*(2*pi/360.0D0))
+            costheta = cos(theta*((2*pi)/360.0D0))
+            sintheta = sin(theta*((2*pi)/360.0D0))
 
             ! this matrix is for roation about the y axis only. Rotation about any other axis will require a different matrix.
             rotationMatrix = 0

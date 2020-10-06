@@ -94,8 +94,7 @@ module getSpeeds
             ! since this dot product finds the angle between the two vectors, it necessarily finds the deflection angle
             ! this is because the vectors are assumed to begin at the same point, and this is not the case with
             ! the ingoing and outgoing vectors, so the step where the angle is subtracted from 180 is not necessary
-            deflectionAngle = acos(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing))) * (360.0D0/2*pi)
-
+            deflectionAngle = acos(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing))) * (360.0D0/(2*pi))
 
         end subroutine getDeflectionAngle
 
@@ -112,11 +111,11 @@ module getSpeeds
 
             part1 = (2.0D0*massRatio)/((1+massRatio)**2.0D0)
 
-            part2 = 1 + (massRatio*(sin(deflectionAngle*(2*pi/360.0D0))**2.0))
+            part2 = 1 + (massRatio*(sin(deflectionAngle*((2*pi)/360.0D0))**2.0))
         
             part3 = cos(deflectionAngle*(2*pi/360.0D0))
 
-            part4 = SQRT(1 - (massRatio*massRatio*(sin(deflectionAngle*(2*pi/360.0D0))**2)) - internalRatio*(massRatio + 1))
+            part4 = SQRT(1 - (massRatio*massRatio*(sin(deflectionAngle*((2*pi)/360.0D0))**2)) - internalRatio*(massRatio + 1))
 
             !print *, part4, massRatio, deflectionAngle, internalRatio
         
