@@ -1,11 +1,15 @@
 Images/
+Images2/
+Images3/
 Very Test Code/
 Old Modules/
 .VSCodeCounter/
 Test Scripts/
 .vscode/
+build/
+CMakeFiles/
 
-*.txt
+angledist.txt
 *.obj
 *.mod
 *.exe

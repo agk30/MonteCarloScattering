@@ -21,9 +21,9 @@ module getInputs
              halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scatterFraction, scatterIntensity
             logical, intent(out) :: scattering, testMods, writeImages, fullSim
 
-            open(unit=11,file="Inputs/experimentalInputs.inp")
-            open(unit=12,file="Inputs/mathParameters.inp")
-            open(unit=13,file="Inputs/imagingInputs.inp")
+            open(unit=11,file="../Inputs/experimentalInputs.inp")
+            open(unit=12,file="../Inputs/mathParameters.inp")
+            open(unit=13,file="../Inputs/imagingInputs.inp")
 
             read(11,*) skimPos
             read(11,*) valvePos

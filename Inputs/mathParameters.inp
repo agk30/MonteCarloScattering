@@ -1,6 +1,6 @@
 420             !number of pixels in x axis (must be integer)
 420             !number of pixels in z axis (must be integer)
-0           ! angle of incidence in degrees. Must be given as negative angle if rotation is to be anti-clockwise
+-45           ! angle of incidence in degrees. Must be given as negative angle if rotation is to be anti-clockwise
 128.30344D0	    !x0
 1.00082D0	    !Amax
 -0.00851D0	    !Amin
@@ -11,7 +11,7 @@
 0.017D0         !Mass of molecule in kg / mol
 0.0D0           !Faction of energy lost to internal motion upon colision with surface
 100D0           !Effective surface mass
-0              !Final angle at which distribution will be based around for impulseively scattered particles
+45              !Final angle at which distribution will be based around for impulseively scattered particles
 298.0D0         !T in K
 10000000	    !number of data points
 3000.0D0        !max speed used in calculation of Maxwell-Boltzmann ditribution. Set higher for possiblity of higher speed being sampled.

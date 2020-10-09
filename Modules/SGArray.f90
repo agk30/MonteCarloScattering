@@ -49,9 +49,9 @@ module sgconv
             allocate(columnKernel(ksize**2))
 
             ! TODO ask for input of real IF file on start up, fix concatenation
-            open(11,file='Real Images/02032020_1_Q11_IF')
+            open(11,file='../Real Images/02032020_1_Q11_IF')
            ! open(12,file='SG Matrices/CC_027x027_00'//char(polyOrder)//'x00'//char(polyOrder)//'.dat')
-            open(12,file='SG Matrices/CC_027x027_003x003.dat')
+            open(12,file='../SG Matrices/CC_027x027_003x003.dat')
         
             read(12,*) sgmatrix(1:(((ksize**2)-1)/2)+1)
         

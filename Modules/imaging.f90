@@ -140,15 +140,15 @@ module imaging
 
                     if (k == 1) then
                     
-                        write(fileName,'("Images/Image",I3,".txt")')t
+                        write(fileName,'("../Images/Image",I3,".txt")')t
 
                     else if (k == 2) then
 
-                        write(fileName,'("Images2/Image",I3,".txt")')t
+                        write(fileName,'("../Images2/Image",I3,".txt")')t
 
                     else
 
-                        write(fileName,'("Images3/Image",I3,".txt")')t
+                        write(fileName,'("../Images3/Image",I3,".txt")')t
 
                     end if
 
