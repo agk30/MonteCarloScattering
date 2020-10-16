@@ -212,6 +212,12 @@ program MCScattering
     
     end do
 
+    call cpu_time(endTime)
+
+    runTime = endTime - startTime
+
+    print *, "Compute finished in", runTime, "seconds"
+
     ! convolutes image with a Gaussian blur
     do k = 1, NumberOfTimePoints
     
@@ -257,8 +263,6 @@ program MCScattering
         end do
     end do
 
-    call cpu_time(endTime)
-
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
 
@@ -275,12 +279,9 @@ program MCScattering
 
     end if
 
-    runTime = endTime - startTime
-
     totalTraj = ncyc*vectorsPerParticle
     inOutRatio = real(acceptedCounterIn) /real(acceptedCounterOut)
 
-    print *, "Compute finished in", runTime, "seconds"
     print *, totalTraj, "Total trajectories"
     print *, acceptedCounterIn, "accepted ingoing trajectories"
     print *, acceptedCounterOut, "accepted outgoing trajectories"
