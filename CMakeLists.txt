@@ -2,8 +2,9 @@
 # Compilation/Installation Instructions
 #
 # - mkdir build
-# - cmake ./ -B ./build/ && cd build
-# - make
+# - cmake ./ -B ./build/ -G "Unix Makefiles"
+# - cd build
+# - make OR mingw32-make
 # ./MCScattering
 ###
 
@@ -14,15 +15,15 @@ project(MonteCarloScattering Fortran)
 enable_language(Fortran)
 
 # Set Fortran .mod Directory (where they should be outputted)
-# set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/Modules)
-# Include Modules Directory
-include_directories(Modules)
+# set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
+# Include Source Code Directory
+include_directories(src)
 # Add certain libraries
-add_library(mathConstants Modules/mathConstants.f90)
-add_library(mod_tests Modules/testingMods.f90)
+add_library(mathConstants src/mathConstants.f90)
+add_library(mod_tests src/testingMods.f90)
 
 # Create Executable
-add_executable(MCScattering MCScattering.f90)
+add_executable(MCScattering src/MCScattering.f90)
 
 # Link libraries, order is important so that relevant .mod files are created before compilation of specific modules
 target_link_libraries (MCScattering mathConstants)
