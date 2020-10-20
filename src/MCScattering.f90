@@ -48,6 +48,8 @@ program MCScattering
     acceptedCounterIn = 0
     acceptedCounterOut = 0
 
+    !TODO put in licensing statement.
+
     ! Without calling random seed, random number sequences can often be repeated
     call random_seed
 

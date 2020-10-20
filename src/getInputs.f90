@@ -77,6 +77,7 @@ module getInputs
             ! Read .cfg file and parse for changes
             call CFG_read_file(my_cfg, "../Inputs/inputs.cfg")
 
+            ! Parse any command line arguments
             call CFG_update_from_arguments(my_cfg)
 
             ! Assign variables from .cfg

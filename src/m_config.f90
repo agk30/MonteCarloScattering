@@ -1,3 +1,4 @@
+! Copyright (C) 2020 Jannis Teunissen
 !> Module that allows working with a configuration file
 module m_config
 
