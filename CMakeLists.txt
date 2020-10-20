@@ -21,12 +21,14 @@ include_directories(src)
 # Add certain libraries
 add_library(mathConstants src/mathConstants.f90)
 add_library(mod_tests src/testingMods.f90)
+add_library(m_config src/m_config.f90)
 
 # Create Executable
 add_executable(MCScattering src/MCScattering.f90)
 
 # Link libraries, order is important so that relevant .mod files are created before compilation of specific modules
 target_link_libraries (MCScattering mathConstants)
+target_link_libraries (MCScattering mod_tests)
 target_link_libraries (MCScattering mod_tests)
 
 # Create image directories

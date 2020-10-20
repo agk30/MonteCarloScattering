@@ -6,6 +6,7 @@ include "sheetIntersection.f90"
 include "imaging.f90"
 include "SGArray.f90"
 include "testingMods.f90"
+include "m_config.f90"
 
 program MCScattering
     use getInputs
