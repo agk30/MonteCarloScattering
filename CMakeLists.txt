@@ -28,11 +28,16 @@ add_executable(MCScattering src/MCScattering.f90)
 
 # Link libraries, order is important so that relevant .mod files are created before compilation of specific modules
 target_link_libraries (MCScattering mathConstants)
+target_link_libraries (mod_tests mathConstants)
 target_link_libraries (MCScattering mod_tests)
-target_link_libraries (MCScattering mod_tests)
+target_link_libraries (MCScattering m_config)
 
 # Create image directories
-add_custom_target(build-time-make-directory ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images"
-    COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images2"
-    COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images3")
+#add_custom_target(build-time-make-directory ALL
+ #   COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images"
+ #   COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images2"
+ #   COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images3")
+
+file(MAKE_DIRECTORY Images)
+file(MAKE_DIRECTORY Images2)
+file(MAKE_DIRECTORY Images3)
