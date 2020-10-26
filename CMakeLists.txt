@@ -33,10 +33,6 @@ target_link_libraries (MCScattering mod_tests)
 target_link_libraries (MCScattering m_config)
 
 # Create image directories
-#add_custom_target(build-time-make-directory ALL
- #   COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images"
- #   COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images2"
- #   COMMAND ${CMAKE_COMMAND} -E make_directory $"../Images3")
 
 file(MAKE_DIRECTORY Images)
 file(MAKE_DIRECTORY Images2)
