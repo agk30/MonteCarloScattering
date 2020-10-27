@@ -33,7 +33,7 @@ module getInputs
             call CFG_add(my_cfg, "skimRad", 0.001D0 , "Skimmer Radius")
             call CFG_add(my_cfg, "valveRad", 0.0015D0 , "Valve Radius")
             call CFG_add(my_cfg, "colRad", 0.0015D0 , "Collimator Radius")
-            call CFG_add(my_cfg, "sheetCentre", 0.021D0 , "Centre of sheet from from surface")
+            call CFG_add(my_cfg, "sheetCentre", 0.021D0 , "Distance from centre of sheet from to surface")
             call CFG_add(my_cfg, "halfSheetHeight", 0.002D0 , "Half height of laser sheet")
             call CFG_add(my_cfg, "sheetWidth", 0.0300D0 , "Full width of laser sheet")
             call CFG_add(my_cfg, "pulseLength", 10.0D-06 , "Discharge pulse length")
@@ -49,7 +49,7 @@ module getInputs
             call CFG_add(my_cfg, "scattering", .TRUE. , "Image scattering as well as ingoing beam?")
             call CFG_add(my_cfg, "fullSim", .TRUE. , "Image ingoing beam as well as scattering?")
             call CFG_add(my_cfg, "testMods", .FALSE. , "Including testing modules?")
-            call CFG_add(my_cfg, "writeImages", .FALSE. , "Wirte images to files?")
+            call CFG_add(my_cfg, "writeImages", .TRUE. , "Write images to files?")
             call CFG_add(my_cfg, "scatterIntensity", 3.0D0 , "Relative intensity of scattered signal to ingogin signal")
             
             ! Mathematical Inputs
@@ -63,7 +63,7 @@ module getInputs
             call CFG_add(my_cfg, "s", 1.45285D0 , "Origin function parameter for speed generation")
             call CFG_add(my_cfg, "dist", 230.0D-03 , "Single-point LIF value-probe laser distance")
             call CFG_add(my_cfg, "mass", 2.8240519D-26 , "Molecule mass / kg")
-            call CFG_add(my_cfg, "massMol", 0.017D0 , "Molecuke mass / kg/mol")
+            call CFG_add(my_cfg, "massMol", 0.017D0 , "Molecue mass / kg/mol")
             call CFG_add(my_cfg, "energyTrans", 0.0D0 , &
             "SS collision model - energy loss to internal surface motions")
             call CFG_add(my_cfg, "surfaceMass", 100D0 , "Effective liquid surface mass / g/mol")
