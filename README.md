@@ -13,50 +13,50 @@ The program may be built using the gfortran compiler and it is the recommended c
 The program contains a default set of variables which may be overwritten using either the `inputs.cfg` file or through command line arguments (.cfg file overrides defaults, commmand line arguemnts overrides both defaults and .cfg file). Default input values and their descriptoins are as follows:
 
 **Experimental Apparatus Inputs**
-    `skimPos = 0.1730D0` Position of Skimmer in z direction / m
-    `valvePos = 0.2150D0` Position of Valve in z direction / m
-    `colPos = 0.1330D0` Position of Collimator in z direction / m
-    `skimRad = 0.001D0` Skimmer Radius / m
-    `valveRad = 0.0015D0` Valve Radius / m
-    `colRad = 0.0015D0` Collimator Radius / m
-    `sheetCentre = 0.021D0` Distance from centre of sheet from to surface / m
-    `halfSheetHeight = 0.002D0` Half height of laser sheet / m
-    `sheetWidth = 0.0300D0` Full width of laser sheet / m
-    `pulseLength = 10.0D-06` Discharge pulse length / s
+- `skimPos = 0.1730D0` Position of Skimmer in z direction / m
+- `valvePos = 0.2150D0` Position of Valve in z direction / m
+- `colPos = 0.1330D0` Position of Collimator in z direction / m
+- `skimRad = 0.001D0` Skimmer Radius / m
+- `valveRad = 0.0015D0` Valve Radius / m
+- `colRad = 0.0015D0` Collimator Radius / m
+- `sheetCentre = 0.021D0` Distance from centre of sheet from to surface / m
+- `halfSheetHeight = 0.002D0` Half height of laser sheet / m
+- `sheetWidth = 0.0300D0` Full width of laser sheet / m
+- `pulseLength = 10.0D-06` Discharge pulse length / s
 
 **Imaging Inputs**
-    `pxMmRatio = 0.25D-03` Pixel to mm ratio for imaging
-    `probeStart = 67.0D-06` Start of probe time (imaging time) / s
-    `probeEnd = 180.0D-06` End of probe time (imaging time) / s
-    `tStep = 1.0D-06` Time step between images / s
-    `gaussDev = 2.0D0` Deviation parameter for gaussian blur routine
-    `ksize = 27` Kernel size for SG routine
-    `polyOrder = 3` Polynomial order for SG routine
-    `scattering = .TRUE.` Image scattering as well as ingoing beam?
-    `fullSim = .TRUE.` Image ingoing beam as well as scattering?
-    `testMods = .FALSE.` Including testing modules?
-    `writeImages = .TRUE.` Write images to files?
-    `scatterIntensity = 3.0D0` Relative intensity of scattered signal to ingogin signal
+- `pxMmRatio = 0.25D-03` Pixel to mm ratio for imaging
+- `probeStart = 67.0D-06` Start of probe time (imaging time) / s
+- `probeEnd = 180.0D-06` End of probe time (imaging time) / s
+- `tStep = 1.0D-06` Time step between images / s
+- `gaussDev = 2.0D0` Deviation parameter for gaussian blur routine
+- `ksize = 27` Kernel size for SG routine
+- `polyOrder = 3` Polynomial order for SG routine
+- `scattering = .TRUE.` Image scattering as well as ingoing beam?
+- `fullSim = .TRUE.` Image ingoing beam as well as scattering?
+- `testMods = .FALSE.` Including testing modules?
+- `writeImages = .TRUE.` Write images to files?
+- `scatterIntensity = 3.0D0` Relative intensity of scattered signal to ingogin signal
 
 **Mathematical Inputs**
-    `xPx = 420` Number of image pixels in x direction
-    `zPx = 420` Number of image pixels in z direction
-    `incidenceAngle = 0D0` Incidence angle for beam
-    `x0 = 128.30344D0` Origin function parameter for speed generation
-    `aMax = 1.00082D0` Origin function parameter for speed generation
-    `aMin = -0.00851D0` Origin function parameter for speed generation
-    `h = 24.98601D0` Origin function parameter for speed generation
-    `s = 1.45285D0` Origin function parameter for speed generation
-    `dist = 230.0D-03` Single-point LIF value-probe laser distance
-    `mass = 2.8240519D-26` Molecule mass / kg
-    `massMol = 0.017D0` Molecue mass / kg/mol
-    `energyTrans =0.0D0 ` SS collision model - energy loss to internal surface motions
-    `surfaceMass = 100D0` Effective liquid surface mass / g/mol
-    `exitAngle = 0D0` Exit angle for SS model
-    `temp = 298.0D0` Surface temp / K
-    `ncyc = 10000000` Number of molcules to be sampled
-    `maxSpeed = 3000.0D0` Max speed for MB speed calculation
-    `scatterFraction = 0.5D0` Fraction of molcules scattering in TD or IS. 0 for fulle TD, 1 for full IS
+- `xPx = 420` Number of image pixels in x direction
+- `zPx = 420` Number of image pixels in z direction
+- `incidenceAngle = 0D0` Incidence angle for beam
+- `x0 = 128.30344D0` Origin function parameter for speed generation
+- `aMax = 1.00082D0` Origin function parameter for speed generation
+- `aMin = -0.00851D0` Origin function parameter for speed generation
+- `h = 24.98601D0` Origin function parameter for speed generation
+- `s = 1.45285D0` Origin function parameter for speed generation
+- `dist = 230.0D-03` Single-point LIF value-probe laser distance
+- `mass = 2.8240519D-26` Molecule mass / kg
+- `massMol = 0.017D0` Molecue mass / kg/mol
+- `energyTrans =0.0D0 ` SS collision model - energy loss to internal surface motions
+- `surfaceMass = 100D0` Effective liquid surface mass / g/mol
+- `exitAngle = 0D0` Exit angle for SS model
+- `temp = 298.0D0` Surface temp / K
+- `ncyc = 10000000` Number of molcules to be sampled
+- `maxSpeed = 3000.0D0` Max speed for MB speed calculation
+- `scatterFraction = 0.5D0` Fraction of molcules scattering in TD or IS. 0 for fulle TD, 1 for full IS
 
 **Important:** Folders named `Images`, `Images2` and `Images3` must be created in the root directory if you did not use `cmake` to build the program.
 
