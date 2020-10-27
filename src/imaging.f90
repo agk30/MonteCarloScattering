@@ -57,7 +57,7 @@ module imaging
             real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity
             real(kind=r14), dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
             integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
-            real(kind=r14) :: currentTime, angle
+            real(kind=r14) :: currentTime, angle, fTime
             real(kind=r14), dimension(3) :: posInProbe
             logical, intent(in) :: testMods
             logical :: zImage
@@ -75,6 +75,10 @@ module imaging
                 ! currentTime refers to the time it has taken the particle to travel from its starting point
                 ! to the point in space at the given timepoint
                 currentTime = probeStart + (t-1)*tStep - t0
+
+                call fluoresceTime(fTime)
+
+                currentTime = currentTime + fTime
 
                 ! Real space position for particle
                 posInProbe(1) = particleStartPos(1) + (particleVector(1)*particleSpeed*currentTime)
@@ -246,6 +250,20 @@ module imaging
 
                         
                 end if
-            end subroutine convim
+        end subroutine convim
+
+        subroutine fluoresceTime(emissionTime)
+            implicit none
+
+            real(kind=r14) :: lifetime, rand
+            real(kind=r14), intent(out) :: emissionTime
+
+            call random_number(rand)
+
+            lifetime = 700D-9
+
+            emissionTime = -lifetime*log(rand)
+
+        end subroutine fluoresceTime
         
 end module imaging

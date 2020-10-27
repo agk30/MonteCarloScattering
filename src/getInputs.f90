@@ -49,7 +49,7 @@ module getInputs
             call CFG_add(my_cfg, "scattering", .TRUE. , "Image scattering as well as ingoing beam?")
             call CFG_add(my_cfg, "fullSim", .TRUE. , "Image ingoing beam as well as scattering?")
             call CFG_add(my_cfg, "testMods", .FALSE. , "Including testing modules?")
-            call CFG_add(my_cfg, "writeImages", .TRUE. , "Write images to files?")
+            call CFG_add(my_cfg, "writeImages", .TRUE. , "Wirte images to files?")
             call CFG_add(my_cfg, "scatterIntensity", 3.0D0 , "Relative intensity of scattered signal to ingogin signal")
             
             ! Mathematical Inputs

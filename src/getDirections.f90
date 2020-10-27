@@ -131,8 +131,6 @@ module getDirections
             real(kind=r14) :: rand1, rand2, phi, theta, x5
             real(kind=r14), dimension(3), intent(out) :: scatteredDirection
         
-            call random_seed
-        
             call random_number(rand1)
             call random_number(rand2)
         

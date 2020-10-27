@@ -48,7 +48,7 @@ program MCScattering
     acceptedCounterIn = 0
     acceptedCounterOut = 0
 
-    !TODO put in licensing statement.
+    ! TODO put in licensing statement.
 
     ! Without calling random seed, random number sequences can often be repeated
     call random_seed
@@ -190,10 +190,6 @@ program MCScattering
                 call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
                  startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
-
-                 !TODO GET THIS OUT OF HERE FOR REAL
-                 !startTimePoint = 1
-                 !endTimePoint = NumberOfTimePoints
 
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
