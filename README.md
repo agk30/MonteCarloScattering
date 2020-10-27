@@ -49,14 +49,14 @@ The program contains a default set of variables which may be overwritten using e
 - `s = 1.45285D0` Origin function parameter for speed generation
 - `dist = 230.0D-03` Single-point LIF value-probe laser distance
 - `mass = 2.8240519D-26` Molecule mass / kg
-- `massMol = 0.017D0` Molecue mass / kg/mol
-- `energyTrans =0.0D0 ` SS collision model - energy loss to internal surface motions
+- `massMol = 0.017D0` Molecule mass / kg/mol
+- `energyTrans = 0.0D0 ` SS collision model - energy loss to internal surface motions
 - `surfaceMass = 100D0` Effective liquid surface mass / g/mol
 - `exitAngle = 0D0` Exit angle for SS model
 - `temp = 298.0D0` Surface temp / K
-- `ncyc = 10000000` Number of molcules to be sampled
+- `ncyc = 10000000` Number of molecules to be sampled
 - `maxSpeed = 3000.0D0` Max speed for MB speed calculation
-- `scatterFraction = 0.5D0` Fraction of molcules scattering in TD or IS. 0 for fulle TD, 1 for full IS
+- `scatterFraction = 0.5D0` Fraction of molecules scattering in TD or IS. 0 for fulle TD, 1 for full IS
 
 **Important:** Folders named `Images`, `Images2` and `Images3` must be created in the root directory if you did not use `cmake` to build the program.
 
