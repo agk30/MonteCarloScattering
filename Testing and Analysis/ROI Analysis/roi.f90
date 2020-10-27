@@ -72,10 +72,21 @@ program roiAnalysis
 
     end do
 
-    do i = 1, 12
+    do k = 1, 5
 
-        print *, SUM(roi(:,:,5,2,i))
+        do j = 1, 5
 
+            print *,  "Angle", angle(k), "ROI", j
+
+            do i = 1, 12
+
+                ! j for radius, k for angle
+                print *, SUM(roi(:,:,j,k,i))
+
+            end do
+
+        end do 
+    
     end do
 
 end program roiAnalysis
