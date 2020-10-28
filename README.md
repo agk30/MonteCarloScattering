@@ -49,6 +49,7 @@ The program contains a default set of variables which may be overwritten using e
 - `testMods = .FALSE.` Including testing modules?
 - `writeImages = .TRUE.` Write images to files?
 - `scatterIntensity = 3.0D0` Relative intensity of scattered signal to ingoing signal
+- `fLifeTime = 700D-9` Fluorescence lifetime of the molecule / s
 
 **Mathematical Inputs**
 - `xPx = 420` Number of image pixels in x direction
