@@ -10,11 +10,14 @@ In the real experiment, the beam is imaged by passing through a laser sheet, all
 The program may be built using the gfortran compiler and it is the recommended compiler to ensure functionality across different environments. Other compilers have not been validated, although ifort is likely to work. Once you have access to these compilers, clone or download this repository. In the repository's root directory, build the program:
 
 `mkdir build`
+
 `cmake ./ -B ./build/ -G "Unix Makefiles"`
+
 `cd build`
+
 `make`
 
-The to run, execute `MCScattering`
+Then to run, execute `MCScattering`
 
 `./MCScattering`
 
