@@ -11,7 +11,7 @@ module getInputs
              h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
              skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
               probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-               writeImages, fullSim, scatterFraction, scatterIntensity)
+               writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime)
             implicit none
 
             integer, parameter :: r14 = selected_real_kind(14,30)
@@ -19,7 +19,8 @@ module getInputs
             real(kind=r14), intent(out) :: incidenceAngle, x0, aMax, aMin, &
             h, s, dist, pulseLength, mass, temp, valvePos, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
             real(kind=r14), intent(out) :: skimPos, colPos, skimRad, valveRad, colRad, sheetCentre, &
-             halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scatterFraction, scatterIntensity
+             halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, &
+              scatterFraction, scatterIntensity, fLifeTime
             logical, intent(out) :: scattering, testMods, writeImages, fullSim
 
             type(CFG_t) :: my_cfg
@@ -51,6 +52,7 @@ module getInputs
             call CFG_add(my_cfg, "testMods", .FALSE. , "Including testing modules?")
             call CFG_add(my_cfg, "writeImages", .TRUE. , "Wirte images to files?")
             call CFG_add(my_cfg, "scatterIntensity", 3.0D0 , "Relative intensity of scattered signal to ingogin signal")
+            call CFG_add(my_cfg, "fLifeTime", 700D-9 , "Fluorescent lifetime of the molecule")
             
             ! Mathematical Inputs
             call CFG_add(my_cfg, "xPx", 420 , "Number of image pixels in x direction")
@@ -104,6 +106,7 @@ module getInputs
             call CFG_get(my_cfg, "testMods", testMods)
             call CFG_get(my_cfg, "writeImages", writeImages)
             call CFG_get(my_cfg, "scatterIntensity", scatterIntensity)
+            call CFG_get(my_cfg, "fLifeTime", fLifeTime)
 
             call CFG_get(my_cfg, "xPx", xPx)
             call CFG_get(my_cfg, "zPx", zPx)

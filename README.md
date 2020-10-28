@@ -7,10 +7,19 @@ This program simulates a real experiment whereby a molecular beam is produced an
 In the real experiment, the beam is imaged by passing through a laser sheet, allowing for detection of a particle that passes through. This simulation seeks to mimic this behaviour and will be used to compare scientific models to the real data obtained.
 
 ## Build instructions
-The program may be built using the gfortran compiler and it is the recommended compiler to ensure functionality across different environments. Other compilers have not been validated, although ifort is likely to work. Once you have access to these compilers, clone or download this repository. Next, `cd` to the appropriate directory, `mkdir build` and then run `cmake ./ -B ./build/` (with the `-G "Unix Makefiles"` also if you wish to use unix makefiles on Windows). `cd` to `MonteCaroScattering/build` and run `make`. Once the program has been built, run the program by exectuing `./MCScattering`.
+The program may be built using the gfortran compiler and it is the recommended compiler to ensure functionality across different environments. Other compilers have not been validated, although ifort is likely to work. Once you have access to these compilers, clone or download this repository. In the repository's root directory, build the program:
+
+`mkdir build`
+`cmake ./ -B ./build/ -G "Unix Makefiles"`
+`cd build`
+`make`
+
+The to run, execute `MCScattering`
+
+`./MCScattering`
 
 ## Inputs and Imaging
-The program contains a default set of variables which may be overwritten using either the `inputs.cfg` file or through command line arguments (.cfg file overrides defaults, commmand line arguemnts overrides both defaults and .cfg file). Default input values and their descriptoins are as follows:
+The program contains a default set of variables which may be overwritten using either the `inputs.cfg` file or through command line arguments (.cfg file overrides defaults, commmand line arguemnts overrides both defaults and .cfg file). Default input values and their descriptions are as follows:
 
 **Experimental Apparatus Inputs**
 - `skimPos = 0.1730D0` Position of Skimmer in z direction / m
@@ -36,7 +45,7 @@ The program contains a default set of variables which may be overwritten using e
 - `fullSim = .TRUE.` Image ingoing beam as well as scattering?
 - `testMods = .FALSE.` Including testing modules?
 - `writeImages = .TRUE.` Write images to files?
-- `scatterIntensity = 3.0D0` Relative intensity of scattered signal to ingogin signal
+- `scatterIntensity = 3.0D0` Relative intensity of scattered signal to ingoing signal
 
 **Mathematical Inputs**
 - `xPx = 420` Number of image pixels in x direction
@@ -56,11 +65,11 @@ The program contains a default set of variables which may be overwritten using e
 - `temp = 298.0D0` Surface temp / K
 - `ncyc = 10000000` Number of molecules to be sampled
 - `maxSpeed = 3000.0D0` Max speed for MB speed calculation
-- `scatterFraction = 0.5D0` Fraction of molecules scattering in TD or IS. 0 for fulle TD, 1 for full IS
+- `scatterFraction = 0.5D0` Fraction of molecules scattering in TD or IS. 0 for full TD, 1 for full IS
 
 **Important:** Folders named `Images`, `Images2` and `Images3` must be created in the root directory if you did not use `cmake` to build the program.
 
-Once input parameters have been selected and the program is run, there will be a sequence of images generated in the `Images`, `Images2` and `Images3` folders. These contain matrices of integers corresponding to intensity at each given pixel region. `Images` contains raw images, `Images2` contains Gaussian blurred images and `Images3` contains the blurred images with the addition of the Savitzky-Golay filter. To view these images and to obtain a video of the sequence, the Image J program should be used. The program can be found [here](https://imagej.nih.gov/ij/download.html). Once the program is downloaded and executed, it you must direct it to the imaging macro contained within the `Imaging Macros` folder of this repository. In Image J, navigate to Plugins > Macros > Install, then direct the program to the imaging macro. Once this is done, you can now load the images into the program to view as a video. Now, navigate to Plugins > Macros > ImportSeriesTextImages. This shoud bring up a window showing the video of the images in succession. From here, I recommend going to Image > Lookup Tables then slecting Royal, but any of these would be fine to suit your needs. To save as a video, navigate to File > Save As > AVI... where you can save the video at a given framerate. Now you should have the desired output of this program.
+Once input parameters have been selected and the program is run, there will be a sequence of images generated in the `Images`, `Images2` and `Images3` folders. These contain matrices of integers corresponding to intensity at each given pixel region. `Images` contains raw images, `Images2` contains Gaussian blurred images and `Images3` contains the blurred images with the addition of the Savitzky-Golay filter. To view these images and to obtain a video of the sequence, the Image J program should be used. The program can be found [here](https://imagej.nih.gov/ij/download.html). Once the program is downloaded and executed, it you must direct it to the imaging macro contained within the `Imaging Macros` folder of this repository. In Image J, navigate to Plugins > Macros > Install, then direct the program to the imaging macro. Once this is done, you can now load the images into the program to view as a video. Now, navigate to Plugins > Macros > ImportSeriesTextImages. This should bring up a window showing the video of the images in succession. From here, I recommend going to Image > Lookup Tables then slecting Royal, but any of these would be fine to suit your needs. To save as a video, navigate to File > Save As > AVI... where you can save the video at a given framerate. Now you should have the desired output of this program.
 
 ## Contact
 

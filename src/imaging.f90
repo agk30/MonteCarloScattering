@@ -10,11 +10,11 @@ module imaging
     contains
 
             ! Uses the entry time and exit time to find the corresponding timepoint for imaging
-        subroutine startEndTimePoints(NumberOfTimepoints, entryTime, exitTime, probeStart, probeEnd, &
+        subroutine startEndTimePoints(NumberOemissionTimepoints, entryTime, exitTime, probeStart, probeEnd, &
              tStep, startTimePoint, endTimePoint)
             implicit none
 
-            integer, intent(in) :: NumberOfTimePoints
+            integer, intent(in) :: NumberOemissionTimePoints
             real(kind=r14), intent(in) :: entryTime, exitTime, probeStart, probeEnd, tStep
             integer, intent(out) :: startTimePoint, endTimePoint
             
@@ -35,7 +35,7 @@ module imaging
             ! all the way til the end of the probe time
             if (exitTime .gt. probeEnd) then
 
-                endTimePoint = NumberOfTimepoints
+                endTimePoint = NumberOemissionTimepoints
 
             else
 
@@ -48,16 +48,16 @@ module imaging
 
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
-        subroutine getPosInProbe(image, NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
-             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods, scatterIntensity)
+        subroutine getPosInProbe(image, NumberOemissionTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
+             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods, scatterIntensity, fLifeTime)
             implicit none
 
             real(kind=r14), intent(inout), dimension(:,:,:) :: image
-            integer, intent(in) :: NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx
-            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity
+            integer, intent(in) :: NumberOemissionTimePoints, startTimePoint, endTimePoint, xPx, zPx
+            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity, fLifeTime
             real(kind=r14), dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
             integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
-            real(kind=r14) :: currentTime, angle, fTime
+            real(kind=r14) :: currentTime, angle, emissionTime
             real(kind=r14), dimension(3) :: posInProbe
             logical, intent(in) :: testMods
             logical :: zImage
@@ -76,9 +76,9 @@ module imaging
                 ! to the point in space at the given timepoint
                 currentTime = probeStart + (t-1)*tStep - t0
 
-                call fluoresceTime(fTime)
+                call fluoresceTime(fLifeTime, emissionTime)
 
-                currentTime = currentTime + fTime
+                currentTime = currentTime + emissionTime
 
                 ! Real space position for particle
                 posInProbe(1) = particleStartPos(1) + (particleVector(1)*particleSpeed*currentTime)
@@ -129,18 +129,18 @@ module imaging
         end subroutine getPosInProbe
 
         ! Writes out image array into a sequence of images
-        subroutine writeImage(image, xPx, zPx, NumberOfTimePoints)
+        subroutine writeImage(image, xPx, zPx, NumberOemissionTimePoints)
             implicit none
 
             real(kind=r14), intent(inout), dimension(:,:,:,:) :: image
-            integer :: t, i, j, k, NumberOfTimePoints, xPx, zPx
+            integer :: t, i, j, k, NumberOemissionTimePoints, xPx, zPx
             character(30) :: fileName
 
             print *, 'entering write'
 
             do k = 1, 3
             
-                do t = 1, NumberOfTimePoints
+                do t = 1, NumberOemissionTimePoints
 
                     if (k == 1) then
                     
@@ -252,17 +252,16 @@ module imaging
                 end if
         end subroutine convim
 
-        subroutine fluoresceTime(emissionTime)
+        subroutine fluoresceTime(fLifeTime, emissionTime)
             implicit none
 
-            real(kind=r14) :: lifetime, rand
+            real(kind=r14) :: rand
             real(kind=r14), intent(out) :: emissionTime
+            real(kind=r14), intent(in) :: fLifeTime
 
             call random_number(rand)
 
-            lifetime = 700D-9
-
-            emissionTime = -lifetime*log(rand)
+            emissionTime = -fLifeTime*log(rand)
 
         end subroutine fluoresceTime
         

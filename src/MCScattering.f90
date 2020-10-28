@@ -24,7 +24,7 @@ program MCScattering
     integer :: ncyc, ksize, polyOrder
     real(kind=r14) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity
+     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime
     logical :: scattering, testMods, writeImages, fullSim
 
     integer :: i, j, k, vectorsPerParticle, acceptedCounterIn, acceptedCounterOut, totalTraj, NumberOfTimePoints,&
@@ -60,7 +60,7 @@ program MCScattering
      h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
       skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
        probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-        writeImages, fullSim, scatterFraction, scatterIntensity)
+        writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -193,7 +193,7 @@ program MCScattering
 
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
-                  sheetDimensions, testMods, scatterIntensity)
+                  sheetDimensions, testMods, scatterIntensity, fLifeTime)
                 
                 if (j == 1) then
                 
