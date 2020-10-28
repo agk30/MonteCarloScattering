@@ -114,6 +114,8 @@ program MCScattering
 
     end if
 
+    print *, "Starting Compute"
+
     do i = 1, ncyc
 
         ! sets the ingoing speed, directional unit vector and start time and point 
