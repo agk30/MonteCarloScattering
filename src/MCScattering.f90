@@ -24,13 +24,14 @@ program MCScattering
     integer :: ncyc, ksize, polyOrder
     real(kind=r14) :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     real(kind=r14) :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime
+     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
+      captureGateOpen, captureGateClose
     logical :: scattering, testMods, writeImages, fullSim
 
-    integer :: i, j, k, vectorsPerParticle, acceptedCounterIn, acceptedCounterOut, totalTraj, NumberOfTimePoints,&
+    integer :: i, j, k, vectorsPerParticle, totalTraj, NumberOfTimePoints,&
      xPx, zPx, startTimePoint, endTimePoint
     integer :: startVector
-    real(kind=r14) :: tWheel, rand1, deflectionAngle, inOutRatio
+    real(kind=r14) :: tWheel, rand1, deflectionAngle
     real(kind=r14) :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
      entryTime, exitTime
     real(kind=r14), dimension(3) :: sheetDimensions, sheetCentre
@@ -45,9 +46,6 @@ program MCScattering
     logical, dimension(4) :: hitsSheet
     logical :: correctDirection
 
-    acceptedCounterIn = 0
-    acceptedCounterOut = 0
-
     ! TODO put in licensing statement.
 
     ! Without calling random seed, random number sequences can often be repeated
@@ -60,7 +58,7 @@ program MCScattering
      h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
       skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
        probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-        writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime)
+        writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -113,6 +111,8 @@ program MCScattering
         startVector = 2
 
     end if
+
+    print *, "Starting compute"
 
     do i = 1, ncyc
 
@@ -193,17 +193,7 @@ program MCScattering
 
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
-                  sheetDimensions, testMods, scatterIntensity, fLifeTime)
-                
-                if (j == 1) then
-                
-                    acceptedCounterIn = acceptedCounterIn + 1
-
-                else
-
-                    acceptedCounterOut = acceptedCounterOut + 1
-
-                end if
+                  sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
 
             end if
 
@@ -279,11 +269,7 @@ program MCScattering
     end if
 
     totalTraj = ncyc*vectorsPerParticle
-    inOutRatio = real(acceptedCounterIn) /real(acceptedCounterOut)
 
-    print *, totalTraj, "Total trajectories"
-    print *, acceptedCounterIn, "accepted ingoing trajectories"
-    print *, acceptedCounterOut, "accepted outgoing trajectories"
-    print "(F9.7,a,a)", inOutRatio, " ", "ingoing acceptance to outgoing acceptance ratio"
+    print "(I8,a,a)", totalTraj, " ", "Total trajectories"
 
 end program MCScattering

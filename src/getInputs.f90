@@ -11,7 +11,7 @@ module getInputs
              h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
              skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
               probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-               writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime)
+               writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
             implicit none
 
             integer, parameter :: r14 = selected_real_kind(14,30)
@@ -20,7 +20,7 @@ module getInputs
             h, s, dist, pulseLength, mass, temp, valvePos, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
             real(kind=r14), intent(out) :: skimPos, colPos, skimRad, valveRad, colRad, sheetCentre, &
              halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, &
-              scatterFraction, scatterIntensity, fLifeTime
+              scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose
             logical, intent(out) :: scattering, testMods, writeImages, fullSim
 
             type(CFG_t) :: my_cfg
@@ -53,6 +53,8 @@ module getInputs
             call CFG_add(my_cfg, "writeImages", .TRUE. , "Wirte images to files?")
             call CFG_add(my_cfg, "scatterIntensity", 3.0D0 , "Relative intensity of scattered signal to ingogin signal")
             call CFG_add(my_cfg, "fLifeTime", 700D-9 , "Fluorescent lifetime of the molecule")
+            call CFG_add(my_cfg, "captureGateOpen", 350D-9 , "Time after probe fire at which imaging starts")
+            call CFG_add(my_cfg, "captureGateClose", 10000D-9 , "Time after probe fire at which imaging ends")
             
             ! Mathematical Inputs
             call CFG_add(my_cfg, "xPx", 420 , "Number of image pixels in x direction")
@@ -107,6 +109,8 @@ module getInputs
             call CFG_get(my_cfg, "writeImages", writeImages)
             call CFG_get(my_cfg, "scatterIntensity", scatterIntensity)
             call CFG_get(my_cfg, "fLifeTime", fLifeTime)
+            call CFG_get(my_cfg, "captureGateOpen", captureGateOpen)
+            call CFG_get(my_cfg, "captureGateClose", captureGateClose)
 
             call CFG_get(my_cfg, "xPx", xPx)
             call CFG_get(my_cfg, "zPx", zPx)
@@ -126,8 +130,6 @@ module getInputs
             call CFG_get(my_cfg, "ncyc", ncyc)
             call CFG_get(my_cfg, "maxSpeed", maxSpeed)
             call CFG_get(my_cfg, "scatterFraction", scatterFraction)
-
-            
 
         end subroutine loadInputs
         

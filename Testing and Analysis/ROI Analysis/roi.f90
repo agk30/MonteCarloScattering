@@ -44,8 +44,8 @@ program roiAnalysis
             ! loop through radii
             do k = 1, 5
 
-                roiCentre(1) = floor(sind(angle(l))*roiRadius(k))
-                roiCentre(2) = floor(cosd(angle(l))*roiRadius(k))
+                roiCentre(1) = floor(sin(angle(l))*roiRadius(k))
+                roiCentre(2) = floor(cos(angle(l))*roiRadius(k))
 
                 do i = -4, 4
                     do j = -4, 4
