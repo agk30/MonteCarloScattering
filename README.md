@@ -50,6 +50,8 @@ The program contains a default set of variables which may be overwritten using e
 - `writeImages = .TRUE.` Write images to files?
 - `scatterIntensity = 3.0D0` Relative intensity of scattered signal to ingoing signal
 - `fLifeTime = 700D-9` Fluorescence lifetime of the molecule / s
+- `captureGateOpen = 350D-9` Time after probe fire at which emission can be collected
+- `captureGateClose = 360D-9` Time after probe fire at which emission will stop being collected
 
 **Mathematical Inputs**
 - `xPx = 420` Number of image pixels in x direction
@@ -70,6 +72,10 @@ The program contains a default set of variables which may be overwritten using e
 - `ncyc = 10000000` Number of molecules to be sampled
 - `maxSpeed = 3000.0D0` Max speed for MB speed calculation
 - `scatterFraction = 0.5D0` Fraction of molecules scattering in TD or IS. 0 for full TD, 1 for full IS
+
+Command line arguments may be passed in the form of:
+
+`-variableName='value'`
 
 **Important:** Folders named `Images`, `Images2` and `Images3` must be created in the root directory if you did not use `cmake` to build the program.
 

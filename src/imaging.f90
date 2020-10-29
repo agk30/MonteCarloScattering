@@ -49,12 +49,15 @@ module imaging
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
         subroutine getPosInProbe(image, NumberOemissionTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
-             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods, scatterIntensity, fLifeTime)
+             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods, scatterIntensity, fLifeTime, &
+             captureGateOpen, captureGateClose)
+
             implicit none
 
             real(kind=r14), intent(inout), dimension(:,:,:) :: image
             integer, intent(in) :: NumberOemissionTimePoints, startTimePoint, endTimePoint, xPx, zPx
-            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity, fLifeTime
+            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity, fLifeTime, &
+             captureGateOpen, captureGateClose
             real(kind=r14), dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
             integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
             real(kind=r14) :: currentTime, angle, emissionTime
@@ -76,8 +79,10 @@ module imaging
                 ! to the point in space at the given timepoint
                 currentTime = probeStart + (t-1)*tStep - t0
 
+                ! Finds the time the molecule will emit its photon after absorbing probe light
                 call fluoresceTime(fLifeTime, emissionTime)
 
+                ! Finds position in space that molcule will emit its photon
                 currentTime = currentTime + emissionTime
 
                 ! Real space position for particle
@@ -97,13 +102,18 @@ module imaging
                 ! Only writes to array if particle is within bounds of the image
                 if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0) .and. (posInProbe(3) .ge. 0)) then
 
-                    if (particleVector(3) .gt. 0) then
+                    ! Mimics gating process. Emission only detected if it occurs between gate open and gate close
+                    if ((emissionTime .gt. captureGateOpen) .and. (emissionTime .lt. captureGateClose)) then
+                    
+                        if (particleVector(3) .gt. 0) then
 
-                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + scatterIntensity
+                            image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + scatterIntensity
 
-                    else
+                        else
 
-                        image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
+                            image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
+
+                        end if
 
                     end if
 
