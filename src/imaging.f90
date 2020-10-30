@@ -20,28 +20,20 @@ module imaging
             
             ! If entry time is less than probe start time, then imaging for that particle starts from the beginning of the process
             if (entryTime .lt. probeStart) then
-
                 startTimePoint = 1
-
             else
-
                 ! Finds nearest timepoint above entry time, but + 1 is added due to the fact that logically,
                 ! the image sequence starts from image 1 rather than image 0
                 startTimePoint = ceiling((entryTime - probeStart) / tStep) + 1
-
             end if
 
             ! If exit time is greater than end of probe, then end timepoint then particle is imaged 
             ! all the way til the end of the probe time
             if (exitTime .gt. probeEnd) then
-
                 endTimePoint = NumberOemissionTimepoints
-
             else
-
                 ! Similarly to entry time, exit timepoint is found as the nearest timepoint above exit time + 1 for the same reasons
                 endTimePoint = floor((exitTime - probeStart) / tStep) + 1
-
             end if
 
         end subroutine startEndTimePoints
@@ -74,7 +66,6 @@ module imaging
 
             ! Loops from entry timepont to exit timepoint to avoic wasting cycles when particle is not within sheet
             do t = startTimePoint, endTimePoint
-
                 ! currentTime refers to the time it has taken the particle to travel from its starting point
                 ! to the point in space at the given timepoint
                 currentTime = probeStart + (t-1)*tStep - t0
@@ -101,39 +92,26 @@ module imaging
 
                 ! Only writes to array if particle is within bounds of the image
                 if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0) .and. (posInProbe(3) .ge. 0)) then
-
                     ! Mimics gating process. Emission only detected if it occurs between gate open and gate close
-                    if ((emissionTime .gt. captureGateOpen) .and. (emissionTime .lt. captureGateClose)) then
-                    
+                    if ((emissionTime .gt. captureGateOpen) .and. (emissionTime .lt. captureGateClose)) then            
                         if (particleVector(3) .gt. 0) then
-
                             image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + scatterIntensity
-
                         else
-
                             image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
-
                         end if
-
                     end if
 
                     ! bins the angle of each trajectory into an angle bin (0-1 degree, 1-2 degrees etc.) for only the t = 83 timepoint
                     ! TODO change this timepoint to be an input variable
                     if ((testMods) .and. (t == 60)) then
-
-                        call angleDistribution(particleVector)
-    
+                        call angleDistribution(particleVector)   
                     end if
                     
                     ! for testing purposes to view an image along the z axis
-                    if (zImage) then
-                    
+                    if (zImage) then                  
                         image2(posInProbeyPx,posInProbexPx,t) = image2(posInProbeyPx,posInProbexPx,t) + 1D0
-
                     end if
-
                 end if
-
             end do
 
         end subroutine getPosInProbe
@@ -148,41 +126,26 @@ module imaging
 
             print *, 'entering write'
 
-            do k = 1, 3
-            
+            do k = 1, 3      
                 do t = 1, NumberOemissionTimePoints
-
-                    if (k == 1) then
-                    
+                    if (k == 1) then                
                         write(fileName,'("../Images/Image",I3,".txt")')t
-
                     else if (k == 2) then
-
                         write(fileName,'("../Images2/Image",I3,".txt")')t
-
                     else
-
                         write(fileName,'("../Images3/Image",I3,".txt")')t
-
                     end if
 
                     open(unit=20+t,file=filename)
 
-
                     do i = 1, zPx
-
                         do j = 1, xPx
-
                             write(20+t,'(ES12.5)',advance='no') image(i,j,t,k)
-
                         end do
 
                         write(20+t,*)
-
                     end do
-
                 end do
-
             end do
 
         end subroutine writeImage
@@ -254,11 +217,7 @@ module imaging
                             end do
                         end do
             !Normalize output image to have same intensity as input image:
-                        
-
-                    imout = imout*sum(imin)/sum(imout)
-
-                        
+                    imout = imout*sum(imin)/sum(imout)       
                 end if
         end subroutine convim
 

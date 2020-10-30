@@ -17,9 +17,7 @@ module sgconv
 
             
             do k = 1, ksize
-
                 columnKernel(((k-1)*ksize)+1 : k*ksize) = padInput((i+nd+nd-k+1), j:(j+ksize-1))
-
             end do
 
         end subroutine constructKernel
@@ -57,17 +55,13 @@ module sgconv
         
             ! input SG matrices only contain half + 1 of the required array, symmetric about the last entry. this loop builds
             ! the rest of the array
-            do i = 1, nk
-        
-                sgmatrix(i + nk + 1) = sgmatrix(nk+1-i)
-        
+            do i = 1, nk     
+                sgmatrix(i + nk + 1) = sgmatrix(nk+1-i)    
             end do
         
             ! reads IF image into array
-            do row = 1, xPx
-        
-                read(11,*) (input(row,column),column=1,zPx)
-        
+            do row = 1, xPx       
+                read(11,*) (input(row,column),column=1,zPx)       
             end do
 
             ! TODO make this a variable. Sets the baseline of the image to 0, or close to 0
@@ -76,20 +70,16 @@ module sgconv
         
             ! builds a padded array. the image array requires padding outside of its bounds with the addition of nd fields on 
             ! either side of the image and also above and below it
-            do i = 1, 420
-        
+            do i = 1, 420     
                 do j = 1, 420
         
                     padInput(i+nd,j+nd) = input(i,j)
         
-                end do
-        
+                end do       
             end do
       
-            do i = 1, 420
-        
-                do j = 1, 420
-        
+            do i = 1, 420        
+                do j = 1, 420      
                     call constructKernel(i, j, ksize, nd, columnKernel, padInput)
        
                     ! convolutes image with SG cooefficients
@@ -99,24 +89,16 @@ module sgconv
 
                     !ensures no negative numbers in output (not really needed, should be fixed)
                     if (output(i,j) .lt. 0) then
-
                         !output(i,j) = 0
-
-                    end if
-        
-                end do
-        
+                    end if  
+                end do  
             end do
 
             ! extra info. shows differences in input image and the output image.
-            do i = 1, 420
-        
-                do j = 1, 420
-        
-                    diffinput(i,j) = input(i,j) - output(i,j)
-        
-                end do
-        
+            do i = 1, 420   
+                do j = 1, 420    
+                  diffinput(i,j) = input(i,j) - output(i,j)    
+                end do  
             end do
         end subroutine sgarray
 

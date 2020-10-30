@@ -18,7 +18,6 @@ module getDirections
 
             ! Loops until a suitable trajectory is found
             do while (hit .eqv. .FALSE.)
-
                 ! Finds random point on valve for particle origin
                 call discPick(valve(1),valve(2))
                 valve = valve*valveRad
@@ -41,13 +40,10 @@ module getDirections
                 z = SQRT(collimator(1)**2 + collimator(2)**2)
                 
                 if (z .lt. colRad) then
-
                     call unitVector(mx, my, ingoingUnitVector)
 
                     hit = .TRUE.
-
                 end if
-
             end do
 
         end subroutine ingoingDirection
@@ -99,24 +95,17 @@ module getDirections
             
             ! TODO clean this up, no reason to be dealing with changing to negative numbers. bad. sad.
             if (rand3 .gt. 0.5D0) then
-
                 scatteredDirection(1) = (cos(phi))*(sin(theta))
-    
             else 
                 scatteredDirection(1) = -(cos(phi))*(sin(theta))
-    
             end if
     
             call random_number(rand4)
     
-            if (rand4 .gt. 0.5D0) then
-                
+            if (rand4 .gt. 0.5D0) then         
                 scatteredDirection(2) = (sin(phi))*(sin(theta))
-    
             else 
-    
                 scatteredDirection(2) = -(sin(phi))*(sin(theta)) 
-                
             end if
     
         end subroutine thermalDesorptionDirection

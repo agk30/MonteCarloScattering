@@ -36,7 +36,6 @@ module sheetIntersection
             planeVector(4,3) = 1D0 ; pointOnPlane(4,3) = sheetCentre(3) - (sheetDimensions(3)/2D0)
 
             do row = 1, 4
-
                 D = -((planeVector(row,1)*pointOnPlane(row,1)) + (planeVector(row,2)*pointOnPlane(row,2)) &
                  + (planeVector(row,3)*pointOnPlane(row,3)))
                 
@@ -47,8 +46,7 @@ module sheetIntersection
                 
                 intersection(row,1) = startPos(1) - (particleVector(1)*(topOfFraction/bottomOfFraction))
                 intersection(row,2) = startPos(2) - (particleVector(2)*(topOfFraction/bottomOfFraction))
-                intersection(row,3) = startPos(3) - (particleVector(3)*(topOfFraction/bottomOfFraction))
-            
+                intersection(row,3) = startPos(3) - (particleVector(3)*(topOfFraction/bottomOfFraction))   
             end do
 
         end subroutine getSheetIntersection
@@ -73,30 +71,22 @@ module sheetIntersection
 
             ! Top face
             if ((intersection(1,3) .gt. sheetBack) .and. (intersection(1,3) .lt. sheetFront)) then
-
                 within(1) = .TRUE.
-
             end if
 
             ! Bottom face
-            if ((intersection(2,3) .gt. sheetBack) .and. (intersection(2,3) .lt. sheetFront)) then
-                
+            if ((intersection(2,3) .gt. sheetBack) .and. (intersection(2,3) .lt. sheetFront)) then      
                 within(2) = .TRUE.
-
             end if
 
             ! Front face
             if ((intersection(3,2) .gt. sheetBottom) .and. (intersection(3,2) .lt. sheetTop)) then
-
                 within(3) = .TRUE.
-
             end if
 
             ! Back face
             if ((intersection(4,2) .gt. sheetBottom) .and. (intersection(4,2) .lt. sheetTop)) then
-
                 within(4) = .TRUE.
-
             end if
 
         end subroutine withinSheet
@@ -118,14 +108,10 @@ module sheetIntersection
             ! Loops across the number of faces of the sheet according to established index
             ! of 1, 2, 3 and 4 corresponding to top, bottom, front and back faces
             do i = 1, 4
-
                 if (hitsSheet(i)) then
-
                     intersectionTime(i) = particleTime + (abs(particleStartPos(3) - intersection(i,3))) &
                      / abs(particleVector(3)*particleSpeed)
-
                 end if
-
             end do
 
             ! Finds the maximum time of intersection and minimum
