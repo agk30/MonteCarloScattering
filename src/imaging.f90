@@ -117,17 +117,17 @@ module imaging
         end subroutine getPosInProbe
 
         ! Writes out image array into a sequence of images
-        subroutine writeImage(image, xPx, zPx, NumberOemissionTimePoints)
+        subroutine writeImage(image, xPx, zPx, NumberOfTimePoints)
             implicit none
 
             double precision, intent(inout), dimension(:,:,:,:) :: image
-            integer :: t, i, j, k, NumberOemissionTimePoints, xPx, zPx
+            integer :: t, i, j, k, NumberOfTimePoints, xPx, zPx
             character(30) :: fileName
 
-            print *, 'entering write'
+            print "(a)", 'Entering write'
 
             do k = 1, 3      
-                do t = 1, NumberOemissionTimePoints
+                do t = 1, NumberOfTimePoints
                     if (k == 1) then                
                         write(fileName,'("../Images/Image",I3,".txt")')t
                     else if (k == 2) then

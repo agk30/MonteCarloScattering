@@ -21,25 +21,25 @@ program MCScattering
     implicit none
 
     ! Variables concerning input parameters
-    integer :: ncyc, ksize, polyOrder
+    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS
     double precision :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
       captureGateOpen, captureGateClose
     logical :: scattering, testMods, writeImages, fullSim
 
-    integer :: i, j, k, vectorsPerParticle, totalTraj, NumberOfTimePoints,&
+    integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints,&
      xPx, zPx, startTimePoint, endTimePoint
     integer :: startVector
     double precision :: tWheel, rand1, deflectionAngle
     double precision :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
-     entryTime, exitTime
+     entryTime, exitTime, totalTraj
     double precision, dimension(3) :: sheetDimensions, sheetCentre
     ! particle vectors, speeds and start times are given in these arrays with (1,:) for ingoing and (2,:)
     ! for scattered for use in do loop
     double precision, dimension(2,3) :: particleVector, particleStartPos
     double precision, dimension(2) :: particleSpeed, particleTime
-    ! intersection of planes for top (1,:) bottom (2,:) front (3,:) and back (4,:)
+    ! intersection of planes for top (:,1,:) bottom (:,2,:) front (:,3,:) and back (:,4,:)
     double precision, dimension(2,4,3) :: intersection
     double precision, dimension(:,:,:,:), allocatable :: image
     double precision, dimension(:,:), allocatable :: ifoutput
@@ -58,16 +58,17 @@ program MCScattering
      h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
       skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
        probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-        writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
+        writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, &
+         cosinePowerTD, cosinePowerIS)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
     if (.not. fullSim) then
-        print *, "Scattering only"
+        print "(a)", "Scattering only"
     end if
     
     if (.not. writeImages) then
-        print *, "Image writing disabled"
+        print "(a)", "Image writing disabled"
     end if
 
     ! allocates the image array, which is shared from the imaging class
@@ -100,7 +101,7 @@ program MCScattering
         startVector = 2
     end if
 
-    print *, "Starting compute"
+    print "(a)", "Starting compute"
 
     do i = 1, ncyc
         ! sets the ingoing speed, directional unit vector and start time and point 
@@ -130,7 +131,7 @@ program MCScattering
             if (rand1 .gt. scatterFraction) then
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
                 call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
-                call thermalDesorptionDirection(particleVector(2,:))
+                call cosine_distribution(cosinePowerTD, particleVector(2,:))
             ! second case: IS scattering
             else 
                 correctDirection = .false.
@@ -138,7 +139,7 @@ program MCScattering
                 ! rejects parrticles not scattering in positive z-direction from surface
                 do while (correctDirection .eqv. .false.)
                     ! sets impulsive scattering direction based on some cosine distribution in IS subroutine
-                    call impulsiveScatter(particleVector(2,:))
+                    call cosine_distribution(cosinePowerIS, particleVector(2,:))
                     ! rotates scattered vector about the y-axis (this may not respresent scattered distribution properly)
                     call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
 
@@ -179,7 +180,7 @@ program MCScattering
 
     runTime = endTime - startTime
 
-    print *, "Compute finished in", runTime, "seconds"
+    print "(a,a,F5.2,a,a)", "Compute finished in"," ", runTime," ", "seconds"
 
     ! convolutes image with a Gaussian blur
     do k = 1, NumberOfTimePoints
@@ -224,8 +225,8 @@ program MCScattering
         call writeAngleDistribution
     end if
 
-    totalTraj = ncyc*vectorsPerParticle
+    totalTraj = real(ncyc)*real(vectorsPerParticle)
 
-    print "(I8,a,a)", totalTraj, " ", "Total trajectories"
+    print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
 
 end program MCScattering

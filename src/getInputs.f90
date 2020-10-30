@@ -11,14 +11,14 @@ module getInputs
              h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
              skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
               probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-               writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
+               writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, &
+                cosinePowerTD, cosinePowerIS)
             implicit none
 
-            integer, parameter :: r14 = selected_real_kind(14,30)
-            integer, intent(out) :: ncyc, xPx, zPx, ksize, polyOrder
+            integer, intent(out) :: ncyc, xPx, zPx, ksize, polyOrder, cosinePowerTD, cosinePowerIS
             double precision, intent(out) :: incidenceAngle, x0, aMax, aMin, &
             h, s, dist, pulseLength, mass, temp, valvePos, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
-            real(kind=r14), intent(out) :: skimPos, colPos, skimRad, valveRad, colRad, sheetCentre, &
+            double precision, intent(out) :: skimPos, colPos, skimRad, valveRad, colRad, sheetCentre, &
              halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, &
               scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose
             logical, intent(out) :: scattering, testMods, writeImages, fullSim
@@ -60,6 +60,8 @@ module getInputs
             call CFG_add(my_cfg, "xPx", 420 , "Number of image pixels in x direction")
             call CFG_add(my_cfg, "zPx", 420 , "Number of image pixels in z direction")
             call CFG_add(my_cfg, "incidenceAngle", 0D0 , "Incidence angle for beam")
+            call CFG_add(my_cfg, "cosinePowerTD" , 1 , "Power of cosine weighted TD angle distribution (cos^n)")
+            call CFG_add(my_cfg, "cosinePowerIS" , 4 , "Power of cosine weighted IS angle distribution (cos^n)")
             call CFG_add(my_cfg, "x0", 128.30344D0 , "Origin function parameter for speed generation")
             call CFG_add(my_cfg, "aMax", 1.00082D0 , "Origin function parameter for speed generation")
             call CFG_add(my_cfg, "aMin", -0.00851D0 , "Origin function parameter for speed generation")
@@ -76,7 +78,7 @@ module getInputs
             call CFG_add(my_cfg, "ncyc", 10000000 , "Number of molcules to be sampled")
             call CFG_add(my_cfg, "maxSpeed", 3000.0D0 , "Max speed for MB speed calculation")
             call CFG_add(my_cfg, "scatterFraction", 0.5D0  , &
-            "Fraction of molcules scattering in TD or IS. 0 for fulle TD, 1 for full IS")
+            "Fraction of molcules scattering in TD or IS. 0 for full TD, 1 for full IS")
             
             ! Read .cfg file and parse for changes
             call CFG_read_file(my_cfg, "../Inputs/inputs.cfg")
@@ -115,6 +117,8 @@ module getInputs
             call CFG_get(my_cfg, "xPx", xPx)
             call CFG_get(my_cfg, "zPx", zPx)
             call CFG_get(my_cfg, "incidenceAngle", incidenceAngle)
+            call CFG_get(my_cfg, "cosinePowerTD", cosinePowerTD)
+            call CFG_get(my_cfg, "cosinePowerIS", cosinePowerIS)
             call CFG_get(my_cfg, "x0", x0)
             call CFG_get(my_cfg, "aMax", aMax)
             call CFG_get(my_cfg, "aMin", aMin)
