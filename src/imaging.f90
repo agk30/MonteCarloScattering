@@ -15,7 +15,7 @@ module imaging
             implicit none
 
             integer, intent(in) :: NumberOemissionTimePoints
-            real(kind=r14), intent(in) :: entryTime, exitTime, probeStart, probeEnd, tStep
+            double precision, intent(in) :: entryTime, exitTime, probeStart, probeEnd, tStep
             integer, intent(out) :: startTimePoint, endTimePoint
             
             ! If entry time is less than probe start time, then imaging for that particle starts from the beginning of the process
@@ -54,14 +54,14 @@ module imaging
 
             implicit none
 
-            real(kind=r14), intent(inout), dimension(:,:,:) :: image
+            double precision, intent(inout), dimension(:,:,:) :: image
             integer, intent(in) :: NumberOemissionTimePoints, startTimePoint, endTimePoint, xPx, zPx
-            real(kind=r14), intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity, fLifeTime, &
+            double precision, intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity, fLifeTime, &
              captureGateOpen, captureGateClose
-            real(kind=r14), dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
+            double precision, dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
             integer :: t, posInProbexPx, posinProbeyPx, posInProbezPx, sheetCentrePx, yPx, i
-            real(kind=r14) :: currentTime, angle, emissionTime
-            real(kind=r14), dimension(3) :: posInProbe
+            double precision :: currentTime, angle, emissionTime
+            double precision, dimension(3) :: posInProbe
             logical, intent(in) :: testMods
             logical :: zImage
 
@@ -142,7 +142,7 @@ module imaging
         subroutine writeImage(image, xPx, zPx, NumberOemissionTimePoints)
             implicit none
 
-            real(kind=r14), intent(inout), dimension(:,:,:,:) :: image
+            double precision, intent(inout), dimension(:,:,:,:) :: image
             integer :: t, i, j, k, NumberOemissionTimePoints, xPx, zPx
             character(30) :: fileName
 
@@ -190,8 +190,8 @@ module imaging
         subroutine convim(imin,nx,ny,gaussdev,imout)
             !Convolutes input image imin with a gaussian of st. dev. gaussdev (in pixels), to produce imout.
                 implicit none
-                real(kind=r14), dimension(:,:), intent(in) :: imin(nx,ny)
-                real(kind=r14), dimension(:,:), intent(out) :: imout(nx,ny)
+                double precision, dimension(:,:), intent(in) :: imin(nx,ny)
+                double precision, dimension(:,:), intent(out) :: imout(nx,ny)
                 integer, intent(in) :: nx,ny
                 double precision, intent(in) :: gaussdev
                 
@@ -265,9 +265,9 @@ module imaging
         subroutine fluoresceTime(fLifeTime, emissionTime)
             implicit none
 
-            real(kind=r14) :: rand
-            real(kind=r14), intent(out) :: emissionTime
-            real(kind=r14), intent(in) :: fLifeTime
+            double precision :: rand
+            double precision, intent(out) :: emissionTime
+            double precision, intent(in) :: fLifeTime
 
             call random_number(rand)
 

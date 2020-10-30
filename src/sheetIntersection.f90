@@ -6,12 +6,12 @@ module sheetIntersection
         ! Returns intersection coordinates for top, bottom, front and back planes of the sheet
         subroutine getSheetIntersection (particleVector, startPos, sheetCentre, sheetDimensions, intersection)
 
-            real(kind=r14), intent(in), dimension(3) :: particleVector, startPos, sheetCentre, sheetDimensions
+            double precision, intent(in), dimension(3) :: particleVector, startPos, sheetCentre, sheetDimensions
             ! intersection contains x y z coordinates of intersection for each plane, in order of top, bottom,
             ! front and back from 1 - 4
-            real(kind=r14), intent(out), dimension(4,3) :: intersection
-            real(kind=r14), dimension(4,3) ::  pointOnPlane, planeVector
-            real(kind=r14) :: topOfFraction, bottomOfFraction, D
+            double precision, intent(out), dimension(4,3) :: intersection
+            double precision, dimension(4,3) ::  pointOnPlane, planeVector
+            double precision :: topOfFraction, bottomOfFraction, D
             integer :: row
 
             !since the parametric equation of a line can be given from a vector and a point, the eqution may be expressed as
@@ -56,11 +56,11 @@ module sheetIntersection
         ! Returns a logical array showing which faces of the sheet were intersected if any
         subroutine withinSheet (intersection, sheetCentre, sheetDimensions, within)
 
-            real(kind=r14), intent(in), dimension(4,3) :: intersection
-            real(kind=r14), intent(in), dimension(3) :: sheetCentre, sheetDimensions
+            double precision, intent(in), dimension(4,3) :: intersection
+            double precision, intent(in), dimension(3) :: sheetCentre, sheetDimensions
             ! 1 2 3 and 4 correspond to top, bottom, front and back
             logical, intent(out), dimension(4) :: within
-            real(kind=r14) :: sheetFront, sheetBack, sheetTop, sheetBottom
+            double precision :: sheetFront, sheetBack, sheetTop, sheetBottom
             integer :: i
 
             within = .FALSE.
@@ -106,11 +106,11 @@ module sheetIntersection
              particleSpeed, particleTime, entryTime, exitTime)
              
             logical, dimension(4), intent(in) :: hitsSheet
-            real(kind=r14), dimension(4,3), intent(in) :: intersection
-            real(kind=r14), dimension(3), intent(in) :: particleStartPos, particleVector
-            real(kind=r14), intent(in) :: particleSpeed, particleTime
-            real(kind=r14), dimension(4) :: intersectionTime
-            real(kind=r14), intent(out) :: entryTime, exitTime
+            double precision, dimension(4,3), intent(in) :: intersection
+            double precision, dimension(3), intent(in) :: particleStartPos, particleVector
+            double precision, intent(in) :: particleSpeed, particleTime
+            double precision, dimension(4) :: intersectionTime
+            double precision, intent(out) :: entryTime, exitTime
             integer :: i
 
             intersectionTime = 0

@@ -16,7 +16,7 @@ module getInputs
 
             integer, parameter :: r14 = selected_real_kind(14,30)
             integer, intent(out) :: ncyc, xPx, zPx, ksize, polyOrder
-            real(kind=r14), intent(out) :: incidenceAngle, x0, aMax, aMin, &
+            double precision, intent(out) :: incidenceAngle, x0, aMax, aMin, &
             h, s, dist, pulseLength, mass, temp, valvePos, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
             real(kind=r14), intent(out) :: skimPos, colPos, skimRad, valveRad, colRad, sheetCentre, &
              halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, &

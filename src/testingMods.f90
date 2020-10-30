@@ -9,10 +9,10 @@ module mod_tests
         subroutine angleDistribution(outgoing)
             implicit none
 
-            real(kind=r14), dimension(3), intent(in) :: outgoing
-            real(kind=r14), dimension(3) :: ingoing
+            double precision, dimension(3), intent(in) :: outgoing
+            double precision, dimension(3) :: ingoing
             integer :: i
-            real(kind=r14) :: angle
+            double precision :: angle
 
             ingoing(1) = 0 ; ingoing(2) = 0 ; ingoing(3) = 1
 

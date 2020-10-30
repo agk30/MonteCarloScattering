@@ -12,8 +12,8 @@ module sgconv
             
             integer :: k, l
             integer, intent(in) :: ksize, nd, i, j
-            real(kind=r14), intent(inout), dimension(:,:) :: padInput
-            real(kind=r14), intent(inout), dimension(:) :: columnKernel
+            double precision, intent(inout), dimension(:,:) :: padInput
+            double precision, intent(inout), dimension(:) :: columnKernel
 
             
             do k = 1, ksize
@@ -29,13 +29,13 @@ module sgconv
             implicit none
         
             integer :: xPx, zPx, row, column, i, j, k, l, m, ksize, nd, nk, polyOrder
-            real(kind=r14), allocatable, dimension(:,:) :: input, diffinput
-            real(kind=r14), allocatable, dimension(:,:), intent (out) :: output
-            real(kind=r14), allocatable, dimension(:,:) :: padInput
-            real(kind=r14), allocatable, dimension(:) :: sgmatrix
-            real(kind=r14), allocatable, dimension(:,:) :: kernel
-            real(kind=r14), allocatable, dimension(:) :: columnKernel
-            real(kind=r14) :: dotprod
+            double precision, allocatable, dimension(:,:) :: input, diffinput
+            double precision, allocatable, dimension(:,:), intent (out) :: output
+            double precision, allocatable, dimension(:,:) :: padInput
+            double precision, allocatable, dimension(:) :: sgmatrix
+            double precision, allocatable, dimension(:,:) :: kernel
+            double precision, allocatable, dimension(:) :: columnKernel
+            double precision :: dotprod
             
             nd = (ksize-1)/2
             nk = ((ksize**2) - 1)/2

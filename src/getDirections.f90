@@ -8,10 +8,10 @@ module getDirections
 
             ! valve(1), valve(2) and valve(3) correspond to x y and z coordinates of valve position with which to draw line.
             ! Likewise with skimmer() and collimator()
-            real(kind=r14), dimension(3) :: skimmer, collimator
-            real(kind=r14), intent (in) :: valveRad, valvePos, skimRad, skimPos, colRad, colPos
-            real(kind=r14), intent(out), dimension(3) :: ingoingUnitVector, valve
-            real(kind=r14) :: mx, my, cx, cy, z
+            double precision, dimension(3) :: skimmer, collimator
+            double precision, intent (in) :: valveRad, valvePos, skimRad, skimPos, colRad, colPos
+            double precision, intent(out), dimension(3) :: ingoingUnitVector, valve
+            double precision :: mx, my, cx, cy, z
             logical :: hit
 
             hit = .FALSE.
@@ -54,11 +54,11 @@ module getDirections
 
         subroutine rotation(oldVector, theta, newVector)
 
-            real(kind=r14), intent(in), dimension(3) :: oldVector
-            real(kind=r14), intent(out), dimension(3) :: newVector
-            real(kind=r14), dimension(3,3) :: rotationMatrix
-            real(kind=r14), intent(in) :: theta
-            real(kind=r14) :: costheta, sintheta
+            double precision, intent(in), dimension(3) :: oldVector
+            double precision, intent(out), dimension(3) :: newVector
+            double precision, dimension(3,3) :: rotationMatrix
+            double precision, intent(in) :: theta
+            double precision :: costheta, sintheta
             
             costheta = cos(theta*((2*pi)/360.0D0))
             sintheta = sin(theta*((2*pi)/360.0D0))
@@ -81,8 +81,8 @@ module getDirections
 
             integer :: i
             logical :: hit
-            real(kind=r14) :: rand1, rand2, rand3, rand4, theta, phi, sin2theta
-            real(kind=r14), dimension(3) :: scatteredDirection
+            double precision :: rand1, rand2, rand3, rand4, theta, phi, sin2theta
+            double precision, dimension(3) :: scatteredDirection
     
             call random_number(rand1)
     
@@ -128,8 +128,8 @@ module getDirections
 
             implicit none
         
-            real(kind=r14) :: rand1, rand2, phi, theta, x5
-            real(kind=r14), dimension(3), intent(out) :: scatteredDirection
+            double precision :: rand1, rand2, phi, theta, x5
+            double precision, dimension(3), intent(out) :: scatteredDirection
         
             call random_number(rand1)
             call random_number(rand2)
@@ -149,8 +149,8 @@ module getDirections
         !Randomly pick a points from a unit radius circle.
         subroutine discPick(x,y)
 
-            real(kind=r14), intent(out) :: x, y
-            real(kind=r14) :: rand1, rand2
+            double precision, intent(out) :: x, y
+            double precision :: rand1, rand2
 
             !Random number for distance point is from centre of unit circle the value is square rooted so that the points alone
             ! this line will result in an even distribution of point on the unit circle rather than at a higher density at the centre
@@ -171,8 +171,8 @@ module getDirections
         !note x and y are used here to mean y=mx+c not in reference to chamber coordinates (z chamber is x here)
         subroutine fitLine (y2, x2, y1, x1, m, c)
 
-            real(kind=r14), intent(in) :: y2, x2, y1, x1 
-            real(kind=r14), intent(out) :: m, c
+            double precision, intent(in) :: y2, x2, y1, x1 
+            double precision, intent(out) :: m, c
 
             m = (y2-y1)/(x2-x1)
             c = y2 - (m*x2)
@@ -182,10 +182,10 @@ module getDirections
         !Calcualtes unit vectors from gradients of the lines in the x and y directions. 
         subroutine unitVector (mx, my, v)
 
-            real(kind=r14), intent(in) :: mx, my
+            double precision, intent(in) :: mx, my
             ! v(1), v(2), v(3) correspond to vector component in x, y, z direction
-            real(kind=r14), dimension(3), intent(out) :: v
-            real(kind=r14) :: magnitude
+            double precision, dimension(3), intent(out) :: v
+            double precision :: magnitude
 
             magnitude = sqrt(mx**2.0D0 + my**2.0D0 + 1.0D0)
             v(1) = mx/magnitude

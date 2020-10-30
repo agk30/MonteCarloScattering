@@ -7,10 +7,10 @@ module getSpeeds
         subroutine ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, speed, t0)
 
             ! variables relating to cumulative integral function of arrival times
-            real(kind=r14), intent(in) :: x0, aMax, aMin, h, s
-            real(kind=r14), intent(in) :: dist, pulseLength
-            real(kind=r14), intent(out) :: speed, t0
-            real(kind=r14) :: t, x, arrivalTime
+            double precision, intent(in) :: x0, aMax, aMin, h, s
+            double precision, intent(in) :: dist, pulseLength
+            double precision, intent(out) :: speed, t0
+            double precision :: t, x, arrivalTime
 
             ! Calculate random time of creation
             call random_number(t)
@@ -28,9 +28,9 @@ module getSpeeds
         subroutine MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, scatteredSpeed)
 
             logical :: hit
-            real(kind=r14), intent(in) :: maxSpeed, temp, mass, mostLikelyProbability
-            real(kind=r14), intent(inout) :: scatteredSpeed
-            real(kind=r14) :: speed, rand1, rand2, probability, normalisedProbability
+            double precision, intent(in) :: maxSpeed, temp, mass, mostLikelyProbability
+            double precision, intent(inout) :: scatteredSpeed
+            double precision :: speed, rand1, rand2, probability, normalisedProbability
 
             hit = .FALSE.
 
@@ -63,7 +63,7 @@ module getSpeeds
         ! Finds probability of particle travelling at given speed
         function MBProbability (temp, speed, mass) result(probability)
 
-            real(kind=r14) :: part1, part2, part3, speed, temp, mass, probability
+            double precision :: part1, part2, part3, speed, temp, mass, probability
 
             !part 1, 2, 3 correspond to individual parts of the maxwell-boltzmann distribution
             ! formula for calculating probability of a given speed
@@ -78,7 +78,7 @@ module getSpeeds
         ! Finds the most probable speed and its probability to use in normalisation 
         function MBMostLikely (temp, mass) result(mostLikelyProbability)
 
-            real(kind=r14) :: temp, mass, mostProbableSpeed, mostLikelyProbability
+            double precision :: temp, mass, mostProbableSpeed, mostLikelyProbability
 
             mostProbableSpeed = sqrt((2.0D0*boltzmannConstant*temp)/mass)
             mostLikelyProbability = MBProbability(temp, mostProbableSpeed, mass)
@@ -88,8 +88,8 @@ module getSpeeds
         subroutine getDeflectionAngle(ingoing, outgoing, deflectionAngle)
             implicit none
 
-            real(kind=r14), intent(in), dimension(3) :: ingoing, outgoing
-            real(kind=r14), intent(out) :: deflectionAngle
+            double precision, intent(in), dimension(3) :: ingoing, outgoing
+            double precision, intent(out) :: deflectionAngle
 
             ! since this dot product finds the angle between the two vectors, it necessarily finds the deflection angle
             ! this is because the vectors are assumed to begin at the same point, and this is not the case with
@@ -101,10 +101,10 @@ module getSpeeds
         subroutine softSphereSpeed(mass, internalRatio, surfaceMass, initialSpeed, deflectionAngle, finalSpeed)
             implicit none
 
-            real(kind=r14) :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
+            double precision :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
             ,part1, part2, part3, part4, part5, internalEnergyLoss, internalRatio, energyDiff, mass
-            real(kind=r14), intent(in) :: initialSpeed, deflectionAngle
-            real(kind=r14), intent(out) :: finalSpeed
+            double precision, intent(in) :: initialSpeed, deflectionAngle
+            double precision, intent(out) :: finalSpeed
             
             massRatio = mass/surfaceMass*1000.0D0
             initialEnergy = 0.5D0 * mass * initialSpeed * initialSpeed
