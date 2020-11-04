@@ -8,7 +8,7 @@ program transverseProfile
     xPx = 420
     yPx = 420
 
-    open(unit=11,file= 'Images2/Image 48.txt')
+    open(unit=11,file= '../../Images2/Image 48.txt')
 
     open(unit=12,file= 'transverseProfile.txt')
 

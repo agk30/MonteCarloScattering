@@ -31,10 +31,10 @@ program MCScattering
     integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints,&
      xPx, zPx, startTimePoint, endTimePoint
     integer :: startVector
-    double precision :: tWheel, rand1, deflectionAngle
-    double precision :: mostLikelyProbability, startTime, endTime, runTime, acceptanceRatio, &
+    double precision :: tWheel, rand1, deflectionAngle, perpSpeed, colTime, modifStartTime
+    double precision :: mostLikelyProbability, mostLikelyProbabilityPerp, startTime, endTime, runTime, acceptanceRatio, &
      entryTime, exitTime, totalTraj
-    double precision, dimension(3) :: sheetDimensions, sheetCentre
+    double precision, dimension(3) :: sheetDimensions, sheetCentre, perpVector
     ! particle vectors, speeds and start times are given in these arrays with (1,:) for ingoing and (2,:)
     ! for scattered for use in do loop
     double precision, dimension(2,3) :: particleVector, particleStartPos
@@ -89,11 +89,15 @@ program MCScattering
         ! Calculates probability of most probable speed at given temperature for use in thermal desorption subroutines
         mostLikelyProbability = MBMostLikely(temp, mass)
         
+        !mostLikelyProbabilityPerp = 1D0
         ! Sets the number of loops in later do loop depending on the number of vectors per particle
         vectorsPerParticle = 2
     else
         vectorsPerParticle = 1
     end if
+
+    mostLikelyProbabilityPerp = 1D0
+    mostLikelyProbabilityPerp = MBMostLikely(1D-2, mass)
 
     if (fullSim) then
         startVector = 1
@@ -120,6 +124,35 @@ program MCScattering
         particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
+
+        ! Add perpendicular temp
+        !print *, colPos, particleTime(1)
+
+        colTime = (particleTime(1) + abs((valvePos - colPos)/(particleVector(1,3)*particleSpeed(1))))
+        particleStartPos(1,1) = particleStartPos(1,1) + (particleVector(1,1)*particleSpeed(1)*colTime)
+        particleStartPos(1,2) = particleStartPos(1,2) + (particleVector(1,2)*particleSpeed(1)*colTime)
+        particleStartPos(1,3) = colPos
+
+        call MBSpeed(50D0, 1D-2, mass, mostLikelyProbabilityPerp, perpSpeed)
+
+        !print *, mostLikelyProbabilityPerp, perpSpeed
+
+        particleVector(1,:) = particleVector(1,:)*particleSpeed(1)
+
+        perpVector = SQRT((particleVector(1,1)**2D0)+(particleVector(1,2)**2D0))
+
+        particleVector(1,1) = particleVector(1,1)*((perpVector(1)+perpSpeed)/perpVector(1))
+        particleVector(1,2) = particleVector(1,2)*((perpVector(2)+perpSpeed)/perpVector(2))
+
+        particleVector(1,:) = particleVector(1,:)/norm2(particleVector(1,:))
+
+        particleTime(1) = colTime
+
+        !print *, particleTime(1)
+
+        !print *, colTime, probeStart
+        !print *, particleVector(1,:)
+        !print *, particleStartPos(1,:)
 
         if (scattering) then
             call random_number(rand1)
@@ -168,6 +201,8 @@ program MCScattering
                 call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
                  startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
+
+                 !print *, entryTime, startTimePoint, exitTime, endTimePoint
 
                 call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
