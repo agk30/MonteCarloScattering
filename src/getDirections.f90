@@ -48,6 +48,27 @@ module getDirections
 
         end subroutine ingoingDirection
 
+        subroutine transverse_temp
+            implicit none
+
+            double precision, dimension(3) :: startPoint, spreadPoint, vector
+            double precision :: zPos, travelDistance, startTime, spreadTime, speed
+
+            spreadTime = (startTime + abs(travelDistance/(vector(3)*speed(1))))
+            spreadPoint(1) = startPoint(1) + (vector(1)*speed*spreadTime)
+            spreadPoint(2) = startPoint(2) + (vector(2)*speed*spreadTime)
+            spreadPoint(3) = zPos
+    
+            !call MBSpeed(50D0, 1D0, mass, mostLikelyProbabilityPerp, perpSpeed)
+    
+            !print *, mostLikelyProbabilityPerp, perpSpeed
+    
+            vector = vector*speed
+    
+            
+
+        end subroutine transverse_temp
+
         subroutine rotation(oldVector, theta, newVector)
 
             double precision, intent(in), dimension(3) :: oldVector

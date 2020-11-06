@@ -96,9 +96,6 @@ program MCScattering
         vectorsPerParticle = 1
     end if
 
-    mostLikelyProbabilityPerp = 1D0
-    mostLikelyProbabilityPerp = MBMostLikely(1D-2, mass)
-
     if (fullSim) then
         startVector = 1
     else
@@ -124,35 +121,6 @@ program MCScattering
         particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
-
-        ! Add perpendicular temp
-        !print *, colPos, particleTime(1)
-
-        colTime = (particleTime(1) + abs((valvePos - colPos)/(particleVector(1,3)*particleSpeed(1))))
-        particleStartPos(1,1) = particleStartPos(1,1) + (particleVector(1,1)*particleSpeed(1)*colTime)
-        particleStartPos(1,2) = particleStartPos(1,2) + (particleVector(1,2)*particleSpeed(1)*colTime)
-        particleStartPos(1,3) = colPos
-
-        call MBSpeed(50D0, 1D-2, mass, mostLikelyProbabilityPerp, perpSpeed)
-
-        !print *, mostLikelyProbabilityPerp, perpSpeed
-
-        particleVector(1,:) = particleVector(1,:)*particleSpeed(1)
-
-        perpVector = SQRT((particleVector(1,1)**2D0)+(particleVector(1,2)**2D0))
-
-        particleVector(1,1) = particleVector(1,1)*((perpVector(1)+perpSpeed)/perpVector(1))
-        particleVector(1,2) = particleVector(1,2)*((perpVector(2)+perpSpeed)/perpVector(2))
-
-        particleVector(1,:) = particleVector(1,:)/norm2(particleVector(1,:))
-
-        particleTime(1) = colTime
-
-        !print *, particleTime(1)
-
-        !print *, colTime, probeStart
-        !print *, particleVector(1,:)
-        !print *, particleStartPos(1,:)
 
         if (scattering) then
             call random_number(rand1)
@@ -215,7 +183,7 @@ program MCScattering
 
     runTime = endTime - startTime
 
-    print "(a,a,F5.2,a,a)", "Compute finished in"," ", runTime," ", "seconds"
+    print "(a,a,F6.2,a,a)", "Compute finished in"," ", runTime," ", "seconds"
 
     ! convolutes image with a Gaussian blur
     do k = 1, NumberOfTimePoints

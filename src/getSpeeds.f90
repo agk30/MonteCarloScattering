@@ -60,6 +60,35 @@ module getSpeeds
 
         end subroutine MBSpeed
 
+        subroutine one_dim_MB_speed(maxSpeed1D, temp, mass, scatteredSpeed)
+            implicit none
+
+            double precision, intent(in) :: maxSpeed1D, temp, mass
+            double precision, intent(out) :: scatteredSpeed
+            double precision :: rand, probability, sampleSpeed, part1, part2
+            logical :: accepted
+
+            accepted = .FALSE.
+
+            do while(.not. accepted)
+                call random_number(rand)
+
+                sampleSpeed = rand*maxSpeed1D
+
+                part1 = SQRT(mass/(2D0*pi*boltzmannConstant*temp))
+                part2 = -(mass*sampleSpeed*sampleSpeed)/(2D0*boltzmannConstant*temp)
+                probability = part1*EXP(part2)
+
+
+                if (probability .gt. rand) then
+                    scatteredSpeed = sampleSpeed
+
+                    accepted = .TRUE.
+                end if
+            end do
+
+        end subroutine one_dim_MB_speed
+
         ! Finds probability of particle travelling at given speed
         function MBProbability (temp, speed, mass) result(probability)
 
