@@ -25,7 +25,7 @@ program MCScattering
     double precision :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
-      captureGateOpen, captureGateClose
+      captureGateOpen, captureGateClose, maxSpeed1D, transverseTemp
     logical :: scattering, testMods, writeImages, fullSim
 
     integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints,&
@@ -102,6 +102,12 @@ program MCScattering
         startVector = 2
     end if
 
+    maxSpeed1D = 500D0
+
+    transverseTemp = 10D0
+
+    !print *, mass
+
     print "(a)", "Starting compute"
 
     do i = 1, ncyc
@@ -121,6 +127,9 @@ program MCScattering
         particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
+
+        call transverse_temp(transverseTemp, maxSpeed1D, mass, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+         particleStartPos(1,:), particleVector(1,:))
 
         if (scattering) then
             call random_number(rand1)

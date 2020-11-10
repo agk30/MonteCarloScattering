@@ -30,7 +30,7 @@ module getSpeeds
             logical :: hit
             double precision, intent(in) :: maxSpeed, temp, mass, mostLikelyProbability
             double precision, intent(inout) :: scatteredSpeed
-            double precision :: speed, rand1, rand2, probability, normalisedProbability
+            double precision :: rand1, rand2, probability, normalisedProbability
 
             hit = .FALSE.
 
@@ -65,25 +65,26 @@ module getSpeeds
 
             double precision, intent(in) :: maxSpeed1D, temp, mass
             double precision, intent(out) :: scatteredSpeed
-            double precision :: rand, probability, sampleSpeed, part1, part2
+            double precision :: rand, rand2, probability, part1, part2
             logical :: accepted
 
             accepted = .FALSE.
 
-            do while(.not. accepted)
+            do
                 call random_number(rand)
 
-                sampleSpeed = rand*maxSpeed1D
+                scatteredSpeed = rand*maxSpeed1D
 
                 part1 = SQRT(mass/(2D0*pi*boltzmannConstant*temp))
-                part2 = -(mass*sampleSpeed*sampleSpeed)/(2D0*boltzmannConstant*temp)
-                probability = part1*EXP(part2)
+                part2 = -(mass*scatteredSpeed*scatteredSpeed)/(2D0*boltzmannConstant*temp)
+                probability = EXP(part2)
 
+                !print *, mass, scatteredSpeed, probability
 
-                if (probability .gt. rand) then
-                    scatteredSpeed = sampleSpeed
+                call random_number(rand2)
 
-                    accepted = .TRUE.
+                if (probability .gt. rand2) then
+                    EXIT
                 end if
             end do
 

@@ -1,5 +1,6 @@
 module getDirections
     use mathConstants
+    use getSpeeds
 
     contains
 
@@ -48,24 +49,41 @@ module getDirections
 
         end subroutine ingoingDirection
 
-        subroutine transverse_temp
+        subroutine transverse_temp(temp, maxSpeed1D, mass, zPos, travelDistance, startTime, speed, startPoint, vector)
             implicit none
 
-            double precision, dimension(3) :: startPoint, spreadPoint, vector
-            double precision :: zPos, travelDistance, startTime, spreadTime, speed
+            double precision, dimension(3) :: startPoint
+            double precision, dimension(3), intent(inout) :: vector
+            double precision :: zPos, travelDistance, startTime, speed, maxSpeed1D, temp, mass, MBSpeed, rand
 
-            spreadTime = (startTime + abs(travelDistance/(vector(3)*speed(1))))
-            spreadPoint(1) = startPoint(1) + (vector(1)*speed*spreadTime)
-            spreadPoint(2) = startPoint(2) + (vector(2)*speed*spreadTime)
-            spreadPoint(3) = zPos
-    
-            !call MBSpeed(50D0, 1D0, mass, mostLikelyProbabilityPerp, perpSpeed)
-    
-            !print *, mostLikelyProbabilityPerp, perpSpeed
+            startTime = (startTime + abs(travelDistance/(vector(3)*speed)))
+            startPoint(1) = startPoint(1) + (startTime*speed*vector(1))
+            startPoint(2) = startPoint(2) + (startTime*speed*vector(2))
+            startPoint(3) = zPos
     
             vector = vector*speed
-    
-            
+
+            call random_number(rand)
+
+            call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
+
+            if (rand .gt. 0.5) then
+                vector(1) = MBSpeed
+            else
+                vector(1) = -MBSpeed
+            end if
+
+            call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
+
+            call random_number(rand)
+
+            if (rand .gt. 0.5) then
+                vector(2) = MBSpeed
+            else
+                vector(2) = -MBSpeed
+            end if
+
+            vector = vector/norm2(vector)
 
         end subroutine transverse_temp
 
@@ -138,20 +156,18 @@ module getDirections
 
             implicit none
         
-            double precision :: rand1, rand2, phi, theta, x5
+            double precision :: rand1, rand2, phi, theta, x
             integer, intent(in) :: cosinePower
             double precision, dimension(3), intent(out) :: scatteredDirection
         
             call random_number(rand1)
             call random_number(rand2)
 
-            !print *, cosinePower
-        
             phi = rand1*2*pi
         
-            x5 = rand2**(1.0/dble(cosinePower+1.0))
+            x = rand2**(1.0/dble(cosinePower+1.0))
         
-            theta = dacos(x5)
+            theta = dacos(x)
 
             scatteredDirection(1) = sin(theta)*cos(phi)
             scatteredDirection(2) = sin(theta)*sin(phi)
