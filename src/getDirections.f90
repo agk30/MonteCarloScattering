@@ -65,7 +65,8 @@ module getDirections
 
             call random_number(rand)
 
-            call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
+            !call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
+            call lorentzian_distribution(MBSpeed)
 
             if (rand .gt. 0.5) then
                 vector(1) = MBSpeed
@@ -73,7 +74,8 @@ module getDirections
                 vector(1) = -MBSpeed
             end if
 
-            call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
+            !call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
+            call lorentzian_distribution(MBSpeed)
 
             call random_number(rand)
 

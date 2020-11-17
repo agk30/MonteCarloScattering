@@ -102,9 +102,9 @@ program MCScattering
         startVector = 2
     end if
 
-    maxSpeed1D = 500D0
+    maxSpeed1D = 5000D0
 
-    transverseTemp = 10D0
+    transverseTemp = 5D0
 
     !print *, mass
 
@@ -128,8 +128,8 @@ program MCScattering
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
 
-        !call transverse_temp(transverseTemp, maxSpeed1D, mass, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
-        ! particleStartPos(1,:), particleVector(1,:))
+        call transverse_temp(transverseTemp, maxSpeed1D, mass, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+         particleStartPos(1,:), particleVector(1,:))
 
         if (scattering) then
             call random_number(rand1)

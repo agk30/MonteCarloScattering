@@ -90,6 +90,19 @@ module getSpeeds
 
         end subroutine one_dim_MB_speed
 
+        subroutine lorentzian_distribution(speed)
+            implicit none
+
+            double precision :: probability, speed, gamma, rand1
+
+            call random_number(rand1)
+
+            gamma = 30.0D0
+
+            speed = gamma*tan(pi*(rand1-0.5D0))
+
+        end subroutine lorentzian_distribution
+
         ! Finds probability of particle travelling at given speed
         function MBProbability (temp, speed, mass) result(probability)
 

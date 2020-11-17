@@ -49,12 +49,8 @@ program roiAnalysis
 
                 do i = -4, 4
                     do j = -4, 4
-
                         roi(i,j,k,l,m) = image((int(centrePx(1)) + int(roiCentre(1)) + i),&
                          (int(centrePx(2)) - int(roiCentre(2) + j)))
-
-                        !print *, roiCentre(1)
-
                     end do
                 end do
 
