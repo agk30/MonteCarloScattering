@@ -126,7 +126,7 @@ module imaging
 
             print "(a)", 'Entering write'
 
-            do k = 2, 2      
+            do k = 2, 3      
                 do t = 1, NumberOfTimePoints
                     if (k == 1) then                
                         write(fileName,'("../Images/Image",I3,".txt")')t

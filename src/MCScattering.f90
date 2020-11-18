@@ -133,9 +133,6 @@ program MCScattering
 
         if (scattering) then
             call random_number(rand1)
-
-            ! alter this if statement to have a higher or lower fraction of TD vs IS scattering
-            ! TODO replace as input variable
             
             ! first case: TD scattering
             if (rand1 .gt. scatterFraction) then
@@ -208,7 +205,7 @@ program MCScattering
         do j = 1, 420
             do k = 1, NumberOfTimePoints
                 if (image(i,j,k,2) .gt. 0) then
-                    image(i,j,k,3) = image(i,j,k,2) * ifoutput(i-50,j)
+                    image(i,j,k,3) = image(i,j,k,2) * ifoutput(i,j)
                 end if
             end do
         end do

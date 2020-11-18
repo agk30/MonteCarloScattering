@@ -47,11 +47,14 @@ module sgconv
             allocate(columnKernel(ksize**2))
 
             ! TODO ask for input of real IF file on start up, fix concatenation
-            open(11,file='../Real Images/02032020_1_Q11_IF')
+           ! open(11,file='../Real Images/02032020_1_Q11_IF')
+            open(11,file='../Real Images/01102020_4_Q11_IF')
            ! open(12,file='SG Matrices/CC_027x027_00'//char(polyOrder)//'x00'//char(polyOrder)//'.dat')
             open(12,file='../SG Matrices/CC_027x027_003x003.dat')
         
             read(12,*) sgmatrix(1:(((ksize**2)-1)/2)+1)
+
+            print *, "1"
         
             ! input SG matrices only contain half + 1 of the required array, symmetric about the last entry. this loop builds
             ! the rest of the array
@@ -67,6 +70,8 @@ module sgconv
             ! TODO make this a variable. Sets the baseline of the image to 0, or close to 0
             input = input - 950
             padInput = 0D0
+
+            print *, "2"
         
             ! builds a padded array. the image array requires padding outside of its bounds with the addition of nd fields on 
             ! either side of the image and also above and below it
@@ -77,6 +82,8 @@ module sgconv
         
                 end do       
             end do
+
+            print *, "3"
       
             do i = 1, 420        
                 do j = 1, 420      
@@ -94,12 +101,14 @@ module sgconv
                 end do  
             end do
 
+            print *, "4"
+
             ! extra info. shows differences in input image and the output image.
-            do i = 1, 420   
-                do j = 1, 420    
-                  diffinput(i,j) = input(i,j) - output(i,j)    
-                end do  
-            end do
+            !do i = 1, 420   
+                !do j = 1, 420    
+                 ! diffinput(i,j) = input(i,j) - output(i,j)    
+                !end do  
+            !end do
         end subroutine sgarray
 
 end module sgconv
