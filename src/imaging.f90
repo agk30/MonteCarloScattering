@@ -140,7 +140,7 @@ module imaging
 
                     do i = 1, zPx
                         do j = 1, xPx
-                            write(20+t,'(ES12.5)',advance='no') image(i,j,t,k)
+                            write(20+t,'(ES12.5,a)',advance='no') image(i,j,t,k)," "
                         end do
 
                         write(20+t,*)

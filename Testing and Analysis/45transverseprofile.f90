@@ -4,7 +4,8 @@ program fftransverse
     integer :: i, j, start(2)
     double precision :: image(420,420), ifimage(420,420), profile(250)
 
-    open(11,file='02112020_1_Q11_IB TOF Profile_ChC100')
+    !open(11,file='18112020_1_Q11_IB TOF Profile_ChC092')
+    open(11,file='Image  9.txt')
     open(12,file='smoothedIF.txt')
 
     start(1) = 0
@@ -19,10 +20,10 @@ program fftransverse
     end do
 
     do i = 1, 420
-        read(12,*) (ifimage(j,i),j=1,420)
+        !read(12,*) (ifimage(j,i),j=1,420)
     end do
 
-    image = image / ifimage
+    !image = image / ifimage
 
     print *, profile(213)
 

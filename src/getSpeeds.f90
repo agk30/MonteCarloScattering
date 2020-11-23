@@ -97,7 +97,7 @@ module getSpeeds
 
             call random_number(rand1)
 
-            gamma = 30.0D0
+            gamma = 40.0D0
 
             speed = gamma*tan(pi*(rand1-0.5D0))
 
