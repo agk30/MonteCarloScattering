@@ -49,12 +49,13 @@ module getDirections
 
         end subroutine ingoingDirection
 
-        subroutine transverse_temp(temp, maxSpeed1D, mass, zPos, travelDistance, startTime, speed, startPoint, vector)
+        !subroutine transverse_temp(temp, maxSpeed1D, mass, zPos, travelDistance, startTime, speed, startPoint, vector)
+        subroutine transverse_temp(mean, sigma, zPos, travelDistance, startTime, speed, startPoint, vector)
             implicit none
 
             double precision, dimension(3) :: startPoint
             double precision, dimension(3), intent(inout) :: vector
-            double precision :: zPos, travelDistance, startTime, speed, maxSpeed1D, temp, mass, MBSpeed, rand
+            double precision :: zPos, travelDistance, startTime, speed, maxSpeed1D, temp, mass, MBSpeed, rand, z2, mean, sigma
 
             startTime = (startTime + abs(travelDistance/(vector(3)*speed)))
             startPoint(1) = startPoint(1) + (startTime*speed*vector(1))
@@ -66,24 +67,40 @@ module getDirections
             call random_number(rand)
 
             !call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
-            call lorentzian_distribution(MBSpeed)
-
             if (rand .gt. 0.5) then
-                vector(1) = MBSpeed
+                call lorentzian_distribution(MBSpeed)
             else
-                vector(1) = -MBSpeed
+                call gaussian_distribution(mean, sigma, MBSpeed, z2)
             end if
 
-            !call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
-            call lorentzian_distribution(MBSpeed)
+            vector(1) = MBSpeed
 
             call random_number(rand)
 
             if (rand .gt. 0.5) then
-                vector(2) = MBSpeed
+                call lorentzian_distribution(MBSpeed)
             else
-                vector(2) = -MBSpeed
+                call gaussian_distribution(mean, sigma, MBSpeed, z2)
             end if
+
+            vector(2) = MBSpeed
+
+            !if (rand .gt. 0.5) then
+                !vector(1) = MBSpeed
+            !else
+                !vector(1) = -MBSpeed
+            !end if
+
+            !call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
+            !call lorentzian_distribution(MBSpeed)
+
+            !call random_number(rand)
+
+            !if (rand .gt. 0.5) then
+               ! vector(2) = MBSpeed
+            !else
+               ! vector(2) = -MBSpeed
+            !end if
 
             vector = vector/norm2(vector)
 

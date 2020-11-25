@@ -115,7 +115,10 @@ program MCScattering
         call ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
         call ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
-        call transverse_temp(transverseTemp, maxSpeed1D, mass, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+        !call transverse_temp(transverseTemp, maxSpeed1D, mass, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+        !particleStartPos(1,:), particleVector(1,:))
+
+        call transverse_temp(0D0, 40D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
         particleStartPos(1,:), particleVector(1,:))
 
         ! changes the angle of incidence and starting point of the particle using a rotation matrix
@@ -198,7 +201,7 @@ program MCScattering
         call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
     end do
 
-    image = 1
+    !image = 1
 
     ! prepares smoothed IF image
     call sgarray(xPx, zPx, ksize, polyOrder, ifoutput)
