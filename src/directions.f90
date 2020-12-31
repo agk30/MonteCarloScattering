@@ -1,11 +1,11 @@
-module getDirections
+module directions
     use mathConstants
-    use getSpeeds
+    use speeds
 
     contains
 
         ! Finds a trajectory that passes though skimmer and collimator
-        subroutine ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, ingoingUnitVector, valve)
+        subroutine ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, ingoingUnitVector, valve)
 
             ! valve(1), valve(2) and valve(3) correspond to x y and z coordinates of valve position with which to draw line.
             ! Likewise with skimmer() and collimator()
@@ -20,18 +20,18 @@ module getDirections
             ! Loops until a suitable trajectory is found
             do while (hit .eqv. .FALSE.)
                 ! Finds random point on valve for particle origin
-                call discPick(valve(1),valve(2))
+                call disc_pick(valve(1),valve(2))
                 valve = valve*valveRad
                 valve(3) = valvePos
 
                 ! Finds random point on skimmer for particle to pass through
-                call discPick(skimmer(1),skimmer(2))
+                call disc_pick(skimmer(1),skimmer(2))
                 skimmer = skimmer*skimRad
                 skimmer(3) = skimPos
 
                 ! Finds linear properties for line between valve and collimator positions
-                call fitline(valve(1), valve(3), skimmer(1), skimmer(3), mx, cx)
-                call fitline(valve(2), valve(3), skimmer(2), skimmer(3), my, cy)
+                call fit_line(valve(1), valve(3), skimmer(1), skimmer(3), mx, cx)
+                call fit_line(valve(2), valve(3), skimmer(2), skimmer(3), my, cy)
 
                 ! Caclulates positoin of particle at collimator and decides if it passes through or not
                 collimator(1) = mx*(valvePos - colPos) + cx
@@ -41,13 +41,12 @@ module getDirections
                 z = SQRT(collimator(1)**2 + collimator(2)**2)
                 
                 if (z .lt. colRad) then
-                    call unitVector(mx, my, ingoingUnitVector)
-
+                    call unit_vector(mx, my, ingoingUnitVector)
                     hit = .TRUE.
                 end if
             end do
 
-        end subroutine ingoingDirection
+        end subroutine ingoing_direction
 
         !subroutine transverse_temp(temp, maxSpeed1D, mass, zPos, travelDistance, startTime, speed, startPoint, vector)
         subroutine transverse_temp(mean, sigma, zPos, travelDistance, startTime, speed, startPoint, vector)
@@ -85,23 +84,6 @@ module getDirections
 
             vector(2) = MBSpeed
 
-            !if (rand .gt. 0.5) then
-                !vector(1) = MBSpeed
-            !else
-                !vector(1) = -MBSpeed
-            !end if
-
-            !call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
-            !call lorentzian_distribution(MBSpeed)
-
-            !call random_number(rand)
-
-            !if (rand .gt. 0.5) then
-               ! vector(2) = MBSpeed
-            !else
-               ! vector(2) = -MBSpeed
-            !end if
-
             vector = vector/norm2(vector)
 
         end subroutine transverse_temp
@@ -130,47 +112,8 @@ module getDirections
 
         end subroutine rotation
 
-        ! Finds thermal desorption trajetory based on a cos(theta) distribution of scattering angles
-        subroutine thermalDesorptionDirection(scatteredDirection)
-
-            integer :: i
-            logical :: hit
-            double precision :: rand1, rand2, rand3, rand4, theta, phi, sin2theta
-            double precision, dimension(3) :: scatteredDirection
-    
-            call random_number(rand1)
-    
-            phi = rand1 * pi / 2
-    
-            call random_number(rand2)
-            ! see paper by J. Greenwood, Vacuum 2002 for explanation of how to generate angle distribution,
-            ! not as simple as cos(theta)!
-            theta = asin(SQRT(rand2))
-    
-            scatteredDirection(3) = (cos(theta))
-    
-            call random_number(rand3)
-            
-            ! TODO clean this up, no reason to be dealing with changing to negative numbers. bad. sad.
-            if (rand3 .gt. 0.5D0) then
-                scatteredDirection(1) = (cos(phi))*(sin(theta))
-            else 
-                scatteredDirection(1) = -(cos(phi))*(sin(theta))
-            end if
-    
-            call random_number(rand4)
-    
-            if (rand4 .gt. 0.5D0) then         
-                scatteredDirection(2) = (sin(phi))*(sin(theta))
-            else 
-                scatteredDirection(2) = -(sin(phi))*(sin(theta)) 
-            end if
-    
-        end subroutine thermalDesorptionDirection
-
-        ! This subroutine takes the cos^4(theta) dsitribution observed by Minton et.al. Distribution is around surface normal and
-        ! must be rotated with the rotation matrix function to obtain desired scattering angle.
-        ! similar to thermal distribution. take cos^4(theta)*sin(theta), integrate, then take inverse of that function
+        ! It must be noted that this cosine distribution of scattering angles is simply a function that fits data,
+        ! not necessarily the absolute correct distribution one would expect to see
         subroutine cosine_distribution(cosinePower, scatteredDirection)
 
             implicit none
@@ -195,7 +138,7 @@ module getDirections
         end subroutine cosine_distribution
 
         !Randomly pick a points from a unit radius circle.
-        subroutine discPick(x,y)
+        subroutine disc_pick(x,y)
 
             double precision, intent(out) :: x, y
             double precision :: rand1, rand2
@@ -213,11 +156,11 @@ module getDirections
             x = rand1*cos(rand2)
             y = rand1*sin(rand2)
 
-        end subroutine discPick
+        end subroutine disc_pick
 
         !calculates the gradient and intercept of the line which connect the point on the skimmer and valve
         !note x and y are used here to mean y=mx+c not in reference to chamber coordinates (z chamber is x here)
-        subroutine fitLine (y2, x2, y1, x1, m, c)
+        subroutine fit_line (y2, x2, y1, x1, m, c)
 
             double precision, intent(in) :: y2, x2, y1, x1 
             double precision, intent(out) :: m, c
@@ -225,10 +168,10 @@ module getDirections
             m = (y2-y1)/(x2-x1)
             c = y2 - (m*x2)
 
-        end subroutine fitLine
+        end subroutine fit_line
 
         !Calcualtes unit vectors from gradients of the lines in the x and y directions. 
-        subroutine unitVector (mx, my, v)
+        subroutine unit_vector (mx, my, v)
 
             double precision, intent(in) :: mx, my
             ! v(1), v(2), v(3) correspond to vector component in x, y, z direction
@@ -240,6 +183,6 @@ module getDirections
             v(2) = my/magnitude
             v(3) = -1.0D0/magnitude
 
-        end subroutine unitVector
+        end subroutine unit_vector
 
-end module getDirections
+end module directions

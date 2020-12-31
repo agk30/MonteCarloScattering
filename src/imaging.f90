@@ -3,14 +3,14 @@ module imaging
     use mod_tests
 
     ! Array shared by entire class - REMEMBER ALWAYS TO ALLOCATE BEFORE USE
-    ! image2 is used in the writing of images viewed from along z axis (see writeImageTest)
+    ! image2 is used in the writing of images viewed from along z axis (see write_imageTest)
     integer*8, dimension(:,:,:), allocatable :: image2!, image
     logical :: anglestats
 
     contains
 
             ! Uses the entry time and exit time to find the corresponding timepoint for imaging
-        subroutine startEndTimePoints(NumberOemissionTimepoints, entryTime, exitTime, probeStart, probeEnd, &
+        subroutine start_end_timepoints(NumberOemissionTimepoints, entryTime, exitTime, probeStart, probeEnd, &
              tStep, startTimePoint, endTimePoint)
             implicit none
 
@@ -35,13 +35,14 @@ module imaging
                 ! Similarly to entry time, exit timepoint is found as the nearest timepoint above exit time + 1 for the same reasons
                 endTimePoint = floor((exitTime - probeStart) / tStep) + 1
             end if
-
-        end subroutine startEndTimePoints
+        end subroutine start_end_timepoints
 
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
-        subroutine getPosInProbe(image, NumberOemissionTimePoints, startTimePoint, endTimePoint, xPx, zPx, t0, probeStart, tStep, &
-             particleSpeed, pxMmRatio, particleVector, particleStartPos, sheetDimensions, testMods, scatterIntensity, fLifeTime, &
+        subroutine position_in_probe(image, NumberOemissionTimePoints, startTimePoint, &
+             endTimePoint, xPx, zPx, t0, probeStart, tStep, &
+             particleSpeed, pxMmRatio, particleVector, particleStartPos, &
+             sheetDimensions, testMods, scatterIntensity, fLifeTime, &
              captureGateOpen, captureGateClose)
 
             implicit none
@@ -71,7 +72,7 @@ module imaging
                 currentTime = probeStart + (t-1)*tStep - t0
 
                 ! Finds the time the molecule will emit its photon after absorbing probe light
-                call fluoresceTime(fLifeTime, emissionTime)
+                call fluorescence_time(fLifeTime, emissionTime)
 
                 ! Finds position in space that molcule will emit its photon
                 currentTime = currentTime + emissionTime
@@ -100,12 +101,6 @@ module imaging
                             image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
                         end if
                     end if
-
-                    ! bins the angle of each trajectory into an angle bin (0-1 degree, 1-2 degrees etc.) for only the t = 83 timepoint
-                    ! TODO change this timepoint to be an input variable
-                    if ((testMods) .and. (t == 60)) then
-                        call angleDistribution(particleVector)   
-                    end if
                     
                     ! for testing purposes to view an image along the z axis
                     if (zImage) then                  
@@ -114,10 +109,10 @@ module imaging
                 end if
             end do
 
-        end subroutine getPosInProbe
+        end subroutine position_in_probe
 
         ! Writes out image array into a sequence of images
-        subroutine writeImage(image, xPx, zPx, NumberOfTimePoints)
+        subroutine write_image(image, xPx, zPx, NumberOfTimePoints)
             implicit none
 
             double precision, intent(inout), dimension(:,:,:,:) :: image
@@ -126,7 +121,7 @@ module imaging
 
             print "(a)", 'Entering write'
 
-            do k = 2, 3      
+            do k = 1, 3      
                 do t = 1, NumberOfTimePoints
                     if (k == 1) then                
                         write(fileName,'("../Images/Image",I3,".txt")')t
@@ -148,7 +143,7 @@ module imaging
                 end do
             end do
 
-        end subroutine writeImage
+        end subroutine write_image
 
         subroutine convim(imin,nx,ny,gaussdev,imout)
             !Convolutes input image imin with a gaussian of st. dev. gaussdev (in pixels), to produce imout.
@@ -217,11 +212,15 @@ module imaging
                             end do
                         end do
             !Normalize output image to have same intensity as input image:
-                    imout = imout*sum(imin)/sum(imout)       
+                        if ((sum(imin) .gt. 0) .or. (sum(imin) .lt. 0)) then
+                            imout = imout*sum(imin)/sum(imout)
+                        else
+                            imout = 0  
+                        end if     
                 end if
         end subroutine convim
 
-        subroutine fluoresceTime(fLifeTime, emissionTime)
+        subroutine fluorescence_time(fLifeTime, emissionTime)
             implicit none
 
             double precision :: rand
@@ -232,6 +231,6 @@ module imaging
 
             emissionTime = -fLifeTime*log(rand)
 
-        end subroutine fluoresceTime
+        end subroutine fluorescence_time
         
 end module imaging

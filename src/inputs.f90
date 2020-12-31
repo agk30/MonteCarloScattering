@@ -1,4 +1,4 @@
-module getInputs
+module inputs
     use mathConstants
     use m_config
 
@@ -7,7 +7,7 @@ module getInputs
         ! Loads input parameters into the main section of code, MCScattering.f90
         ! See inputs.inp for details on parameter definitions
         ! TODO pass over hash table instead of individual variables
-         subroutine loadInputs (xPx, zPx, incidenceAngle, ncyc, x0, aMax, aMin, &
+         subroutine load_inputs (xPx, zPx, incidenceAngle, ncyc, x0, aMax, aMin, &
              h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
              skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
               probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
@@ -135,6 +135,6 @@ module getInputs
             call CFG_get(my_cfg, "maxSpeed", maxSpeed)
             call CFG_get(my_cfg, "scatterFraction", scatterFraction)
 
-        end subroutine loadInputs
+        end subroutine load_inputs
         
-end module getInputs
+end module inputs

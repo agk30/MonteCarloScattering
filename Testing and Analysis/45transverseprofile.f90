@@ -4,8 +4,8 @@ program fftransverse
     integer :: i, j, start(2)
     double precision :: image(420,420), ifimage(420,420), profile(250)
 
-    !open(11,file='18112020_1_Q11_IB TOF Profile_ChC092')
-    open(11,file='Image  9.txt')
+    open(11,file='../Real Images/18112020_1_Q11_IB TOF Profile_ChC068')
+    !open(11,file='Image  9.txt')
     open(12,file='smoothedIF.txt')
 
     start(1) = 0

@@ -5,24 +5,23 @@ module sgconv
 
     contains
 
-    ! builds the kernel used in 3D SG smoothing subroutine 
-    ! returns 1D array in wraparound order from the 2D padded input array   
-    subroutine constructKernel(i, j, ksize, nd, columnKernel, padInput)
+        ! builds the kernel used in 3D SG smoothing subroutine 
+        ! returns 1D array in wraparound order from the 2D padded input array   
+        subroutine construct_kernel(i, j, ksize, nd, columnKernel, padInput)
             implicit none
             
             integer :: k, l
             integer, intent(in) :: ksize, nd, i, j
             double precision, intent(inout), dimension(:,:) :: padInput
             double precision, intent(inout), dimension(:) :: columnKernel
-
             
             do k = 1, ksize
                 columnKernel(((k-1)*ksize)+1 : k*ksize) = padInput((i+nd+nd-k+1), j:(j+ksize-1))
             end do
 
-        end subroutine constructKernel
+        end subroutine construct_kernel
 
-        subroutine sgarray(xPx, zPx, ksize, polyOrder, output)
+        subroutine sg_array(xPx, zPx, ksize, polyOrder, output)
         
             implicit none
         
@@ -53,8 +52,6 @@ module sgconv
             open(12,file='../SG Matrices/CC_027x027_003x003.dat')
         
             read(12,*) sgmatrix(1:(((ksize**2)-1)/2)+1)
-
-            print *, "1"
         
             ! input SG matrices only contain half + 1 of the required array, symmetric about the last entry. this loop builds
             ! the rest of the array
@@ -70,8 +67,6 @@ module sgconv
             ! TODO make this a variable. Sets the baseline of the image to 0, or close to 0
             input = input - 950
             padInput = 0D0
-
-            print *, "2"
         
             ! builds a padded array. the image array requires padding outside of its bounds with the addition of nd fields on 
             ! either side of the image and also above and below it
@@ -82,12 +77,10 @@ module sgconv
         
                 end do       
             end do
-
-            print *, "3"
       
             do i = 1, 420        
                 do j = 1, 420      
-                    call constructKernel(i, j, ksize, nd, columnKernel, padInput)
+                    call construct_kernel(i, j, ksize, nd, columnKernel, padInput)
        
                     ! convolutes image with SG cooefficients
                     dotprod = dot_product(columnKernel, sgmatrix)
@@ -101,15 +94,7 @@ module sgconv
                 end do  
             end do
 
-            print *, "4"
-
-            ! extra info. shows differences in input image and the output image.
-            !do i = 1, 420   
-                !do j = 1, 420    
-                 ! diffinput(i,j) = input(i,j) - output(i,j)    
-                !end do  
-            !end do
-        end subroutine sgarray
+        end subroutine sg_array
 
 end module sgconv
 

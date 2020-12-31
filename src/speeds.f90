@@ -1,10 +1,10 @@
-module getSpeeds
+module speeds
     use mathConstants
 
     contains
 
         ! Calculates speed of ingoing particle based on cumulative integral function
-        subroutine ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, speed, t0)
+        subroutine ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, speed, t0)
 
             ! variables relating to cumulative integral function of arrival times
             double precision, intent(in) :: x0, aMax, aMin, h, s
@@ -21,11 +21,10 @@ module getSpeeds
             call random_number(x)
             arrivalTime = x0/(((aMax-aMin)/(x-aMin))**(1.0D0/s)-1.0D0)**(1.0D0/h)
             speed = dist/(arrivalTime*1D-6)
-
-        end subroutine ingoingSpeed
+        end subroutine ingoing_speed
 
         ! Calculates speed based on Maxwell-Boltzmann Distribution of speeds
-        subroutine MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, scatteredSpeed)
+        subroutine MB_speed(maxSpeed, temp, mass, mostLikelyProbability, scatteredSpeed)
 
             logical :: hit
             double precision, intent(in) :: maxSpeed, temp, mass, mostLikelyProbability
@@ -35,11 +34,10 @@ module getSpeeds
             hit = .FALSE.
 
             do while (hit .eqv. .FALSE.)
-
                 call random_number(rand1)
                 scatteredSpeed = rand1*maxSpeed
 
-                probability = MBProbability(temp, scatteredSpeed, mass)
+                probability = MB_probability(temp, scatteredSpeed, mass)
 
                 ! Calculates the probability of the speed with respect to the most probable speed equalling 1.
                 ! The Maxwell-Boltzmann distribution is already normalised to 1, meaning that the sum of all
@@ -51,49 +49,15 @@ module getSpeeds
                 call random_number(rand2)
 
                 if (normalisedProbability .gt. rand2) then
-
                     hit = .TRUE.
-
-                end if
-
-            end do
-
-        end subroutine MBSpeed
-
-        subroutine one_dim_MB_speed(maxSpeed1D, temp, mass, scatteredSpeed)
-            implicit none
-
-            double precision, intent(in) :: maxSpeed1D, temp, mass
-            double precision, intent(out) :: scatteredSpeed
-            double precision :: rand, rand2, probability, part1, part2
-            logical :: accepted
-
-            accepted = .FALSE.
-
-            do
-                call random_number(rand)
-
-                scatteredSpeed = rand*maxSpeed1D
-
-                part1 = SQRT(mass/(2D0*pi*boltzmannConstant*temp))
-                part2 = -(mass*scatteredSpeed*scatteredSpeed)/(2D0*boltzmannConstant*temp)
-                probability = EXP(part2)
-
-                !print *, mass, scatteredSpeed, probability
-
-                call random_number(rand2)
-
-                if (probability .gt. rand2) then
-                    EXIT
                 end if
             end do
-
-        end subroutine one_dim_MB_speed
+        end subroutine MB_speed
 
         subroutine lorentzian_distribution(speed)
             implicit none
 
-            double precision :: probability, speed, gamma, rand1
+            double precision :: speed, gamma, rand1
 
             call random_number(rand1)
 
@@ -127,11 +91,10 @@ module getSpeeds
                     EXIT
                 end if
             end do
-
         end subroutine
 
         ! Finds probability of particle travelling at given speed
-        function MBProbability (temp, speed, mass) result(probability)
+        function MB_probability(temp, speed, mass) result(probability)
 
             double precision :: part1, part2, part3, speed, temp, mass, probability
 
@@ -143,19 +106,19 @@ module getSpeeds
 
             probability = part1*part2*part3
 
-        end function MBProbability
+        end function MB_probability
 
         ! Finds the most probable speed and its probability to use in normalisation 
-        function MBMostLikely (temp, mass) result(mostLikelyProbability)
+        function MB_most_likely (temp, mass) result(mostLikelyProbability)
 
             double precision :: temp, mass, mostProbableSpeed, mostLikelyProbability
 
             mostProbableSpeed = sqrt((2.0D0*boltzmannConstant*temp)/mass)
-            mostLikelyProbability = MBProbability(temp, mostProbableSpeed, mass)
+            mostLikelyProbability = MB_probability(temp, mostProbableSpeed, mass)
 
-        end function MBMostLikely
+        end function MB_most_likely
 
-        subroutine getDeflectionAngle(ingoing, outgoing, deflectionAngle)
+        subroutine deflection_angle(ingoing, outgoing, deflectionAngle)
             implicit none
 
             double precision, intent(in), dimension(3) :: ingoing, outgoing
@@ -166,13 +129,13 @@ module getSpeeds
             ! the ingoing and outgoing vectors, so the step where the angle is subtracted from 180 is not necessary
             deflectionAngle = acos(dot_product(ingoing,outgoing) / (norm2(ingoing)*norm2(outgoing))) * (360.0D0/(2*pi))
 
-        end subroutine getDeflectionAngle
+        end subroutine deflection_angle
 
-        subroutine softSphereSpeed(mass, internalRatio, surfaceMass, initialSpeed, deflectionAngle, finalSpeed)
+        subroutine soft_sphere_speed(mass, internalRatio, surfaceMass, initialSpeed, deflectionAngle, finalSpeed)
             implicit none
 
-            double precision :: initialEnergy, finalEnergy, massRatio, particleMass, surfaceMass &
-            ,part1, part2, part3, part4, part5, internalEnergyLoss, internalRatio, energyDiff, mass
+            double precision :: initialEnergy, finalEnergy, massRatio, surfaceMass &
+            ,part1, part2, part3, part4, part5, internalRatio, energyDiff, mass
             double precision, intent(in) :: initialSpeed, deflectionAngle
             double precision, intent(out) :: finalSpeed
             
@@ -186,8 +149,6 @@ module getSpeeds
             part3 = cos(deflectionAngle*(2*pi/360.0D0))
 
             part4 = SQRT(1 - (massRatio*massRatio*(sin(deflectionAngle*((2*pi)/360.0D0))**2)) - internalRatio*(massRatio + 1))
-
-            !print *, part4, massRatio, deflectionAngle, internalRatio
         
             part5 = internalRatio*((massRatio + 1.0)/(2.0*massRatio))
 
@@ -197,8 +158,6 @@ module getSpeeds
 
             finalSpeed = SQRT(2*finalEnergy/mass)
 
-            !print *, finalSpeed
+        end subroutine soft_sphere_speed
 
-        end subroutine softSphereSpeed
-
-end module getSpeeds
+end module speeds

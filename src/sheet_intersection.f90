@@ -4,7 +4,7 @@ module sheetIntersection
     contains
 
         ! Returns intersection coordinates for top, bottom, front and back planes of the sheet
-        subroutine getSheetIntersection (particleVector, startPos, sheetCentre, sheetDimensions, intersection)
+        subroutine sheet_intersection (particleVector, startPos, sheetCentre, sheetDimensions, intersection)
 
             double precision, intent(in), dimension(3) :: particleVector, startPos, sheetCentre, sheetDimensions
             ! intersection contains x y z coordinates of intersection for each plane, in order of top, bottom,
@@ -49,10 +49,10 @@ module sheetIntersection
                 intersection(row,3) = startPos(3) - (particleVector(3)*(topOfFraction/bottomOfFraction))   
             end do
 
-        end subroutine getSheetIntersection
+        end subroutine sheet_intersection
 
         ! Returns a logical array showing which faces of the sheet were intersected if any
-        subroutine withinSheet (intersection, sheetCentre, sheetDimensions, within)
+        subroutine within_sheet (intersection, sheetCentre, sheetDimensions, within)
 
             double precision, intent(in), dimension(4,3) :: intersection
             double precision, intent(in), dimension(3) :: sheetCentre, sheetDimensions
@@ -89,10 +89,10 @@ module sheetIntersection
                 within(4) = .TRUE.
             end if
 
-        end subroutine withinSheet
+        end subroutine within_sheet
 
         ! Returns time of entry and exit from the sheet
-        subroutine getIntersectionTIme(hitsSheet, intersection, particleStartPos, particleVector, &
+        subroutine intersection_time(hitsSheet, intersection, particleStartPos, particleVector, &
              particleSpeed, particleTime, entryTime, exitTime)
              
             logical, dimension(4), intent(in) :: hitsSheet
@@ -118,6 +118,6 @@ module sheetIntersection
             entryTime = minval(intersectionTime, mask = intersectionTime .gt. 0)
             exitTime = maxval(intersectionTime)
 
-        end subroutine getIntersectionTime
+        end subroutine intersection_time
 
 end module sheetIntersection

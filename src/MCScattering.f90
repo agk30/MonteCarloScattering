@@ -1,17 +1,17 @@
 include "mathConstants.f90"
-include "getInputs.f90"
-include "getSpeeds.f90"
-include "getDirections.f90"
-include "sheetIntersection.f90"
+include "inputs.f90"
+include "speeds.f90"
+include "directions.f90"
+include "sheet_intersection.f90"
 include "imaging.f90"
 include "SGArray.f90"
 include "testingMods.f90"
 include "m_config.f90"
 
 program MCScattering
-    use getInputs
-    use getSpeeds
-    use getDirections
+    use inputs
+    use speeds
+    use directions
     use mathConstants
     use sheetIntersection
     use imaging
@@ -54,7 +54,7 @@ program MCScattering
     call cpu_time(startTime)
 
     ! Loads parameters from input file into main body of code for use in other functions
-    call loadInputs (xPx, zPx, incidenceAngle, ncyc, x0, aMax, aMin, &
+    call load_inputs (xPx, zPx, incidenceAngle, ncyc, x0, aMax, aMin, &
      h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
       skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
        probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
@@ -87,7 +87,7 @@ program MCScattering
 
     if (scattering) then
         ! Calculates probability of most probable speed at given temperature for use in thermal desorption subroutines
-        mostLikelyProbability = MBMostLikely(temp, mass)
+        mostLikelyProbability = MB_most_likely(temp, mass)
         
         !mostLikelyProbabilityPerp = 1D0
         ! Sets the number of loops in later do loop depending on the number of vectors per particle
@@ -106,14 +106,12 @@ program MCScattering
 
     transverseTemp = 5D0
 
-    !print *, mass
-
     print "(a)", "Starting compute"
 
     do i = 1, ncyc
         ! sets the ingoing speed, directional unit vector and start time and point 
-        call ingoingSpeed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
-        call ingoingDirection(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+        call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
+        call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
         !call transverse_temp(transverseTemp, maxSpeed1D, mass, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
         !particleStartPos(1,:), particleVector(1,:))
@@ -134,15 +132,13 @@ program MCScattering
         particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
         particleStartPos(2,3) = 0
 
-
-
         if (scattering) then
             call random_number(rand1)
             
             ! first case: TD scattering
             if (rand1 .gt. scatterFraction) then
                 ! Obtains Maxwell Boltzmann speed as well as scattered direction
-                call MBSpeed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
                 call cosine_distribution(cosinePowerTD, particleVector(2,:))
             ! second case: IS scattering
             else 
@@ -161,31 +157,32 @@ program MCScattering
                 end do
 
                 ! sets IS speed based on scattered direction using soft sphere model
-                call getDeflectionAngle(particleVector(1,:), particleVector(2,:), deflectionAngle)
-                call softSphereSpeed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
+                call deflection_angle(particleVector(1,:), particleVector(2,:), deflectionAngle)
+                call soft_sphere_speed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
             end if
         end if
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
         do j = startVector, vectorsPerParticle
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
-            call getSheetIntersection(particleVector(j,:), particleStartPos(j,:), sheetCentre, sheetDimensions, intersection(j,:,:))
-            call withinSheet(intersection(j,:,:), sheetCentre, sheetDimensions, hitsSheet)
+            call sheet_intersection(particleVector(j,:), particleStartPos(j,:), sheetCentre, sheetDimensions, intersection(j,:,:))
+            call within_sheet(intersection(j,:,:), sheetCentre, sheetDimensions, hitsSheet)
 
             if (ANY(hitsSheet)) then
                 ! If any sheet faces are hit, then intersection times are calculated
-                call getIntersectionTime(hitsSheet, intersection(j,:,:), particleStartPos(j,:), particleVector(j,:), &
+                call intersection_time(hitsSheet, intersection(j,:,:), particleStartPos(j,:), particleVector(j,:), &
                  particleSpeed(j), particleTime(j), entryTime, exitTime)
                 ! Finds corresponding image timepoints for entry and exit times
-                call startEndTimePoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
+                call start_end_timepoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
                  startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
 
                  !print *, entryTime, startTimePoint, exitTime, endTimePoint
 
-                call getPosInProbe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, endTimePoint, xPx, zPx, particleTime(j), &
+                call position_in_probe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, &
+                 endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
-                  sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
+                 sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
             end if
         end do
     end do
@@ -200,20 +197,15 @@ program MCScattering
     do k = 1, NumberOfTimePoints
         call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
     end do
-
-    !image = 1
-
     ! prepares smoothed IF image
-    call sgarray(xPx, zPx, ksize, polyOrder, ifoutput)
+    call sg_array(xPx, zPx, ksize, polyOrder, ifoutput)
 
     ! TODO put in its own subroutine somewhere, keep out of main body
     ! convolutes image with smoothed IF image
     do i = 1, 420
         do j = 1, 420
             do k = 1, NumberOfTimePoints
-                if (image(i,j,k,2) .gt. 0) then
-                    image(i,j,k,3) = image(i,j,k,2) * ifoutput(i,j)
-                end if
+                image(i,j,k,3) = image(i,j,k,2) * ifoutput(i,j)
             end do
         end do
     end do
@@ -231,7 +223,7 @@ program MCScattering
 
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
-        call writeImage(image, xPx, zPx, NumberOfTimePoints)
+        call write_image(image, xPx, zPx, NumberOfTimePoints)
     end if
 
     ! writes angle distribution if testMods is set to .true.
