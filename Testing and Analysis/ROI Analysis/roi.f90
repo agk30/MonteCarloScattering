@@ -59,7 +59,6 @@ program roiAnalysis
                     do j = -roiSize, roiSize
                         roi(i,j,k,l,m) = image((int(centrePx(1)) + int(roiCentre(1)) + i),&
                          (int(centrePx(2)) - int(roiCentre(2) + j)))
-                        end if
                     end do
                 end do
 

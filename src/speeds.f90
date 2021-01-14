@@ -67,6 +67,8 @@ module speeds
 
         end subroutine lorentzian_distribution
 
+        ! This method apparently is very efficient, however it generates two Gaussian distributed numbers at a time
+        ! Make sure this is incorporated somehow to avoid wasting cycles
         subroutine gaussian_distribution(mean, sigma, z1, z2)
             implicit none
 
