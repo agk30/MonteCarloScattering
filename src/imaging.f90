@@ -10,11 +10,11 @@ module imaging
     contains
 
             ! Uses the entry time and exit time to find the corresponding timepoint for imaging
-        subroutine start_end_timepoints(NumberOemissionTimepoints, entryTime, exitTime, probeStart, probeEnd, &
+        subroutine start_end_timepoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, &
              tStep, startTimePoint, endTimePoint)
             implicit none
 
-            integer, intent(in) :: NumberOemissionTimePoints
+            integer, intent(in) :: NumberOfTimePoints
             double precision, intent(in) :: entryTime, exitTime, probeStart, probeEnd, tStep
             integer, intent(out) :: startTimePoint, endTimePoint
             
@@ -30,7 +30,7 @@ module imaging
             ! If exit time is greater than end of probe, then end timepoint then particle is imaged 
             ! all the way til the end of the probe time
             if (exitTime .gt. probeEnd) then
-                endTimePoint = NumberOemissionTimepoints
+                endTimePoint = NumberOfTimePoints
             else
                 ! Similarly to entry time, exit timepoint is found as the nearest timepoint above exit time + 1 for the same reasons
                 endTimePoint = floor((exitTime - probeStart) / tStep) + 1
@@ -39,7 +39,7 @@ module imaging
 
         ! Finds the position a particle is in at any given timepoint, and finds its corresponding pixel position then writes it
         ! to the image array, adding intensity to that pixel region
-        subroutine position_in_probe(image, NumberOemissionTimePoints, startTimePoint, &
+        subroutine position_in_probe(image, startTimePoint, &
              endTimePoint, xPx, zPx, t0, probeStart, tStep, &
              particleSpeed, pxMmRatio, particleVector, particleStartPos, &
              sheetDimensions, testMods, scatterIntensity, fLifeTime, &
@@ -48,7 +48,7 @@ module imaging
             implicit none
 
             double precision, intent(inout), dimension(:,:,:) :: image
-            integer, intent(in) :: NumberOemissionTimePoints, startTimePoint, endTimePoint, xPx, zPx
+            integer, intent(in) :: startTimePoint, endTimePoint, xPx, zPx
             double precision, intent(in) :: probeStart, tStep, particleSpeed, pxMmRatio, t0, scatterIntensity, fLifeTime, &
              captureGateOpen, captureGateClose
             double precision, dimension(3), intent(in) :: particleVector, particleStartPos, sheetDimensions
@@ -89,18 +89,19 @@ module imaging
                 ! of the image quite well
                 posInProbexPx = (ceiling(posInProbe(1)/pxMmRatio) + floor(real(xPx/2)))
                 posInProbeyPx = (ceiling(posInProbe(2)/pxMmRatio) + floor(real(yPx/2)))
-                posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - floor(real(zPx/1.3)))
+                posInProbezPx = abs(ceiling(posInProbe(3)/pxMmRatio) - (real(294)))
+                !TODO put calculation of this factor earlier somewhere
 
                 ! Only writes to array if particle is within bounds of the image
                 if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0) .and. (posInProbe(3) .ge. 0)) then
                     ! Mimics gating process. Emission only detected if it occurs between gate open and gate close
-                    if ((emissionTime .gt. captureGateOpen) .and. (emissionTime .lt. captureGateClose)) then            
+                    !if ((emissionTime .gt. captureGateOpen) .and. (emissionTime .lt. captureGateClose)) then            
                         if (particleVector(3) .gt. 0) then
                             image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + scatterIntensity
                         else
                             image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
                         end if
-                    end if
+                   !end if
                     
                     ! for testing purposes to view an image along the z axis
                     if (zImage) then                  

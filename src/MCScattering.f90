@@ -119,6 +119,10 @@ program MCScattering
         call transverse_temp(0D0, 40D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
         particleStartPos(1,:), particleVector(1,:))
 
+        particleVector(1,1) = 0
+        particleVector(1,2) = 0
+        particleVector(1,3) = 1
+
         ! changes the angle of incidence and starting point of the particle using a rotation matrix
         call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
         call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
@@ -156,11 +160,22 @@ program MCScattering
                     end if
                 end do
 
+                particleSpeed(1) = 1800
+                particleVector(1,1) = 0.70710678118
+                particleVector(1,2) = 0
+                particleVector(1,3) = -0.70710678118
+
                 ! sets IS speed based on scattered direction using soft sphere model
                 call deflection_angle(particleVector(1,:), particleVector(2,:), deflectionAngle)
                 call soft_sphere_speed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
             end if
         end if
+
+
+        particleTime(2) = 130E-6
+        particleStartPos(2,1) = 0
+        particleStartPos(2,2) = 0
+        particleStartPos(2,3) = 0
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
         do j = startVector, vectorsPerParticle
@@ -179,7 +194,7 @@ program MCScattering
 
                  !print *, entryTime, startTimePoint, exitTime, endTimePoint
 
-                call position_in_probe(image(:,:,:,1), NumberOfTimePoints, startTimePoint, &
+                call position_in_probe(image(:,:,:,1), startTimePoint, &
                  endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
                  sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
