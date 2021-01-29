@@ -14,7 +14,7 @@ module speeds
 
             ! Calculate random time of creation
             call random_number(t)
-            t0 = t*pulseLength
+            t0 = (t*pulseLength) - (pulseLength/2.0)
 
             ! CaLculate TOF based on cumulative integral function from real data anf fit by Origin.
             ! Function in Origin is called Logistics5.

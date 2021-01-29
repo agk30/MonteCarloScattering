@@ -95,13 +95,13 @@ module imaging
                 ! Only writes to array if particle is within bounds of the image
                 if ((posInProbexPx .lt. xPx) .and. (posInProbexPx .gt. 0) .and. (posInProbe(3) .ge. 0)) then
                     ! Mimics gating process. Emission only detected if it occurs between gate open and gate close
-                    !if ((emissionTime .gt. captureGateOpen) .and. (emissionTime .lt. captureGateClose)) then            
+                    if ((emissionTime .gt. captureGateOpen) .and. (emissionTime .lt. captureGateClose)) then            
                         if (particleVector(3) .gt. 0) then
                             image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + scatterIntensity
                         else
                             image(posInProbezPx,posInProbexPx,t) = image(posInProbezPx,posInProbexPx,t) + 1D0
                         end if
-                   !end if
+                    end if
                     
                     ! for testing purposes to view an image along the z axis
                     if (zImage) then                  
