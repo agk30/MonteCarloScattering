@@ -13,6 +13,7 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 # Project Name and Type
 project(MonteCarloScattering Fortran)
 enable_language(Fortran)
+add_compile_options(-finit-local-zero)
 
 # Set Fortran .mod Directory (where they should be outputted)
 # set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/src)

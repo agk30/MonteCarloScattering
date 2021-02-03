@@ -43,6 +43,7 @@ program MCScattering
     double precision, dimension(2,4,3) :: intersection
     double precision, dimension(:,:,:,:), allocatable :: image
     double precision, dimension(:,:), allocatable :: ifoutput
+    integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
     logical :: correctDirection
 
@@ -70,6 +71,9 @@ program MCScattering
     if (.not. writeImages) then
         print "(a)", "Image writing disabled"
     end if
+
+    allocate (angleSpeedDist(45,250))
+    angleSpeedDist = 0
 
     ! allocates the image array, which is shared from the imaging class
     allocate(image(zPx,xPx,NumberOfTimePoints,3))
@@ -162,6 +166,8 @@ program MCScattering
             end if
         end if
 
+        call angle_speed_distribution(particleVector(2,:), particleSpeed(2),angleSpeedDist)
+
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
         do j = startVector, vectorsPerParticle
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
@@ -232,6 +238,8 @@ program MCScattering
 
         call writeAngleDistribution
     end if
+
+    call write_angle_speed(angleSpeedDist)
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)
 
