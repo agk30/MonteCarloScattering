@@ -79,12 +79,12 @@ module mod_tests
 
                 anglexz = cos((dot_product(vectorxz,normalxz)/(norm2(vectorxz)*norm2(normalxz))))
                 angleyz = cos((dot_product(vectoryz,normalyz)/(norm2(vectoryz)*norm2(normalyz))))
-                anglexz = floor((anglexz*(360.0/(pi*2)))/angleBinSize) + 1
-                angleyz = floor((angleyz*(360.0/(pi*2)))/angleBinSize) + 1
+                anglexz = ceiling((anglexz*(360.0/(pi*2)))/angleBinSize)
+                angleyz = ceiling((angleyz*(360.0/(pi*2)))/angleBinSize)
 
                 if ((anglexz .ge. 1) .and. (anglexz .le. 45)) then
 
-                    speed = floor(speed/speedBinSize) + 1
+                    speed = ceiling(speed/speedBinSize)
 
                     !print *, speed, anglexz
 
