@@ -82,8 +82,6 @@ module mod_tests
                 anglexz = ceiling((anglexz*(360.0/(pi*2)))/angleBinSize)
                 angleyz = ceiling((angleyz*(360.0/(pi*2)))/angleBinSize)
 
-                
-
                 if ((anglexz .ge. 1) .and. (anglexz .le. 45)) then
 
                     intSpeed = ceiling(speed/speedBinSize)
