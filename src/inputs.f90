@@ -25,7 +25,7 @@ module inputs
 
             type(CFG_t) :: my_cfg
 
-            ! Build the varibales used in the input file
+            ! Build the variables used in the input file
 
             !Experimental inputs
             call CFG_add(my_cfg, "skimPos", 0.1730D0 , "Position of Skimmer in z direction")

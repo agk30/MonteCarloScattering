@@ -17,7 +17,7 @@ program roiAnalysis
 
     angle = angle*((2D0*3.141592653589793D0)/360D0)
 
-    startImg = 50
+    startImg = 70
 
     numimg = 40
 
@@ -67,8 +67,6 @@ program roiAnalysis
         end do
     end do
 
-    
-
     do angles = 1, numAngles
         write(500+angles,*) "ROI 1,","ROI 2,","ROI 3,","ROI 4,","ROI 5"
             do i = 1, numimg
@@ -82,6 +80,5 @@ program roiAnalysis
                 end do
             end do
     end do
-
 
 end program roiAnalysis

@@ -111,25 +111,12 @@ module mod_tests
 
             write(600,'(a)',advance='no') "Speed m/s,"
 
-           ! do i = 1, (90/angleBinSize)
-              !  write(600,'(I2)',advance='no') (i*angleBinSize)
-
-              !  if (i .lt. (90/angleBinSize)) then
-               !     write(600,'(a)',advance='no') ","
-               ! else
-                  !  write(600,'(a)',advance='no') new_line(c)
-                !end if
-            !end do
             do j = 1, (90/angleBinSize)
                 do i = 1, (maxSpeed/speedBinSize)
-               
                     write(600,'(I4,a)',advance='no') i*speedBinSize,","
                     write(600,'(I4,a)',advance='no') j*angleBinSize,","
                     write(600,'(I5,a)',advance='no') bin(j,i),","
                     write(600,'(a)',advance='no') new_line(c)
-                    !if (j .gt. (90/angleBinSize)) then
-                    !    write(600,'(a)',advance='no') new_line(c)
-                    !end if
                 end do
             end do
 
