@@ -34,6 +34,7 @@ program flux
     ! image number to start with in sequence (example: start at "Image 21.txt" would mean setting this to 21)
     startImg = 70
 
+    ! gap between images used for integration
     sampleGap = 1
 
     numimg = numimg / sampleGap
@@ -80,7 +81,6 @@ program flux
         ! finds pixel cooridinates of ROI centre
         roi(1) = floor(sin(angle(i))*radius)
         roi(2) = floor(cos(angle(i))*radius)
-        !print *, i, angle(i)
         do image = 1, numimg
             do j = -roiSize, roiSize
                 do k = -roiSize, roiSize
@@ -93,12 +93,8 @@ program flux
             end do
             ! for each angle, sequence of data points are obtained representing ROI intensity at each time point
             fluxPoints(i,image) = SUM(roiSquare)
-            if (fluxPoints(i,image) == 0) then
-                !print *,  (centrePx(1)+roi(1)+j), (centrePx(2)-roi(2)+k), angle(i)
-            end if
         end do
     end do
-
     ! interpolate the function between points
     ! Please be aware that these variables are parameters for the PCHIP package
     ! Consult pchip.f90 for full descriptions of these parameters
@@ -123,6 +119,10 @@ program flux
         x(i) = i*sampleGap
     end do
 
+    open(500,file='flux.csv')
+
+    write(500,'(a)') "Angle, Flux"
+
     ! performs the interpolation and then integration
     ! please consult pchips.f90 for description of parameters, it's a bit messy
     do j =1, numAngles
@@ -136,8 +136,10 @@ program flux
         ! integration, value = definite integral
         value = dpchid (n, x, f, d, incfd, skip, ia, ib, ierr)
 
-        ! returns integrated singal for each angle
-        print *, value
+        ! prints data out into csv file
+        write(500,'(I3)',advance='no') (j-1)*(180/numAngles) -90
+        write(500,'(a)',advance='no') ","
+        write(500,'(ES12.5)') value
     end do
 
 end program flux
