@@ -48,13 +48,12 @@ module directions
 
         end subroutine ingoing_direction
 
-        !subroutine transverse_temp(temp, maxSpeed1D, mass, zPos, travelDistance, startTime, speed, startPoint, vector)
         subroutine transverse_temp(mean, sigma, zPos, travelDistance, startTime, speed, startPoint, vector)
             implicit none
 
             double precision, dimension(3) :: startPoint
             double precision, dimension(3), intent(inout) :: vector
-            double precision :: zPos, travelDistance, startTime, speed, maxSpeed1D, temp, mass, MBSpeed, rand, z2, mean, sigma
+            double precision :: zPos, travelDistance, startTime, speed, transSpeed, rand, z2, mean, sigma, l_g_fraction, gamma
 
             startTime = (startTime + abs(travelDistance/(vector(3)*speed)))
             startPoint(1) = startPoint(1) + (startTime*speed*vector(1))
@@ -62,27 +61,29 @@ module directions
             startPoint(3) = zPos
     
             vector = vector*speed
+            l_g_fraction = 0.1
+
+            gamma = 40.0
 
             call random_number(rand)
 
-            !call one_dim_MB_speed(maxSpeed1D, temp, mass, MBSpeed)
-            if (rand .gt. 0.5) then
-                call lorentzian_distribution(MBSpeed)
+            if (rand .gt. l_g_fraction) then
+                call lorentzian_distribution(gamma, transSpeed)
             else
-                call gaussian_distribution(mean, sigma, MBSpeed, z2)
+                call gaussian_distribution(mean, sigma, transSpeed, z2)
             end if
 
-            vector(1) = MBSpeed
+            vector(1) = transSpeed
 
             call random_number(rand)
 
-            if (rand .gt. 0.5) then
-                call lorentzian_distribution(MBSpeed)
+            if (rand .gt. l_g_fraction) then
+                call lorentzian_distribution(gamma, transSpeed)
             else
-                call gaussian_distribution(mean, sigma, MBSpeed, z2)
+                call gaussian_distribution(mean, sigma, transSpeed, z2)
             end if
 
-            vector(2) = MBSpeed
+            vector(2) = transSpeed
 
             vector = vector/norm2(vector)
 

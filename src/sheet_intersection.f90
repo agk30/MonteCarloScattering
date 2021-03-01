@@ -59,7 +59,6 @@ module sheetIntersection
             ! 1 2 3 and 4 correspond to top, bottom, front and back
             logical, intent(out), dimension(4) :: within
             double precision :: sheetFront, sheetBack, sheetTop, sheetBottom
-            integer :: i
 
             within = .FALSE.
 

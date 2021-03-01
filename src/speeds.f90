@@ -54,14 +54,13 @@ module speeds
             end do
         end subroutine MB_speed
 
-        subroutine lorentzian_distribution(speed)
+        subroutine lorentzian_distribution(gamma, speed)
             implicit none
 
-            double precision :: speed, gamma, rand1
+            double precision :: speed, rand1
+            double precision, intent(in) :: gamma
 
             call random_number(rand1)
-
-            gamma = 40.0D0
 
             speed = gamma*tan(pi*(rand1-0.5D0))
 
