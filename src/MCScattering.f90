@@ -1,12 +1,12 @@
-include "mathConstants.f90"
+include "hwlib/mathConstants.f90"
 include "inputs.f90"
-include "speeds.f90"
-include "directions.f90"
-include "sheet_intersection.f90"
-include "imaging.f90"
-include "SGArray.f90"
-include "testingMods.f90"
-include "m_config.f90"
+include "hwlib/speeds.f90"
+include "hwlib/directions.f90"
+include "hwlib/sheet_intersection.f90"
+include "hwlib/imaging.f90"
+include "hwlib/SGArray.f90"
+include "hwlib/testingMods.f90"
+include "hwlib/m_config.f90"
 
 program MCScattering
     use inputs
@@ -118,7 +118,7 @@ program MCScattering
         call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
         ! adds a transverse speed to the molcule as it exits the final apperture.
-        call transverse_temp(0D0, 40D0, 40D0, 0.1, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+        call transverse_temp(0D0, 40D0, 40D0, 0.1D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
         particleStartPos(1,:), particleVector(1,:))
 
         ! changes the angle of incidence and starting point of the particle using a rotation matrix

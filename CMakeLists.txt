@@ -20,9 +20,9 @@ add_compile_options(-finit-local-zero)
 # Include Source Code Directory
 include_directories(src)
 # Add certain libraries
-add_library(mathConstants src/mathConstants.f90)
-add_library(mod_tests src/testingMods.f90)
-add_library(m_config src/m_config.f90)
+add_library(mathConstants src/hwlib/mathConstants.f90)
+add_library(mod_tests src/hwlib/testingMods.f90)
+add_library(m_config src/hwlib/m_config.f90)
 
 # Create Executable
 add_executable(MCScattering src/MCScattering.f90)
