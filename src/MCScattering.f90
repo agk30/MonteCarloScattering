@@ -117,10 +117,8 @@ program MCScattering
         call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
         call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
-        !call transverse_temp(transverseTemp, maxSpeed1D, mass, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
-        !particleStartPos(1,:), particleVector(1,:))
-
-        call transverse_temp(0D0, 40D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+        ! adds a transverse speed to the molcule as it exits the final apperture.
+        call transverse_temp(0D0, 40D0, 40D0, 0.1, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
         particleStartPos(1,:), particleVector(1,:))
 
         ! changes the angle of incidence and starting point of the particle using a rotation matrix
@@ -182,9 +180,6 @@ program MCScattering
                 call start_end_timepoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
                  startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
-
-                 !print *, entryTime, startTimePoint, exitTime, endTimePoint
-
                 call position_in_probe(image(:,:,:,1), startTimePoint, &
                  endTimePoint, xPx, zPx, particleTime(j), &
                  probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
@@ -197,7 +192,7 @@ program MCScattering
 
     runTime = endTime - startTime
 
-    print "(a,a,F6.2,a,a)", "Compute finished in"," ", runTime," ", "seconds"
+    print "(a,a,F7.2,a,a)", "Compute finished in"," ", runTime," ", "seconds"
 
     ! convolutes image with a Gaussian blur
     do k = 1, NumberOfTimePoints

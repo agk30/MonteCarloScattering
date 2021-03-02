@@ -48,12 +48,13 @@ module directions
 
         end subroutine ingoing_direction
 
-        subroutine transverse_temp(mean, sigma, zPos, travelDistance, startTime, speed, startPoint, vector)
+        subroutine transverse_temp(mean, sigma, gamma, l_g_fraction, zPos, travelDistance, startTime, speed, startPoint, vector)
             implicit none
 
             double precision, dimension(3) :: startPoint
             double precision, dimension(3), intent(inout) :: vector
-            double precision :: zPos, travelDistance, startTime, speed, transSpeed, rand, z2, mean, sigma, l_g_fraction, gamma
+            double precision, intent(in) :: mean, sigma, l_g_fraction, gamma
+            double precision :: zPos, travelDistance, startTime, speed, transSpeed, rand, z2
 
             startTime = (startTime + abs(travelDistance/(vector(3)*speed)))
             startPoint(1) = startPoint(1) + (startTime*speed*vector(1))
@@ -61,9 +62,6 @@ module directions
             startPoint(3) = zPos
     
             vector = vector*speed
-            l_g_fraction = 0.1
-
-            gamma = 40.0
 
             call random_number(rand)
 

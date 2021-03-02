@@ -41,7 +41,7 @@ program flux
 
     ! while technically ROI size, this is really ((length of ROI box) - 1) / 2
     ! ROI size of 4 means box is 9 pixels wide
-    roiSize = 4
+    roiSize = 0
 
     ! allocate arrays
     allocate(angle(numAngles))
