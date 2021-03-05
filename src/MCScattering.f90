@@ -30,10 +30,10 @@ program MCScattering
 
     integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints,&
      xPx, zPx, startTimePoint, endTimePoint
-    integer :: startVector
+    integer :: startVector, runTimeMin
     double precision :: tWheel, rand1, deflectionAngle, perpSpeed, colTime, modifStartTime
     double precision :: mostLikelyProbability, mostLikelyProbabilityPerp, startTime, endTime, runTime, acceptanceRatio, &
-     entryTime, exitTime, totalTraj
+     entryTime, exitTime, totalTraj, runTimeSec
     double precision, dimension(3) :: sheetDimensions, sheetCentre, perpVector
     ! particle vectors, speeds and start times are given in these arrays with (1,:) for ingoing and (2,:)
     ! for scattered for use in do loop
@@ -118,7 +118,7 @@ program MCScattering
         call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
         ! adds a transverse speed to the molcule as it exits the final apperture.
-        call transverse_temp(0D0, 40D0, 40D0, 0.1D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+        call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
         particleStartPos(1,:), particleVector(1,:))
 
         ! changes the angle of incidence and starting point of the particle using a rotation matrix
@@ -164,8 +164,6 @@ program MCScattering
             end if
         end if
 
-        call angle_speed_distribution(particleVector(2,:), particleSpeed(2),angleSpeedDist)
-
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
         do j = startVector, vectorsPerParticle
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
@@ -192,7 +190,17 @@ program MCScattering
 
     runTime = endTime - startTime
 
-    print "(a,a,F7.2,a,a)", "Compute finished in"," ", runTime," ", "seconds"
+    if (runTime .lt. 60D0) then
+        print "(a,a,F7.2,a,a)", "Compute finished in"," ", runTime," ", "seconds"
+    else
+        runTimeMin = floor(runTime/60D0)
+        runTimeSec = mod(runTime,60D0)
+        if (runTimeMin == 1) then
+            print "(a,I1,a,F6.2,a)", "Compute finished in ", runTimeMin, " minute and ", runTimeSec, " seconds."
+        else
+            print "(a,I4,a,F6.2,a)", "Compute finished in ", runTimeMin, " minutes and ", runTimeSec, " seconds."
+        end if
+    end if
 
     ! convolutes image with a Gaussian blur
     do k = 1, NumberOfTimePoints
@@ -233,8 +241,6 @@ program MCScattering
 
         call writeAngleDistribution
     end if
-
-    call write_angle_speed(angleSpeedDist)
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)
 
