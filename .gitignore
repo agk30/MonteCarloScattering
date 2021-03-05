@@ -15,6 +15,7 @@ angledist.txt
 *.exe
 *.out
 *.csv
+*.txt
 
 Testing and Analysis/fluoresceTest.f90
 

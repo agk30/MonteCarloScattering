@@ -12,10 +12,10 @@ module inputs
              skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
               probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
                writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, &
-                cosinePowerTD, cosinePowerIS)
+                cosinePowerTD, cosinePowerIS, runNumber)
             implicit none
 
-            integer, intent(out) :: ncyc, xPx, zPx, ksize, polyOrder, cosinePowerTD, cosinePowerIS
+            integer, intent(out) :: ncyc, xPx, zPx, ksize, polyOrder, cosinePowerTD, cosinePowerIS, runNumber
             double precision, intent(out) :: incidenceAngle, x0, aMax, aMin, &
             h, s, dist, pulseLength, mass, temp, valvePos, gaussDev, massMol, energyTrans, surfaceMass, exitAngle
             double precision, intent(out) :: skimPos, colPos, skimRad, valveRad, colRad, sheetCentre, &
@@ -26,6 +26,9 @@ module inputs
             type(CFG_t) :: my_cfg
 
             ! Build the variables used in the input file
+
+            !Inputs for bash script running
+            call CFG_add(my_cfg, "runNumber", 1 , "Position in run sequence")
 
             !Experimental inputs
             call CFG_add(my_cfg, "skimPos", 0.1730D0 , "Position of Skimmer in z direction")
@@ -87,6 +90,8 @@ module inputs
             call CFG_update_from_arguments(my_cfg)
 
             ! Assign variables from .cfg
+            call CFG_get(my_cfg, "runNumber", runNumber)
+
             call CFG_get(my_cfg, "skimPos", skimPos)
             call CFG_get(my_cfg, "valvePos", valvePos)
             call CFG_get(my_cfg, "colPos", colPos)

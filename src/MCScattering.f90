@@ -21,7 +21,7 @@ program MCScattering
     implicit none
 
     ! Variables concerning input parameters
-    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS
+    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS, runNumber
     double precision :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
@@ -60,7 +60,7 @@ program MCScattering
       skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
        probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
         writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, &
-         cosinePowerTD, cosinePowerIS)
+         cosinePowerTD, cosinePowerIS, runNumber)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -232,7 +232,7 @@ program MCScattering
 
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
-        call write_image(image, xPx, zPx, NumberOfTimePoints)
+        call write_image(image, xPx, zPx, NumberOfTimePoints, runNumber)
     end if
 
     ! writes angle distribution if testMods is set to .true.
