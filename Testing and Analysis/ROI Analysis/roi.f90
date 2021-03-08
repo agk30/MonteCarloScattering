@@ -41,9 +41,9 @@ program roiAnalysis
  
     do i = 1, numimg
         if ((i+startImg) .lt. 100) then
-            write(filename,'("../../Images2/Image",I3,".txt")') (i+startImg)
+            write(filename,'("../../Blurred Images 1/Image",I3,".txt")') (i+startImg)
         else
-            write(filename,'("../../Images2/Image",I3,".txt")') (i+startImg)    
+            write(filename,'("../../Blurred Images 1/Image",I3,".txt")') (i+startImg)    
         end if
         open(10+i,file=trim(filename))
     end do
