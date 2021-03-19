@@ -12,7 +12,7 @@ module inputs
              skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
               probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
                writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, &
-                cosinePowerTD, cosinePowerIS, runNumber)
+                cosinePowerTD, cosinePowerIS, runNumber, imagePath, blurredImagePath, ifImagePath, matrixPath, ifPath)
             implicit none
 
             integer, intent(out) :: ncyc, xPx, zPx, ksize, polyOrder, cosinePowerTD, cosinePowerIS, runNumber
@@ -22,6 +22,7 @@ module inputs
              halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, &
               scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose
             logical, intent(out) :: scattering, testMods, writeImages, fullSim
+            character(200) :: imagePath, blurredImagePath, ifImagePath, matrixPath, ifPath
 
             type(CFG_t) :: my_cfg
 
@@ -82,6 +83,17 @@ module inputs
             call CFG_add(my_cfg, "maxSpeed", 3000.0D0 , "Max speed for MB speed calculation")
             call CFG_add(my_cfg, "scatterFraction", 0.5D0  , &
             "Fraction of molcules scattering in TD or IS. 0 for full TD, 1 for full IS")
+
+            ! File Paths go here
+            call CFG_add(my_cfg, "imagePath", "../Images/Images/" , "Path to image files")
+            call CFG_add(my_cfg, "blurredImagePath", "../Images/Blurred Images/" ,&
+             "Path to Gaussian blurred image files")
+            call CFG_add(my_cfg, "ifImagePath", "../Images/IF Adjusted Images/",&
+             "Path to IF adjusted image files")
+            call CFG_add(my_cfg, "matrixPath", "../SG Matrices/CC_027x027_003x003.dat",&
+             "Path to SG matrix")
+            call CFG_add(my_cfg, "ifPath", "../Real Images/09032021_Q12_Instrument Function_SUM_00",&
+             "Path to instrument function image")
             
             ! Read .cfg file and parse for changes
             call CFG_read_file(my_cfg, "../Inputs/inputs.cfg")
@@ -139,6 +151,13 @@ module inputs
             call CFG_get(my_cfg, "ncyc", ncyc)
             call CFG_get(my_cfg, "maxSpeed", maxSpeed)
             call CFG_get(my_cfg, "scatterFraction", scatterFraction)
+
+            ! File paths go here
+            call CFG_get(my_cfg, "imagesPath", imagePath)
+            call CFG_get(my_cfg, "blurredImagesPath", blurredImagePath)
+            call CFG_get(my_cfg, "ifImagesPath", ifImagePath)
+            call CFG_get(my_cfg, "matrixPath", matrixPath)
+            call CFG_get(my_cfg, "ifPath", ifPath)
 
         end subroutine load_inputs
         

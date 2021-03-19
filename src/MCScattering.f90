@@ -27,6 +27,7 @@ program MCScattering
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
       captureGateOpen, captureGateClose, maxSpeed1D, transverseTemp
     logical :: scattering, testMods, writeImages, fullSim
+    character(200) :: imagePath, blurredImagePath, ifImagePath, matrixPath, ifPath
 
     integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints,&
      xPx, zPx, startTimePoint, endTimePoint
@@ -42,12 +43,14 @@ program MCScattering
     ! intersection of planes for top (:,1,:) bottom (:,2,:) front (:,3,:) and back (:,4,:)
     double precision, dimension(2,4,3) :: intersection
     double precision, dimension(:,:,:,:), allocatable :: image
-    double precision, dimension(:,:), allocatable :: ifoutput
+    double precision, dimension(:,:), allocatable :: ifinput, ifoutput
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
-    logical :: correctDirection
+    logical :: correctDirection, normalRun
 
     ! TODO put in licensing statement.
+
+    normalRun = .FALSE.
 
     ! Without calling random seed, random number sequences can often be repeated
     call random_seed
@@ -60,7 +63,7 @@ program MCScattering
       skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth,&
        probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
         writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, &
-         cosinePowerTD, cosinePowerIS, runNumber)
+         cosinePowerTD, cosinePowerIS, runNumber, imagePath, blurredImagePath, ifImagePath, matrixPath, ifPath)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -77,6 +80,7 @@ program MCScattering
 
     ! allocates the image array, which is shared from the imaging class
     allocate(image(zPx,xPx,NumberOfTimePoints,3))
+    allocate(ifinput(zPx,xPx))
     allocate(ifoutput(zPx,xPx))
 
     image = 0
@@ -113,75 +117,81 @@ program MCScattering
     print "(a)", "Starting compute"
 
     do i = 1, ncyc
-        ! sets the ingoing speed, directional unit vector and start time and point 
-        call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
-        call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+        if (normalRun .eqv. .TRUE.) then
+            ! sets the ingoing speed, directional unit vector and start time and point 
+            call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
+            call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
-        ! adds a transverse speed to the molcule as it exits the final apperture.
-        call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
-        particleStartPos(1,:), particleVector(1,:))
+            ! adds a transverse speed to the molcule as it exits the final apperture.
+            call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+            particleStartPos(1,:), particleVector(1,:))
 
-        ! changes the angle of incidence and starting point of the particle using a rotation matrix
-        call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
-        call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+            ! changes the angle of incidence and starting point of the particle using a rotation matrix
+            call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
+            call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
 
-        ! time taken to travel to the wheel (NOT time of origin for scattered particle)
-        tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
-        
-        ! Establishes scattered particle parameters based on ingoing beam particle
-        particleTime(2) = particleTime(1) + tWheel
-        particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
-        particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
-        particleStartPos(2,3) = 0
-
-        if (scattering) then
-            call random_number(rand1)
+            ! time taken to travel to the wheel (NOT time of origin for scattered particle)
+            tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
             
-            ! first case: TD scattering
-            if (rand1 .gt. scatterFraction) then
-                ! Obtains Maxwell Boltzmann speed as well as scattered direction
-                call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
-                call cosine_distribution(cosinePowerTD, particleVector(2,:))
-            ! second case: IS scattering
-            else 
-                correctDirection = .false.
+            ! Establishes scattered particle parameters based on ingoing beam particle
+            particleTime(2) = particleTime(1) + tWheel
+            particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
+            particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
+            particleStartPos(2,3) = 0
 
-                ! rejects parrticles not scattering in positive z-direction from surface
-                do while (correctDirection .eqv. .false.)
-                    ! sets impulsive scattering direction based on some cosine distribution in IS subroutine
-                    call cosine_distribution(cosinePowerIS, particleVector(2,:))
-                    ! rotates scattered vector about the y-axis (this may not respresent scattered distribution properly)
-                    call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
+            if (scattering) then
+                call random_number(rand1)
+                
+                ! first case: TD scattering
+                if (rand1 .gt. scatterFraction) then
+                    ! Obtains Maxwell Boltzmann speed as well as scattered direction
+                    call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                    call cosine_distribution(cosinePowerTD, particleVector(2,:))
+                ! second case: IS scattering
+                else 
+                    correctDirection = .false.
 
-                    if (particleVector(2,3) .gt. 0) then
-                        correctDirection = .true.
-                    end if
-                end do
+                    ! rejects parrticles not scattering in positive z-direction from surface
+                    do while (correctDirection .eqv. .false.)
+                        ! sets impulsive scattering direction based on some cosine distribution in IS subroutine
+                        call cosine_distribution(cosinePowerIS, particleVector(2,:))
+                        ! rotates scattered vector about the y-axis (this may not respresent scattered distribution properly)
+                        call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
 
-                ! sets IS speed based on scattered direction using soft sphere model
-                call deflection_angle(particleVector(1,:), particleVector(2,:), deflectionAngle)
-                call soft_sphere_speed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
+                        if (particleVector(2,3) .gt. 0) then
+                            correctDirection = .true.
+                        end if
+                    end do
+
+                    ! sets IS speed based on scattered direction using soft sphere model
+                    call deflection_angle(particleVector(1,:), particleVector(2,:), deflectionAngle)
+                    call soft_sphere_speed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
+                end if
             end if
+        else
+            call point_source(particleVector(2,:), particleStartPos(2,:), particleSpeed(2), particleTime(2))
         end if
 
+        !print *, particleSpeed(2), particleTime(2)
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
         do j = startVector, vectorsPerParticle
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
-            call sheet_intersection(particleVector(j,:), particleStartPos(j,:), sheetCentre, sheetDimensions, intersection(j,:,:))
+            call sheet_intersection(particleVector(j,:), particleStartPos(j,:), sheetCentre,&
+                sheetDimensions, intersection(j,:,:))
             call within_sheet(intersection(j,:,:), sheetCentre, sheetDimensions, hitsSheet)
 
             if (ANY(hitsSheet)) then
                 ! If any sheet faces are hit, then intersection times are calculated
                 call intersection_time(hitsSheet, intersection(j,:,:), particleStartPos(j,:), particleVector(j,:), &
-                 particleSpeed(j), particleTime(j), entryTime, exitTime)
+                particleSpeed(j), particleTime(j), entryTime, exitTime)
                 ! Finds corresponding image timepoints for entry and exit times
                 call start_end_timepoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
-                 startTimePoint, endTimePoint)
+                startTimePoint, endTimePoint)
                 ! Finds where in the sheet the particle is located and writes position to image array
                 call position_in_probe(image(:,:,:,1), startTimePoint, &
-                 endTimePoint, xPx, zPx, particleTime(j), &
-                 probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
-                 sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
+                endTimePoint, xPx, zPx, particleTime(j), &
+                probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
+                sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose)
             end if
         end do
     end do
@@ -207,7 +217,13 @@ program MCScattering
         call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
     end do
     ! prepares smoothed IF image
-    call sg_array(xPx, zPx, ksize, polyOrder, ifoutput)
+    open(2000,file=trim(ifPath))
+
+    do i = 1, xPx      
+        read(2000,*) (ifinput(i,j),j=1,420)       
+    end do
+
+    call sg_array(xPx, zPx, ksize, matrixPath, ifinput, ifoutput)
 
     ! TODO put in its own subroutine somewhere, keep out of main body
     ! convolutes image with smoothed IF image
@@ -232,7 +248,7 @@ program MCScattering
 
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
-        call write_image(image, xPx, zPx, NumberOfTimePoints, runNumber)
+        call write_image(image, xPx, zPx, NumberOfTimePoints, runNumber, imagePath, blurredImagePath, ifImagePath)
     end if
 
     ! writes angle distribution if testMods is set to .true.

@@ -1,4 +1,4 @@
-include "../src/pchip.f90"
+include "../src/hwlib/pchip.f90"
 
 program flux
     use pchip_module
@@ -32,7 +32,7 @@ program flux
     numimg = 40
 
     ! image number to start with in sequence (example: start at "Image 21.txt" would mean setting this to 21)
-    startImg = 70
+    startImg = 60
 
     ! gap between images used for integration
     sampleGap = 1
@@ -66,9 +66,9 @@ program flux
     ! loads images into memory
     do i = 0, (numimg - 1)
         if ((i+startImg) .lt. 100) then
-            write(filename,'("../Images2/Image",I3,".txt")') ((i*sampleGap)+startImg)
+            write(filename,'("../Blurred Images/Run 1/Image",I3,".txt")') ((i*sampleGap)+startImg)
         else
-            write(filename,'("../Images2/Image",I3,".txt")') ((i*sampleGap)+startImg)    
+            write(filename,'("../Blurred Images/Run 1/Image",I3,".txt")') ((i*sampleGap)+startImg)    
         end if
         open(10+i,file=trim(filename))
         do j = 1, 420    
