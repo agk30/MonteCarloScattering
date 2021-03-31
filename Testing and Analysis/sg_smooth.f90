@@ -6,7 +6,7 @@ program sg_smooth
 
     integer :: row, column, i ,j, image
     double precision, dimension(420,420) :: input, ifImage, emptyImage, output
-    character(100) :: matrixPath
+    character(200) :: matrixPath
 
     input = 0
     ifImage = 0
@@ -30,13 +30,9 @@ program sg_smooth
             read(11,*) (input(row,column),column=1,420)       
         end do
 
-        print *, input(200,250)
-
         input = input - emptyImage
 
-        print *, input(200,250)
-
-        call sg_array (420, 420, 27, trim(matrixPath), input, ifImage)
+        call sg_array (420, 420, 27, matrixPath, input, ifImage)
 
         ifImage = ifImage / maxval(ifImage)
 
@@ -56,17 +52,13 @@ program sg_smooth
 
         do i = 1, 420
             do j = 1, 420
-                !if ((i .gt. 85) .and. (i .lt.255)) then
-                    !if ((j .gt. 80) .and. (j .lt. 344)) then
-                        if (ifImage(i,j) .gt. 0.1) then
-                            output(i,j) = output(i,j) / ifImage(i,j)
-                        end if
-                    !end if
-                !end if
+                if (ifImage(i,j) .gt. 0.3) then
+                    output(i,j) = output(i,j) / ifImage(i,j)
+                else
+                    output(i,j) = 0
+                end if
             end do
         end do
-    
-        output(280,206) = 16000
     
         do i = 1, 420
             do j = 1, 420

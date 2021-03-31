@@ -4,6 +4,7 @@ import threading
 
 window = tk.Tk()
 
+imagePath = "C:/Users/adam/Desktop/Code Images/Images/Run 1"
 class myThread (threading.Thread):
     def __init__(self, threadID, name, counter):
         threading.Thread.__init__(self)
@@ -17,7 +18,14 @@ class myThread (threading.Thread):
 
 
 def run_fortran():
+    try:
+        os.mkdir(imagePath)
+    except OSError:
+        print ("Creation of the directory %s failed" % imagePath)
+    else:
+        print ("Successfully created the directory %s " % imagePath)
     os.system('D:/Dev/MonteCarloScattering/build/MCScattering.exe')
+
 def stop_fortran():
     os.system('taskkill /F /IM MCScattering.exe')
 
