@@ -153,9 +153,9 @@ module inputs
             call CFG_get(my_cfg, "scatterFraction", scatterFraction)
 
             ! File paths go here
-            call CFG_get(my_cfg, "imagesPath", imagePath)
-            call CFG_get(my_cfg, "blurredImagesPath", blurredImagePath)
-            call CFG_get(my_cfg, "ifImagesPath", ifImagePath)
+            call CFG_get(my_cfg, "imagePath", imagePath)
+            call CFG_get(my_cfg, "blurredImagePath", blurredImagePath)
+            call CFG_get(my_cfg, "ifImagePath", ifImagePath)
             call CFG_get(my_cfg, "matrixPath", matrixPath)
             call CFG_get(my_cfg, "ifPath", ifPath)
 

@@ -25,13 +25,11 @@ program if_deconv
 
     do i = 1, 420
         do j = 1, 420
-            !if ((i .gt. 85) .and. (i .lt.255)) then
-                !if ((j .gt. 80) .and. (j .lt. 344)) then
-                    if (ifImage(i,j) .gt. 0.4) then
-                        image(i,j) = image(i,j) / ifImage(i,j)
-                    end if
-                !end if
-            !end if
+            if (ifImage(i,j) .gt. 0.4) then
+                image(i,j) = image(i,j) / ifImage(i,j)
+            else
+                image(i,j) = 0
+            end if
         end do
     end do
 
