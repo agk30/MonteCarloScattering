@@ -249,7 +249,7 @@ program MCScattering
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
-        call write_image(image, xPx, zPx, NumberOfTimePoints, tStepInt, runNumber, imagePath, blurredImagePath, ifImagePath)
+        call write_image(image, xPx, zPx, NumberOfTimePoints, runNumber, imagePath, blurredImagePath, ifImagePath)
     end if
 
     ! writes angle distribution if testMods is set to .true.
