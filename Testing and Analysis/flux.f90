@@ -14,11 +14,11 @@ program flux
     double precision, allocatable, dimension(:,:) :: roiSquare
     double precision, allocatable :: x(:), f(:,:), d(:,:), wk(:,:)
     double precision :: vc(2), value
-    character(100) :: filename
+    character(500) :: filename
     logical :: skip
 
     ! define the centre of the surface relative to image. These numbers should match current simulation
-    centrePx(1) = 210; centrePx(2) = 294
+    centrePx(1) = 211; centrePx(2) = 294
 
     ! define radius of region of interest in pixels (currently 1 px = 0.00025 m)
     radius = 100
@@ -29,13 +29,13 @@ program flux
     numAngles = 36
 
     ! number of images to sample across from appearance profile set
-    numimg = 40
+    numimg = 70
 
     ! image number to start with in sequence (example: start at "Image 21.txt" would mean setting this to 21)
     startImg = 60
 
     ! gap between images used for integration
-    sampleGap = 1
+    sampleGap = 5
 
     numimg = numimg / sampleGap
 
@@ -65,11 +65,7 @@ program flux
 
     ! loads images into memory
     do i = 0, (numimg - 1)
-        if ((i+startImg) .lt. 100) then
-            write(filename,'("../Blurred Images/Run 1/Image",I3,".txt")') ((i*sampleGap)+startImg)
-        else
-            write(filename,'("../Blurred Images/Run 1/Image",I3,".txt")') ((i*sampleGap)+startImg)    
-        end if
+            write(filename,'("<Path Name>",I0.3,".txt")') ((i*sampleGap)+startImg)
         open(10+i,file=trim(filename))
         do j = 1, 420    
             read(10+i,*) (imageMatrix(k,j,i+1),k=1,420)
