@@ -14,3 +14,23 @@ angledist.txt
 *.mod
 *.exe
 *.out
+*.csv
+*.txt
+
+Testing and Analysis/fluoresceTest.f90
+
+cmake_install.cmake
+
+CMakeCache.txt
+
+Makefile
+
+Testing and Analysis/transverseProfile.txt
+
+Testing and Analysis/ROI Analysis/roidata.txt
+
+Testing and Analysis/ROI Analysis/MBDistribution.txt
+
+Real Images/16022021_Q12_Squalane_SUM/
+
+!ImportSeriesTextImages.txt

@@ -1,0 +1,86 @@
+module inputs
+    use mathConstants
+    use m_config
+
+    contains
+
+        ! Loads input parameters into the main section of code, MCScattering.f90
+        subroutine load_inputs(inputs)
+            implicit none
+
+            type(CFG_t) :: inputs
+
+            ! Build the variables used in the input file
+
+            ! Inputs for bash script running
+            call CFG_add(inputs, "runNumber", 1 , "Position in run sequence")
+
+            ! Experimental inputs
+            call CFG_add(inputs, "skimPos", 0.1730D0 , "Position of Skimmer in z direction")
+            call CFG_add(inputs, "valvePos", 0.2150D0 , "Position of Valve in z direction")
+            call CFG_add(inputs, "colPos", 0.1330D0 , "Position of Collimator in z direction")
+            call CFG_add(inputs, "skimRad", 0.001D0 , "Skimmer Radius")
+            call CFG_add(inputs, "valveRad", 0.0015D0 , "Valve Radius")
+            call CFG_add(inputs, "colRad", 0.0015D0 , "Collimator Radius")
+            call CFG_add(inputs, "sheetCentre", 0.021D0 , "Distance from centre of sheet from to surface")
+            call CFG_add(inputs, "halfSheetHeight", 0.002D0 , "Half height of laser sheet")
+            call CFG_add(inputs, "sheetWidth", 0.0300D0 , "Full width of laser sheet")
+            call CFG_add(inputs, "pulseLength", 10.0D-06 , "Discharge pulse length")
+            
+            ! Imaging inputs
+            call CFG_add(inputs, "pxMmRatio", 0.25D-03 , "Pixel to mm ratio for imaging")
+            call CFG_add(inputs, "probeStart", 67.0D-06 , "Start of probe time (imaging time)")
+            call CFG_add(inputs, "probeEnd", 180.0D-06 , "End of probe time (imaging time)")
+            call CFG_add(inputs, "tStep", 1.0D-06 , "Time step between images")
+            call CFG_add(inputs, "gaussDev", 2.0D0 , "Deviation parameter for gaussian blur routine")
+            call CFG_add(inputs, "ksize", 27 , "Kernel size for SG routine")
+            call CFG_add(inputs, "polyOrder", 3 , "Polynomial order for SG routine")
+            call CFG_add(inputs, "scattering", .TRUE. , "Image scattering as well as ingoing beam?")
+            call CFG_add(inputs, "fullSim", .TRUE. , "Image ingoing beam as well as scattering?")
+            call CFG_add(inputs, "testMods", .FALSE. , "Including testing modules?")
+            call CFG_add(inputs, "writeImages", .TRUE. , "Wirte images to files?")
+            call CFG_add(inputs, "scatterIntensity", 3.0D0 , "Relative intensity of scattered signal to ingogin signal")
+            call CFG_add(inputs, "fLifeTime", 700D-9 , "Fluorescent lifetime of the molecule")
+            call CFG_add(inputs, "captureGateOpen", 350D-9 , "Time after probe fire at which imaging starts")
+            call CFG_add(inputs, "captureGateClose", 10000D-9 , "Time after probe fire at which imaging ends")
+            
+            ! Mathematical Inputs
+            call CFG_add(inputs, "xPx", 420 , "Number of image pixels in x direction")
+            call CFG_add(inputs, "zPx", 420 , "Number of image pixels in z direction")
+            call CFG_add(inputs, "incidenceAngle", 0D0 , "Incidence angle for beam")
+            call CFG_add(inputs, "cosinePowerTD" , 1 , "Power of cosine weighted TD angle distribution (cos^n)")
+            call CFG_add(inputs, "cosinePowerIS" , 4 , "Power of cosine weighted IS angle distribution (cos^n)")
+            call CFG_add(inputs, "x0", 128.30344D0 , "Origin function parameter for speed generation")
+            call CFG_add(inputs, "aMax", 1.00082D0 , "Origin function parameter for speed generation")
+            call CFG_add(inputs, "aMin", -0.00851D0 , "Origin function parameter for speed generation")
+            call CFG_add(inputs, "h", 24.98601D0 , "Origin function parameter for speed generation")
+            call CFG_add(inputs, "s", 1.45285D0 , "Origin function parameter for speed generation")
+            call CFG_add(inputs, "dist", 230.0D-03 , "Single-point LIF value-probe laser distance")
+            call CFG_add(inputs, "mass", 2.8240519D-26 , "Molecule mass / kg")
+            call CFG_add(inputs, "massMol", 0.017D0 , "Molecue mass / kg/mol")
+            call CFG_add(inputs, "energyTrans", 0.0D0 , &
+            "SS collision model - energy loss to internal surface motions")
+            call CFG_add(inputs, "surfaceMass", 100D0 , "Effective liquid surface mass / g/mol")
+            call CFG_add(inputs, "exitAngle", 0D0 , "Exit angle for SS model")
+            call CFG_add(inputs, "temp", 298.0D0 , "Surface temp / K")
+            call CFG_add(inputs, "ncyc", 10000000 , "Number of molcules to be sampled")
+            call CFG_add(inputs, "maxSpeed", 3000.0D0 , "Max speed for MB speed calculation")
+            call CFG_add(inputs, "scatterFraction", 0.5D0  , &
+            "Fraction of molcules scattering in TD or IS. 0 for full TD, 1 for full IS")
+
+            ! File Paths go here
+            call CFG_add(inputs, "imagePath", "../Images/" , "Path to image files")
+            call CFG_add(inputs, "matrixPath", "../SG Matrices/CC_027x027_003x003.dat",&
+             "Path to SG matrix")
+            call CFG_add(inputs, "ifPath", "../Real Images/09032021_Q12_Instrument Function_SUM_00",&
+             "Path to instrument function image")
+            
+            ! Read .cfg file and parse for changes
+            call CFG_read_file(inputs, "../Inputs/inputs.cfg")
+
+            ! Parse any command line arguments
+            call CFG_update_from_arguments(inputs)
+
+        end subroutine load_inputs
+        
+end module inputs

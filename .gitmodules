@@ -1,0 +1,3 @@
+[submodule "src/hwlib"]
+	path = src/hwlib
+	url = https://github.com/agk30/HWMonteCarloLibrary.git
