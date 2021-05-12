@@ -69,11 +69,7 @@ module inputs
             "Fraction of molcules scattering in TD or IS. 0 for full TD, 1 for full IS")
 
             ! File Paths go here
-            call CFG_add(inputs, "imagePath", "../Images/Images/" , "Path to image files")
-            call CFG_add(inputs, "blurredImagePath", "../Images/Blurred Images/" ,&
-             "Path to Gaussian blurred image files")
-            call CFG_add(inputs, "ifImagePath", "../Images/IF Adjusted Images/",&
-             "Path to IF adjusted image files")
+            call CFG_add(inputs, "imagePath", "../Images/" , "Path to image files")
             call CFG_add(inputs, "matrixPath", "../SG Matrices/CC_027x027_003x003.dat",&
              "Path to SG matrix")
             call CFG_add(inputs, "ifPath", "../Real Images/09032021_Q12_Instrument Function_SUM_00",&

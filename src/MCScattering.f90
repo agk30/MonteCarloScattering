@@ -28,7 +28,7 @@ program MCScattering
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
       captureGateOpen, captureGateClose
     logical :: scattering, testMods, writeImages, fullSim
-    character(200) :: imagePath, blurredImagePath, ifImagePath, matrixPath, ifPath
+    character(200) :: imagePath, matrixPath, ifPath
 
     integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
     integer :: startVector, runTimeMin, tStepInt
@@ -122,14 +122,12 @@ program MCScattering
 
     ! File paths go here
     call CFG_get(input_param, "imagePath", imagePath)
-    call CFG_get(input_param, "blurredImagePath", blurredImagePath)
-    call CFG_get(input_param, "ifImagePath", ifImagePath)
     call CFG_get(input_param, "matrixPath", matrixPath)
     call CFG_get(input_param, "ifPath", ifPath)
 
     write(runNumber_string, '(i0)') runNumber
 
-    call directory_setup(imagePath, blurredImagePath, ifImagePath, runNumber_string, input_param)
+    call directory_setup(imagePath, runNumber_string, input_param)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -287,7 +285,7 @@ program MCScattering
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
-        call write_image(image, xPx, zPx, NumberOfTimePoints, runNumber, imagePath, blurredImagePath, ifImagePath)
+        call write_image(image, xPx, zPx, probeStart, probeEnd, tstep, NumberOfTimePoints, runNumber, imagePath)
     end if
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)

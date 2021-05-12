@@ -40,9 +40,3 @@ target_link_libraries (MCScattering speeds)
 target_link_libraries (MCScattering directions)
 target_link_libraries (MCScattering mod_tests)
 target_link_libraries (MCScattering m_config)
-
-# Create image directories
-
-file(MAKE_DIRECTORY Images)
-file(MAKE_DIRECTORY Images2)
-file(MAKE_DIRECTORY Images3)
