@@ -5,14 +5,6 @@ module inputs
     contains
 
         ! Loads input parameters into the main section of code, MCScattering.f90
-        ! See inputs.inp for details on parameter definitions
-        ! TODO pass over hash table instead of individual variables
-         !subroutine load_inputs (xPx, zPx, incidenceAngle, ncyc, x0, aMax, aMin, &
-         !    h, s, dist, pulseLength, mass, massMol, energyTrans, surfaceMass, exitAngle, temp, skimPos, valvePos, colPos, &
-         !    skimRad, valveRad, colRad, sheetCentre, halfSheetHeight, sheetWidth,&
-         !     probeStart, probeEnd, tStep, pxMmRatio, maxSpeed, scattering, gaussDev, ksize, polyOrder, testMods,&
-         !      writeImages, fullSim, scatterFraction, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, &
-         !       cosinePowerTD, cosinePowerIS, runNumber, imagePath, blurredImagePath, ifImagePath, matrixPath, ifPath)
         subroutine load_inputs(inputs)
             implicit none
 
@@ -20,10 +12,10 @@ module inputs
 
             ! Build the variables used in the input file
 
-            !Inputs for bash script running
+            ! Inputs for bash script running
             call CFG_add(inputs, "runNumber", 1 , "Position in run sequence")
 
-            !Experimental inputs
+            ! Experimental inputs
             call CFG_add(inputs, "skimPos", 0.1730D0 , "Position of Skimmer in z direction")
             call CFG_add(inputs, "valvePos", 0.2150D0 , "Position of Valve in z direction")
             call CFG_add(inputs, "colPos", 0.1330D0 , "Position of Collimator in z direction")
@@ -92,11 +84,6 @@ module inputs
 
             ! Parse any command line arguments
             call CFG_update_from_arguments(inputs)
-
-            ! Assign variables from .cfg
-
-
-            
 
         end subroutine load_inputs
         

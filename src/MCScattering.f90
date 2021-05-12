@@ -22,16 +22,15 @@ program MCScattering
     implicit none
 
     ! Variables concerning input parameters
-    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS, runNumber
+    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS, runNumber, xPx, zPx
     double precision :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
-      captureGateOpen, captureGateClose, maxSpeed1D, transverseTemp
+      captureGateOpen, captureGateClose
     logical :: scattering, testMods, writeImages, fullSim
     character(200) :: imagePath, blurredImagePath, ifImagePath, matrixPath, ifPath
 
-    integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints,&
-     xPx, zPx, startTimePoint, endTimePoint
+    integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
     integer :: startVector, runTimeMin, tStepInt
     double precision :: tWheel, rand1, deflectionAngle, perpSpeed, colTime, modifStartTime
     double precision :: mostLikelyProbability, mostLikelyProbabilityPerp, startTime, endTime, runTime, acceptanceRatio, &
@@ -48,7 +47,7 @@ program MCScattering
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
     logical :: correctDirection, normalRun
-    character(20) :: time, date
+    character(200) :: time, date, runNumber_string
 
     integer, dimension(8) :: values
 
@@ -128,6 +127,10 @@ program MCScattering
     call CFG_get(input_param, "matrixPath", matrixPath)
     call CFG_get(input_param, "ifPath", ifPath)
 
+    write(runNumber_string, '(i0)') runNumber
+
+    call directory_setup(imagePath, blurredImagePath, ifImagePath, runNumber_string, input_param)
+
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
     if (.not. fullSim) then
@@ -137,9 +140,6 @@ program MCScattering
     if (.not. writeImages) then
         print "(a)", "Image writing disabled"
     end if
-
-    allocate (angleSpeedDist(45,250))
-    angleSpeedDist = 0
 
     ! allocates the image array, which is shared from the imaging class
     allocate(image(zPx,xPx,NumberOfTimePoints,3))
@@ -159,8 +159,6 @@ program MCScattering
     if (scattering) then
         ! Calculates probability of most probable speed at given temperature for use in thermal desorption subroutines
         mostLikelyProbability = MB_most_likely(temp, mass)
-        
-        !mostLikelyProbabilityPerp = 1D0
         ! Sets the number of loops in later do loop depending on the number of vectors per particle
         vectorsPerParticle = 2
     else
@@ -173,20 +171,10 @@ program MCScattering
         startVector = 2
     end if
 
-    maxSpeed1D = 5000D0
-
-    transverseTemp = 5D0
-
     print "(a)", "Starting compute"
 
     do i = 1, ncyc
         if (normalRun .eqv. .TRUE.) then
-
-            if (i == 1) then
-                ! Collect values from CFG list
-
-            end if
-
             ! sets the ingoing speed and start time
             call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
 
@@ -244,7 +232,6 @@ program MCScattering
             call point_source(particleVector(2,:), particleStartPos(2,:), particleSpeed(2), particleTime(2))
         end if
 
-        !print *, particleSpeed(2), particleTime(2)
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
         do j = startVector, vectorsPerParticle
             ! Finds coordinates of intersection with sheet planes and whether or not it lies within the sheet
@@ -269,7 +256,6 @@ program MCScattering
     end do
 
     call cpu_time(endTime)
-
     runTime = endTime - startTime
 
     if (runTime .lt. 60D0) then
@@ -296,42 +282,13 @@ program MCScattering
     end do
 
     call sg_array(xPx, zPx, ksize, matrixPath, ifinput, ifoutput)
-
-    ! TODO put in its own subroutine somewhere, keep out of main body
-    ! convolutes image with smoothed IF image
-    do i = 1, 420
-        do j = 1, 420
-            do k = 1, NumberOfTimePoints
-                image(i,j,k,3) = image(i,j,k,2) * ifoutput(i,j)
-            end do
-        end do
-    end do
-
-    ! TODO is this really needed? makes sure there are no negative values in image. Don't be lazy here
-    do i = 1, 420
-        do j = 1, 420
-            do k = 1, NumberOfTimePoints
-                if (image(i,j,k,3) .lt. 0) then
-                    image(i,j,k,3) = 0
-                end if
-            end do
-        end do
-    end do
+    call sg_convolve(xPx, zPx, NumberOfTimePoints, image, ifoutput)
 
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
         call write_image(image, xPx, zPx, NumberOfTimePoints, runNumber, imagePath, blurredImagePath, ifImagePath)
     end if
-
-    ! writes angle distribution if testMods is set to .true.
-    if (testMods) then
-        print *, "writing angles"
-
-        call writeAngleDistribution
-    end if
-
-    call CFG_write(input_param, "input_values.cfg", .FALSE., .FALSE.)
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)
 
