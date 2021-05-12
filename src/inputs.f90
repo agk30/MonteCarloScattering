@@ -69,6 +69,7 @@ module inputs
             "Fraction of molcules scattering in TD or IS. 0 for full TD, 1 for full IS")
 
             ! File Paths go here
+            call CFG_add(inputs, "linux", .FALSE. , "Is this a linux system?")
             call CFG_add(inputs, "imagePath", "../Images/" , "Path to image files")
             call CFG_add(inputs, "matrixPath", "../SG Matrices/CC_027x027_003x003.dat",&
              "Path to SG matrix")

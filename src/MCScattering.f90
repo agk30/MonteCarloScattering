@@ -46,7 +46,7 @@ program MCScattering
     double precision, dimension(:,:), allocatable :: ifinput, ifoutput
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
-    logical :: correctDirection, normalRun
+    logical :: correctDirection, normalRun, linux
     character(200) :: time, date, runNumber_string
 
     integer, dimension(8) :: values
@@ -121,13 +121,14 @@ program MCScattering
     call CFG_get(input_param, "scatterFraction", scatterFraction)
 
     ! File paths go here
+    call CFG_get(input_param, "linux", linux)
     call CFG_get(input_param, "imagePath", imagePath)
     call CFG_get(input_param, "matrixPath", matrixPath)
     call CFG_get(input_param, "ifPath", ifPath)
 
     write(runNumber_string, '(i0)') runNumber
 
-    call directory_setup(imagePath, runNumber_string, input_param)
+    call directory_setup(imagePath, runNumber_string, input_param, linux)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
