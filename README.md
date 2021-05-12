@@ -80,6 +80,7 @@ The program contains a default set of variables which may be overwritten using e
 
 File paths should be given as the directories to which images will be written. An additional file containing input paramters used in the run will be written to the subdirectory under this path as `/Run 1/input_values.cfg` for example.
 
+- `linux` This must be set to true or false depending on the system you are running. This is critical, as the program creates directories differently on Windows compared to Linux
 - `imagePath` Path to output images
 - `matrixPath` Path to SG matrix
 - `ifPath` Path to input instrument function image
