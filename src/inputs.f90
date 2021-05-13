@@ -7,7 +7,7 @@ module inputs
         ! Loads input parameters into the main section of code, MCScattering.f90
         subroutine load_inputs(inputs)
             implicit none
-
+            logical :: file_exists
             type(CFG_t) :: inputs
 
             ! Build the variables used in the input file
@@ -77,7 +77,18 @@ module inputs
              "Path to instrument function image")
             
             ! Read .cfg file and parse for changes
-            call CFG_read_file(inputs, "../Inputs/inputs.cfg")
+            inquire(FILE="../Inputs/inputs.cfg", EXIST=file_exists)
+
+            if (file_exists) then
+                call CFG_read_file(inputs, "../Inputs/inputs.cfg")
+            else
+                inquire(FILE="inputs.cfg", EXIST=file_exists)
+                if (file_exists) then
+                    call CFG_read_file(inputs, "inputs.cfg")
+                else
+                    print '(a)', "Error: Input file not found. Running with default values."
+                end if
+            end if
 
             ! Parse any command line arguments
             call CFG_update_from_arguments(inputs)
