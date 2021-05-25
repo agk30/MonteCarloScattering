@@ -1,20 +1,26 @@
 program find_factor
     implicit none
 
-    integer :: i, counter, iostat, num_entries
+    integer :: i, counter, iostat, num_entries, start_delay, stop_delay, header_lines
     double precision, dimension(2,9) :: test_data, test_background
     double precision :: factor, tolerance, lower, upper
     character(100) :: str
 
-    tolerance = 1E-6
+    tolerance = 1E-12
 
     upper = 1.5
     lower = 0.5
     counter = 1
-    num_entries = -4
+    header_lines = 4
     iostat = 0
 
-    open(unit=50,file="/home/adam/code/MonteCarloScattering/Testing and Analysis/ROI Analysis/ROI 03 Final angle 45.00.csv")
+    start_delay = 80
+    stop_delay = 96
+
+    num_entries = 0 - header_lines
+
+    open(unit=50,file="/home/adam/code/MonteCarloScattering/Testing and Analysis/ROI Analysis/ROI 03 Final angle 45.00 SurfaceIn.csv")
+    open(unit=60,file="/home/adam/code/MonteCarloScattering/Testing and Analysis/ROI Analysis/ROI 03 Final angle 45.00 SurfaceOut.csv")
 
     do
         read(50,*,IOSTAT=iostat)
@@ -28,19 +34,42 @@ program find_factor
 
     rewind(50)
 
-    print *, num_entries
+    do i = 1, header_lines
 
-    read(50,*)
-    read(50,*)
-    read(50,*)
-    read(50,*)
+        read(50,*)
+        read(50,*)
+        read(50,*)
+        read(50,*)
+
+    end do
+
+    do i = 1, header_lines
+
+        read(60,*)
+        read(60,*)
+        read(60,*)
+        read(60,*)
+
+    end do
 
 
     do i = 1, num_entries
         read(50,*) test_data(:,counter)
-        if (nint(test_data(1,counter)) .ge. 80) then
-            if (nint(test_data(1,counter)) .le. 96) then
-                print *, (test_data(1,counter)), test_data(2,counter)
+        if (nint(test_data(1,counter)) .ge. start_delay) then
+            if (nint(test_data(1,counter)) .le. stop_delay) then
+                counter = counter + 1
+            else
+                EXIT
+            end if
+        end if
+    end do
+    
+    counter = 1
+
+    do i = 1, num_entries
+        read(60,*) test_background(:,counter)
+        if (nint(test_background(1,counter)) .ge. start_delay) then
+            if (nint(test_background(1,counter)) .le. stop_delay) then
                 counter = counter + 1
             else
                 EXIT
@@ -48,15 +77,9 @@ program find_factor
         end if
     end do
 
+    call least_squares_fit(test_data(2,:), test_background(2,:), lower, upper, tolerance, factor)
 
-
-
-    !test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
-    !test_background = [1.0, 2.0, 3.0, 4.0, 5.0]
-
-    !call least_squares_fit(test_data(:), test_background(:), lower, upper, tolerance, factor)
-
-    !print *, factor
+    print *, factor
 
     contains
 
@@ -80,7 +103,7 @@ program find_factor
             sum_square_lower = 0
             sum_square_upper = 0
         
-            prev_min = 50.0
+            prev_min = 500000.0
         
             lower = bracket(2) - ((bracket(2) - bracket(1)) / 2.0)
             upper = bracket(3) - ((bracket(3) - bracket(2)) / 2.0)
