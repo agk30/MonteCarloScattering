@@ -1,20 +1,62 @@
 program find_factor
     implicit none
 
-    double precision, dimension(5) :: test_data, test_background
+    integer :: i, counter, iostat, num_entries
+    double precision, dimension(2,9) :: test_data, test_background
     double precision :: factor, tolerance, lower, upper
+    character(100) :: str
 
     tolerance = 1E-6
 
     upper = 1.5
     lower = 0.5
+    counter = 1
+    num_entries = -4
+    iostat = 0
 
-    test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
-    test_background = [1.0, 2.0, 3.0, 4.0, 5.0]
+    open(unit=50,file="/home/adam/code/MonteCarloScattering/Testing and Analysis/ROI Analysis/ROI 03 Final angle 45.00.csv")
 
-    call least_squares_fit(test_data(:), test_background(:), lower, upper, tolerance, factor)
+    do
+        read(50,*,IOSTAT=iostat)
 
-    print *, factor
+        if (iostat /= 0) then
+            exit
+        else
+            num_entries = num_entries + 1
+        end if
+    end do
+
+    rewind(50)
+
+    print *, num_entries
+
+    read(50,*)
+    read(50,*)
+    read(50,*)
+    read(50,*)
+
+
+    do i = 1, num_entries
+        read(50,*) test_data(:,counter)
+        if (nint(test_data(1,counter)) .ge. 80) then
+            if (nint(test_data(1,counter)) .le. 96) then
+                print *, (test_data(1,counter)), test_data(2,counter)
+                counter = counter + 1
+            else
+                EXIT
+            end if
+        end if
+    end do
+
+
+
+
+    !test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
+    !test_background = [1.0, 2.0, 3.0, 4.0, 5.0]
+
+    !call least_squares_fit(test_data(:), test_background(:), lower, upper, tolerance, factor)
+
+    !print *, factor
 
     contains
 
