@@ -9,14 +9,13 @@ program ralss
     double precision, allocatable, dimension(:,:,:,:) :: ArcROI
     double precision, allocatable, dimension(:,:) :: factor
     double precision :: timeStep, radiiGap, wedgeAngle, hypotenuse, probeangle, signal
-    integer :: acceptedArc, arc_index, wedge_index, delay
+    integer :: acceptedArc, arc_index, wedge_index, delay, chc_index
     integer :: i, j, k, m, startImg, numimg, roiSize, numRoi, numAngles, mode, numArcs, numWedges, probex, probey, y, x
     character(500) :: filename, sin_path, sout_path
     character(4) :: transition_str, surface_str
     integer :: num_entries, start_delay, stop_delay, header_lines, num_delays
     double precision, allocatable, dimension(:,:,:,:) :: corr_data, SurfaceIn, SurfaceOut
     double precision :: tolerance, lower, upper
-    logical :: savecorrected
 
     ! Retrieve command line arguements
     call get_command_argument(1, sin_path)
@@ -84,64 +83,58 @@ program ralss
   
     !loop for surface in, loop for surface out
     do k = 1, 2
-                
-                !Mode 2 is arc ROIs
+        do i = startImg, ((startImg + (2*numimg))-2), 2
+            if (k == 1) then
 
-                    do i = startImg, ((startImg + (2*numimg))-2), 2
-                        if (k == 1) then
-                            write(filename,'("/home/adam/Downloads/26012021_8_Q14_IB TOF Profile_BCKGRND SUB/26012021_8_Q14_IB TOF Profile_BCKGRND SUB_ChC",I0.3)') i
-                            open(10+i,file=trim(filename))
-                        else
-                            write(filename,'("/home/adam/Downloads/26012021_8_Q14_IB TOF Profile_BCKGRND SUB/26012021_8_Q14_IB TOF Profile_BCKGRND SUB_ChC",I0.3)') i
-                            open(10+i,file=trim(filename))
+                chc_index =  index(trim(sin_path), "ChC", back=.TRUE.)
+                
+                write(filename,sin_path(1:chc_index + 2)//'(I0.3)') i
+                open(10+i,file=trim(filename))
+            else
+
+                chc_index =  index(trim(sout_path), "ChC", back=.TRUE.)
+
+                write(filename,sout_path(1:chc_index + 2)//'(I0.3)') i
+                open(10+i,file=trim(filename))
+            end if
+        end do
+
+        do y = int(probePx(2)), int((probey+probePx(2)))
+            do x = int(probePx(1)), int((probex+probePx(1)))
+                hypotenuse = SQRT(((real(x) - real(centrePx(1)))**2) + ((real(y) - real(centrePx(2)))**2))
+                if (hypotenuse .lt. arcradii(numArcs)) then
+                    do i = numArcs, 1, -1
+                        if (hypotenuse .lt. arcradii(i)) then
+                            if (hypotenuse .gt. arcradii(i-1)) then
+                                acceptedArc = i
+        
+                                EXIT
+                            end if
                         end if
                     end do
+        
+                    probeangle =  acos((real(centrePx(2)) - real(y))/hypotenuse)
 
-                    do y = int(probePx(2)), int((probey+probePx(2)))
-
-                        do x = int(probePx(1)), int((probex+probePx(1)))
-                            hypotenuse = SQRT(((real(x) - real(centrePx(1)))**2) + ((real(y) - real(centrePx(2)))**2))
-                    
-                            if (hypotenuse .lt. arcradii(numArcs)) then
-                    
-                                do i = numArcs, 1, -1
-                    
-                                    if (hypotenuse .lt. arcradii(i)) then
-                    
-                                        if (hypotenuse .gt. arcradii(i-1)) then
-                                            acceptedArc = i
-                    
-                                            EXIT
-                                        end if
-                                    end if
-                                end do
-                    
-                                probeangle =  acos((real(centrePx(2)) - real(y))/hypotenuse)
-
-                                if (x .lt. centrePx(1)) then
-                                    probeangle = -probeangle
-                                end if
-                
-                                if ((probeangle .gt. wedges(1)) .and. (probeangle .lt. wedges(numWedges))) then
-                    
-                                    do i = 1, numWedges - 1
-                    
-                                        if  (probeangle .gt. wedges(i)) then
-                    
-                                            if (probeangle .lt. wedges(i+1)) then
-                                                ArcROI(acceptedArc, i, m, k) = ArcROI(acceptedArc, i, m, k) + image(x,y)
-                    
-                                            end if
-                                        end if
-                                    end do
+                    if (x .lt. centrePx(1)) then
+                        probeangle = -probeangle
+                    end if
+    
+                    if ((probeangle .gt. wedges(1)) .and. (probeangle .lt. wedges(numWedges))) then
+                        do i = 1, numWedges - 1
+                            if  (probeangle .gt. wedges(i)) then
+                                if (probeangle .lt. wedges(i+1)) then
+                                    ArcROI(acceptedArc, i, m, k) = ArcROI(acceptedArc, i, m, k) + image(x,y)
                                 end if
                             end if
                         end do
-                    end do
+                    end if
+                end if
+            end do
         end do
         do i = startImg, ((startImg + (2*numimg))-2), 2
             close(10+i)
         end do
+    end do
 
      !These parameters HAVE to be specified by the user
     header_lines = 4                            !Number of header lines in the input files
@@ -162,7 +155,6 @@ program ralss
 
     allocate(factor(numArcs,numWedges))
 
-    ! INSERT LOOP HERE FOR ALL ROIS
     do arc_index = 1, numArcs
         do wedge_index = 1, numWedges
 
@@ -176,10 +168,7 @@ program ralss
             do i = 1, numimg
                 SurfaceOut(arc_index,wedge_index,1,i) = (i*startImg) + ((i-1)*2)
                 SurfaceOut(arc_index,wedge_index,2,i) = ArcROI(arc_index,wedge_index,i,2)
-            end do
-            
-            savecorrected = .TRUE.    !TRUE if you want to correct the input SurfaceOut csv and creat a corrected output csv
-            !savecorrected = .FALSE.                 
+            end do               
 
             allocate(corr_data(numArcs,numWedges,2,numimg))
             corr_data = 0
