@@ -1,25 +1,28 @@
 program ralss
     implicit none
 
-    double precision, dimension(420,420) :: image
+    double precision, allocatable, dimension(:,:) :: image
     double precision, allocatable, dimension(:,:,:,:,:) :: roi
-    double precision, dimension(2) :: centrePx, roiCentre, ProbePx
-    double precision, dimension(5) :: roiRadius
-    double precision, allocatable, dimension(:) :: angle, angledeg, arcradii, wedges, wedgesdeg
+    double precision, dimension(2) :: centrePx, ProbePx
+    double precision, allocatable, dimension(:) :: arcradii, wedges, wedgesdeg
     double precision, allocatable, dimension(:,:,:,:) :: ArcROI
     double precision, allocatable, dimension(:,:) :: factor
-    double precision :: timeStep, radiiGap, wedgeAngle, hypotenuse, probeangle, signal
+    double precision :: timeStep, radiiGap, wedgeAngle, hypotenuse, probeangle, signal, mmtopx, arc_length
     integer :: acceptedArc, arc_index, wedge_index, delay, chc_index
-    integer :: i, j, k, m, startImg, numimg, roiSize, numRoi, numAngles, mode, numArcs, numWedges, probex, probey, y, x
+    integer :: i, j, k, m, x, y, startImg, numimg, roiSize, numRoi, numAngles, mode, numArcs, numWedges, probex, probey
     character(500) :: filename, sin_path, sout_path
     character(4) :: transition_str, surface_str
+    character(10) :: arc_str, wedge_str
     integer :: num_entries, start_delay, stop_delay, header_lines, num_delays
     double precision, allocatable, dimension(:,:,:,:) :: corr_data, SurfaceIn, SurfaceOut
     double precision :: tolerance, lower, upper
 
     ! Retrieve command line arguements
     call get_command_argument(1, sin_path)
-    call get_command_arguemnt(2, sout_path)
+    call get_command_argument(2, sout_path)
+
+    sin_path = "D:\Dev\Data\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB_ChC074"
+    sout_path = "D:\Dev\Data\10122020_12_Q13_IB TOF Profile_BCKGRND SUB\10122020_12_Q13_IB TOF Profile_BCKGRND SUB_ChC074"
 
     call parse_path(sin_path, transition_str, surface_str)
 
@@ -31,25 +34,9 @@ program ralss
     startImg = 74                               !Discharge-probe delay of the first image in the sequence
     numimg = 53                                 !Number of images in the sequence
     timeStep = 2D-6                             !Timestep between images in the sequence in seconds
+    mmtopx = 4.0
 
-    !Mode 1 variables
-    roiRadius(1) = 78.0 ; roiRadius(2) = 98.0 ; roiRadius(3) = 118.0 ; roiRadius(4) = 138.0 ; roiRadius(5) = 158.0
-    roiCentre(1) = centrePx(1)
-    
-    ! (length of roi box - 1) / 2
-    roiSize = 4
-    numRoi = 5
-    numAngles = 5
-
-    allocate(angle(numAngles))
-    allocate(angledeg(numAngles))
-    angle(1) = -45
-    angle(2) = -22.5
-    angle(3) = 0
-    angle(4) = 22.5
-    angle(5) = 45
-    angledeg = angle
-    angle = angle*((2D0*3.141592653589793D0)/360D0)
+    allocate(image(420,420))
     
     allocate(roi(-roiSize:roiSize,-roiSize:roiSize,numRoi,numAngles,startImg:startImg + ((numImg*2)-2)))
     roi = 0
@@ -60,10 +47,11 @@ program ralss
     numArcs = 7E0                           !number of arcs, i.e. the distances from the centrepoint 
     radiiGap = (real(probey)/real(numArcs)) !height of the ROI
     wedgeAngle = 15E0                       !angular dimension of the ROI
-    numWedges = int(180/wedgeAngle)         !number of wedges, i.e. the divisions across the arcs
+    numWedges = nint(180/wedgeAngle)         !number of wedges, i.e. the divisions across the arcs
 
     allocate(arcradii(numArcs))
     allocate(wedges(numWedges))
+    allocate(wedgesdeg(numWedges))
    
     do i = 1, numArcs
         arcradii(i) = radiiGap*i            !distance of each arc from the centrepoint
@@ -83,56 +71,60 @@ program ralss
   
     !loop for surface in, loop for surface out
     do k = 1, 2
-        do i = startImg, ((startImg + (2*numimg))-2), 2
+        do m = startImg, ((startImg + (2*numimg))-2), 2
             if (k == 1) then
-
-                chc_index =  index(trim(sin_path), "ChC", back=.TRUE.)
                 
-                write(filename,sin_path(1:chc_index + 2)//'(I0.3)') i
-                open(10+i,file=trim(filename))
+                chc_index =  index(trim(sin_path), "ChC")
+                
+                write(filename,'(a,I0.3)') sin_path(1:chc_index + 2),m
+                open(10+m,file=trim(filename))
             else
 
-                chc_index =  index(trim(sout_path), "ChC", back=.TRUE.)
+                chc_index =  index(trim(sout_path), "ChC")
 
-                write(filename,sout_path(1:chc_index + 2)//'(I0.3)') i
-                open(10+i,file=trim(filename))
+                write(filename,'(a,I0.3)') sout_path(1:chc_index + 2),m
+                open(10+m,file=trim(filename))
             end if
-        end do
 
-        do y = int(probePx(2)), int((probey+probePx(2)))
-            do x = int(probePx(1)), int((probex+probePx(1)))
-                hypotenuse = SQRT(((real(x) - real(centrePx(1)))**2) + ((real(y) - real(centrePx(2)))**2))
-                if (hypotenuse .lt. arcradii(numArcs)) then
-                    do i = numArcs, 1, -1
-                        if (hypotenuse .lt. arcradii(i)) then
-                            if (hypotenuse .gt. arcradii(i-1)) then
-                                acceptedArc = i
-        
-                                EXIT
-                            end if
-                        end if
-                    end do
-        
-                    probeangle =  acos((real(centrePx(2)) - real(y))/hypotenuse)
+            do x = 1, 420
+                read(10+m,*) (image(x,y),y=1,420)
+            end do
 
-                    if (x .lt. centrePx(1)) then
-                        probeangle = -probeangle
-                    end if
-    
-                    if ((probeangle .gt. wedges(1)) .and. (probeangle .lt. wedges(numWedges))) then
-                        do i = 1, numWedges - 1
-                            if  (probeangle .gt. wedges(i)) then
-                                if (probeangle .lt. wedges(i+1)) then
-                                    ArcROI(acceptedArc, i, m, k) = ArcROI(acceptedArc, i, m, k) + image(x,y)
+            do y = int(probePx(2)), int((probey+probePx(2)))
+                do x = int(probePx(1)), int((probex+probePx(1)))
+                    hypotenuse = SQRT(((real(x) - real(centrePx(1)))**2) + ((real(y) - real(centrePx(2)))**2))
+                    if (hypotenuse .lt. arcradii(numArcs)) then
+                        do i = numArcs, 1, -1
+                            if (hypotenuse .lt. arcradii(i)) then
+                                if (hypotenuse .gt. arcradii(i-1)) then
+                                    acceptedArc = i
+            
+                                    EXIT
                                 end if
                             end if
                         end do
+            
+                        probeangle =  acos((real(centrePx(2)) - real(y))/hypotenuse)
+
+                        if (x .lt. centrePx(1)) then
+                            probeangle = -probeangle
+                        end if
+        
+                        if ((probeangle .gt. wedges(1)) .and. (probeangle .lt. wedges(numWedges))) then
+                            do i = 1, numWedges - 1
+                                if  (probeangle .gt. wedges(i)) then
+                                    if (probeangle .lt. wedges(i+1)) then
+                                        ArcROI(acceptedArc, i, m, k) = ArcROI(acceptedArc, i, m, k) + image(x,y)
+                                    end if
+                                end if
+                            end do
+                        end if
                     end if
-                end if
+                end do
             end do
-        end do
-        do i = startImg, ((startImg + (2*numimg))-2), 2
-            close(10+i)
+            do i = startImg, ((startImg + (2*numimg))-2), 2
+                close(10+i)
+            end do
         end do
     end do
 
@@ -155,28 +147,25 @@ program ralss
 
     allocate(factor(numArcs,numWedges))
 
+    print *, sum(ArcROI)
+
     do arc_index = 1, numArcs
         do wedge_index = 1, numWedges
 
     !Construct Surface in and surface out arrays in form of "delay, intensity" on each row
     
             do i = 1, numimg
-                SurfaceIn(arc_index,wedge_index,1,i) = (i*startImg) + ((i-1)*2)
-                SurfaceIn(arc_index,wedge_index,2,i) = ArcROI(arc_index,wedge_index,i,1)
+                SurfaceIn(arc_index,wedge_index,1,i) = startImg + ((i-1)*2)
+                SurfaceIn(arc_index,wedge_index,2,i) = ArcROI(arc_index,wedge_index,startimg + ((i-1)*2),1)
             end do
 
             do i = 1, numimg
-                SurfaceOut(arc_index,wedge_index,1,i) = (i*startImg) + ((i-1)*2)
-                SurfaceOut(arc_index,wedge_index,2,i) = ArcROI(arc_index,wedge_index,i,2)
-            end do               
-
-            allocate(corr_data(numArcs,numWedges,2,numimg))
-            corr_data = 0
+                SurfaceOut(arc_index,wedge_index,1,i) = startImg + ((i-1)*2)
+                SurfaceOut(arc_index,wedge_index,2,i) = ArcROI(arc_index,wedge_index,startimg + ((i-1)*2),2)
+            end do
 
             !Calls the subroutine that does the least squares analysis
             call least_squares_fit(SurfaceIn(arc_index,wedge_index,2,:), SurfaceOut(arc_index,wedge_index,2,:), lower, upper, tolerance, factor(arc_index,wedge_index))
-
-            print *, factor(arc_index,wedge_index)
 
             corr_data(arc_index, wedge_index,1,:) = SurfaceIn(arc_index, wedge_index,1,:)
             corr_data(arc_index, wedge_index,2,:) = SurfaceIn(arc_index, wedge_index,2,:) - (factor(arc_index, wedge_index)*SurfaceOut(arc_index, wedge_index,2,:))
@@ -186,8 +175,14 @@ program ralss
 
     do arc_index = 1, numArcs
         do wedge_index = 1, numWedges
-            do i = 1, numimg
-                open(unit=10,file="<path>"//"_"//trim(transition_str)//"_"//trim(surface_str)//".csv")
+            do i = 1, numimg 
+                arc_length = arcradii(arc_index)*mmtopx
+                write(arc_str,'(F7.2)') arc_length
+
+                write(wedge_str, '(F7.2)') wedgesdeg(wedge_index)
+
+                write(filename,'(a)') "Data Files/"//trim(transition_str)//"_"//trim(surface_str)//"_"//"Arc"//trim(arc_str)//"_"//"Wedge"//trim(wedge_str)//".csv"
+                open(10,file=filename)
                 write(10,'(a)') "Delay, Signal,"
                 delay = nint(corr_data(arc_index, wedge_index,1,i))
                 signal = corr_data(arc_index, wedge_index,2,i)
