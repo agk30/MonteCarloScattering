@@ -176,17 +176,19 @@ program ralss
     do arc_index = 1, numArcs
         do wedge_index = 1, numWedges
             do i = 1, numimg 
-                arc_length = arcradii(arc_index)*mmtopx
-                write(arc_str,'(F7.2)') arc_length
+                if (i == 1) then
+                    arc_length = arcradii(arc_index)*mmtopx
+                    write(arc_str,'(F7.2)') arc_length
+                    write(wedge_str, '(F7.2)') wedgesdeg(wedge_index)
+                    write(filename,'(a)') "Data Files/"//trim(transition_str)//"_"//trim(surface_str)//"_"//"Arc"//trim(arc_str)//"_"//"Wedge"//trim(wedge_str)//".csv"
+                    open(10,file=filename)
+                    write(10,'(a)') "Delay, Signal,"
+                end if
 
-                write(wedge_str, '(F7.2)') wedgesdeg(wedge_index)
-
-                write(filename,'(a)') "Data Files/"//trim(transition_str)//"_"//trim(surface_str)//"_"//"Arc"//trim(arc_str)//"_"//"Wedge"//trim(wedge_str)//".csv"
-                open(10,file=filename)
-                write(10,'(a)') "Delay, Signal,"
                 delay = nint(corr_data(arc_index, wedge_index,1,i))
                 signal = corr_data(arc_index, wedge_index,2,i)
                 write(10,'(I3,a,ES12.5,a)') delay, ", ", signal, ","
+                
             end do
         end do
     end do
