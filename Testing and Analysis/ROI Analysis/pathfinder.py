@@ -1,7 +1,9 @@
 import os
 
-path="D:/Dev/Data/0 degrees/sqa/Sequences/"
+# Path to data must be provided
+path="D:/Dev/Data/0 degrees/sqe/Sequences/"
 datasets = []
+# Lists are initialised here so that values can be assigned to their indices later
 surface_out = ["","",""]
 pfpe = ["","",""]
 sqa = ["","",""]
@@ -9,6 +11,8 @@ sqe = ["","",""]
 
 counter = 1
 
+# Finds all files and folders within given path.
+# Takes a sample file name and stores it in the directories list
 for (dirpath, dirnames, filenames) in os.walk(path):
     for i in filenames: 
         file_path = dirpath + "/" + i
@@ -16,11 +20,14 @@ for (dirpath, dirnames, filenames) in os.walk(path):
         counter = counter + 1
         break
 
+# Parses the appropriate transition and surface information from directory name
 for set in datasets:
     prestr, run, transition, endstr = set.split("_",3)
     prestr, date = prestr.rsplit("/",1)
     surface, endstr = endstr.split(" ",1)
 
+    # Sorts datasets into their respective surface lists.
+    # To create a standard, Q12 data goes to the 0th index, Q13 to 1st, and Q14 to 2nd
     if surface == "IB":
         if transition == "Q12":
             surface_out[0] = set
@@ -53,7 +60,16 @@ for set in datasets:
         elif transition == "Q14":
             sqe[2] = set
 
-for set in surface_out:
-    for i in range(len(surface_out)):
-        print (pfpe[i] + surface_out[i])
-        break
+# Creates system call to fortran program which processes the data
+# Call must be in format of "<program name> <surface in data> <surface out data>"
+for i in range(len(surface_out)):
+    if pfpe[i] != "":
+        command =  ("a.exe" + ' "' + pfpe[i] + '" "' + surface_out[i] + '"')
+        os.system(command)
+    if sqa[i] != "":
+        command =  ("a.exe" + ' "' + sqa[i] + '" "' + surface_out[i] + '"')
+        os.system(command)
+    if sqe[i] != "":
+        command =  ("a.exe" + ' "' + sqe[i] + '" "' + surface_out[i] + '"')
+        os.system(command)
+    print ("done Q1" + str(i+2) + " set")

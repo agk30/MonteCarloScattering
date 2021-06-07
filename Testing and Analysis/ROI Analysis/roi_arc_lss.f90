@@ -19,10 +19,15 @@ program ralss
 
     ! Retrieve command line arguements
     call get_command_argument(1, sin_path)
+    if (len_trim(sin_path) == 0) then
+        print *, "arg 1 missing"
+    end if
     call get_command_argument(2, sout_path)
-
-    sin_path = "D:\Dev\Data\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB_ChC074"
-    sout_path = "D:\Dev\Data\10122020_12_Q13_IB TOF Profile_BCKGRND SUB\10122020_12_Q13_IB TOF Profile_BCKGRND SUB_ChC074"
+    if (len_trim(sout_path) == 0) then
+        print *, "arg 2 missing"
+    end if
+    !sin_path = "D:\Dev\Data\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB_ChC074"
+    !sout_path = "D:\Dev\Data\10122020_12_Q13_IB TOF Profile_BCKGRND SUB\10122020_12_Q13_IB TOF Profile_BCKGRND SUB_ChC074"
 
     call parse_path(sin_path, transition_str, surface_str)
 
@@ -146,8 +151,6 @@ program ralss
     SurfaceOut = 0
 
     allocate(factor(numArcs,numWedges))
-
-    print *, sum(ArcROI)
 
     do arc_index = 1, numArcs
         do wedge_index = 1, numWedges
