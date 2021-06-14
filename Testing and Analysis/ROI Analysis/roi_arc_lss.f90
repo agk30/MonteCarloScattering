@@ -7,13 +7,13 @@ program ralss
     double precision, allocatable, dimension(:) :: arcradii, wedges, wedgesdeg
     double precision, allocatable, dimension(:,:,:,:) :: ArcROI
     double precision, allocatable, dimension(:,:) :: factor
-    double precision :: timeStep, radiiGap, wedgeAngle, hypotenuse, probeangle, signal, mmtopx, arc_length
+    double precision :: timeStep, radiiGap, wedgeAngle, hypotenuse, probeangle, signal, pxtomm, arc_length
     integer :: acceptedArc, arc_index, wedge_index, delay, chc_index
-    integer :: i, j, k, m, x, y, startImg, numimg, roiSize, numRoi, numAngles, mode, numArcs, numWedges, probex, probey
+    integer :: i, j, k, m, x, y, startImg, numimg, roiSize, numRoi, numAngles, numArcs, numWedges, probex, probey
     character(500) :: filename, sin_path, sout_path
     character(4) :: transition_str, surface_str
     character(10) :: arc_str, wedge_str
-    integer :: num_entries, start_delay, stop_delay, header_lines, num_delays
+    integer :: start_delay, stop_delay, num_delays
     double precision, allocatable, dimension(:,:,:,:) :: corr_data, SurfaceIn, SurfaceOut
     double precision :: tolerance, lower, upper
 
@@ -26,27 +26,22 @@ program ralss
     if (len_trim(sout_path) == 0) then
         print *, "arg 2 missing"
     end if
-    !sin_path = "D:\Dev\Data\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB_ChC074"
-    !sout_path = "D:\Dev\Data\10122020_12_Q13_IB TOF Profile_BCKGRND SUB\10122020_12_Q13_IB TOF Profile_BCKGRND SUB_ChC074"
 
     call parse_path(sin_path, transition_str, surface_str)
-
-    !CHOOSE MODE FIRST
-    mode = 2
 
     !Universal variables
     centrePx(1) = 206.0 ; centrePx(2) = 283.0   !Centrepoint of ingoing beam and liquid surface area of interaction
     startImg = 74                               !Discharge-probe delay of the first image in the sequence
     numimg = 53                                 !Number of images in the sequence
     timeStep = 2D-6                             !Timestep between images in the sequence in seconds
-    mmtopx = 4.0
+    pxtomm = 0.25
 
     allocate(image(420,420))
     
     allocate(roi(-roiSize:roiSize,-roiSize:roiSize,numRoi,numAngles,startImg:startImg + ((numImg*2)-2)))
     roi = 0
 
-    !Mode 2 variables
+    !Variables
     ProbePx(1) = 60.0 ; ProbePx(2) = 120.0  !top left corner of the laser sheet probe
     probex = 300.0 ; probey = 130.0         !x and y dimension of the laser sheet probe
     numArcs = 7E0                           !number of arcs, i.e. the distances from the centrepoint 
@@ -66,7 +61,7 @@ program ralss
         wedges(j) = wedgeAngle*j            !angle of each wedge
     end do
 
-    wedgesdeg = wedges-90                               !saves the wedges in degrees before conversion to radians for file naming purposes
+    wedgesdeg = wedges                                  !saves the wedges in degrees before conversion to radians for file naming purposes
     wedges = wedges-(90+(wedgeAngle/2))                 !this ensures the wedges run from -ve to +ve angles and shifts them by half-measure to centre the ROI on specific angles
     wedges = wedges*((2D0*3.141592653589793D0)/360D0)   !converts from degrees to radians
     
@@ -133,12 +128,10 @@ program ralss
         end do
     end do
 
-     !These parameters HAVE to be specified by the user
-    header_lines = 4                            !Number of header lines in the input files
+    !These parameters HAVE to be specified by the user
     start_delay = 82                            !Delay from which to start calculating the correction
     stop_delay = 96                             !Delay at which to finish calculating the correction
     num_delays = ((96-80)/2)+1                  !Number of delays (for 2 us timesteps)
-    num_entries = 0 - header_lines              !Number of timpeoints, i.e. images, counted below
     tolerance = 1E-12                           !Tolerance of the least squares fit
     upper = 1.5                                 !Upper limit of the brackets for least squares fit 
     lower = 0.5                                 !Lower limit of the brackets for least squares fit
@@ -177,13 +170,13 @@ program ralss
     end do
 
     do arc_index = 1, numArcs
-        do wedge_index = 1, numWedges
+        do wedge_index = 1, numWedges - 1
             do i = 1, numimg 
                 if (i == 1) then
-                    arc_length = arcradii(arc_index)*mmtopx
+                    arc_length = ((arcradii(arc_index)) - (arcradii(arc_index - 1)) / 2.0) * pxtomm
                     write(arc_str,'(F7.2)') arc_length
-                    write(wedge_str, '(F7.2)') wedgesdeg(wedge_index)
-                    write(filename,'(a)') "Data Files/"//trim(transition_str)//"_"//trim(surface_str)//"_"//"Arc"//trim(arc_str)//"_"//"Wedge"//trim(wedge_str)//".csv"
+                    write(wedge_str, '(F7.2)') wedgesdeg(wedge_index) - 90
+                    write(filename,'(a)') "Data Files/"//trim(transition_str)//"/"//trim(surface_str)//"_"//"Arc"//trim(arc_str)//"_"//"Wedge"//trim(wedge_str)//".csv"
                     open(10,file=filename)
                     write(10,'(a)') "Delay, Signal,"
                 end if
