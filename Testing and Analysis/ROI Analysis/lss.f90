@@ -7,7 +7,6 @@ program SurfaceOutCorrection
     integer :: i, counter, iostat, num_entries, start_delay, stop_delay, header_lines, delay, num_delays
     double precision, allocatable, dimension(:,:) :: corr_data, SurfaceIn, SurfaceOut
     double precision :: factor, tolerance, lower, upper, signal, ROId, final_angle
-    double precision, dimension(2) :: ROI
     character(200) :: header, str, ROI_dist, angle
     logical :: savecorrected
 

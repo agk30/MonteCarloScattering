@@ -8,7 +8,7 @@ program transverseProfile
     xPx = 420
     yPx = 420
 
-    open(unit=11,file= '../Images2/Image 48.txt')
+    open(unit=11,file= "D:\Dev\Data\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB\28112020_4_Q13_PFPE TOF Profile_BCKGRND SUB_ChC074")
     !open(unit=11,file= '06112019_1_Q11_IB TOF Profile_ChC106')
 
     open(unit=12,file= 'transverseProfile.txt')

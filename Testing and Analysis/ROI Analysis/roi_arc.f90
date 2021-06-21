@@ -66,7 +66,7 @@ program roiAnalysis
     wedges = wedges-(90+(wedgeAngle/2))                 !this ensures the wedges run from -ve to +ve angles and shifts them by half-measure to centre the ROI on specific angles
     wedges = wedges*((2D0*3.141592653589793D0)/360D0)   !converts from degrees to radians
     
-    allocate(ArcROI(numArcs,numWedges,startImg:startImg + ((numImg*2)-2)))
+    allocate(ArcROI(numArcs,numWedges,startImg:startImg + ((numImg*2)-2),2))
     ArcROI = 0
     acceptedArc = 0
 
