@@ -1,7 +1,7 @@
 program roiAnalysis
     implicit none
 
-    double precision, dimension(420,420) :: image
+    double precision, dimension(420,420) :: image, background
     double precision, allocatable, dimension(:,:,:,:,:) :: roi
     double precision, dimension(2) :: centrePx, roiCentre, ProbePx
     double precision, dimension(5) :: roiRadius
@@ -17,8 +17,8 @@ program roiAnalysis
 
     !Universal variables
     centrePx(1) = 206.0 ; centrePx(2) = 283.0   !Centrepoint of ingoing beam and liquid surface area of interaction
-    startImg = 74                               !Discharge-probe delay of the first image in the sequence
-    numimg = 53                                 !Number of images in the sequence
+    startImg = 10                               !Discharge-probe delay of the first image in the sequence
+    numimg = 28                                 !Number of images in the sequence
     timeStep = 2D-6                             !Timestep between images in the sequence in seconds
 
     !Mode 1 variables
@@ -58,6 +58,8 @@ program roiAnalysis
         arcradii(i) = radiiGap*i            !distance of each arc from the centrepoint
     end do
 
+    print *, arcradii * 0.00025
+
     do j = 1, numWedges
         wedges(j) = wedgeAngle*j            !angle of each wedge
     end do
@@ -66,7 +68,7 @@ program roiAnalysis
     wedges = wedges-(90+(wedgeAngle/2))                 !this ensures the wedges run from -ve to +ve angles and shifts them by half-measure to centre the ROI on specific angles
     wedges = wedges*((2D0*3.141592653589793D0)/360D0)   !converts from degrees to radians
     
-    allocate(ArcROI(numArcs,numWedges,startImg:startImg + ((numImg*2)-2),2))
+    allocate(ArcROI(numArcs,numWedges,startImg:startImg + ((numImg*2)-2)))
     ArcROI = 0
     acceptedArc = 0
 
@@ -86,9 +88,15 @@ program roiAnalysis
 
     !Open image file 
     do i = startImg, ((startImg + (2*numimg))-2), 2
-        write(filename,'("/home/adam/Downloads/26012021_8_Q14_IB TOF Profile_BCKGRND SUB/26012021_8_Q14_IB TOF Profile_BCKGRND SUB_ChC",I0.3)') i
+        write(filename,'("C:\Users\adam\Documents\Data\19072021_5_Q11_IB_TOF Profile\19072021_5_Q11_IB_TOF Profile_ChC",I0.3)') i
         open(10+i,file=trim(filename))
     end do
+    !open(10+startImg, file="C:\Users\adam\Documents\Data\05072021_1_Q11_IB_TOF Profile\05072021_1_Q11_IB_TOF Profile_ChC098")
+    do i = 1, 420    
+        read(10+startImg,*) (background(j,i),j=1,420)
+    end do
+
+    rewind 10+startImg
   
     ! loops through images
     do m = startImg, ((startImg + (2*numimg))-2), 2
@@ -97,6 +105,8 @@ program roiAnalysis
         do i = 1, 420    
             read(10+m,*) (image(j,i),j=1,420)
         end do
+
+        image = image - background
             
             !Mode 1 is square ROIs at certain angle and distance
             if (mode .eq. 1) then
