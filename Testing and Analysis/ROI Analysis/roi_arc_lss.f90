@@ -74,15 +74,15 @@ program ralss
         do m = startImg, ((startImg + (2*numimg))-2), 2
             if (k == 1) then
                 
-                chc_index =  index(trim(sin_path), "ChC")
+                chc_index =  index(trim(sin_path), "AVERAGE_")
                 
-                write(filename,'(a,I0.3)') sin_path(1:chc_index + 2),m
+                write(filename,'(a,I0.3)') sin_path(1:chc_index + 7),m
                 open(10+m,file=trim(filename))
             else
 
-                chc_index =  index(trim(sout_path), "ChC")
+                chc_index =  index(trim(sout_path), "AVERAGE_")
 
-                write(filename,'(a,I0.3)') sout_path(1:chc_index + 2),m
+                write(filename,'(a,I0.3)') sout_path(1:chc_index + 7),m
                 open(10+m,file=trim(filename))
             end if
 
