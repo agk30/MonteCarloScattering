@@ -1,7 +1,7 @@
 import os
 
 # Path to data must be provided
-path="D:/Dev/Data/0 degrees/sqe/Averages/"
+path="D:/Data/0 deg"
 datasets = []
 # Lists are initialised here so that values can be assigned to their indices later
 surface_out = ["","",""]
@@ -16,19 +16,22 @@ counter = 1
 for (dirpath, dirnames, filenames) in os.walk(path):
     for i in filenames: 
         file_path = dirpath + "/" + i
+        file_path = file_path.replace(os.sep, '/')
         datasets.insert(counter,file_path)
         counter = counter + 1
         break
 
 # Parses the appropriate transition and surface information from directory name
 for set in datasets:
-    prestr, transition, surface, endstr = set.split("_",3)
-    prestr, date = prestr.rsplit("/",1)
+    #prestr, transition, surface, endstr = set.split("_",3)
+    #prestr, date = prestr.rsplit("/",1)
     # surface, endstr = endstr.split(" ",1)
+
+    prestr, react_surface, transition, surface, endstr = set.rsplit("/",4)
 
     # Sorts datasets into their respective surface lists.
     # To create a standard, Q12 data goes to the 0th index, Q13 to 1st, and Q14 to 2nd
-    if surface == "Ingoing Beam":
+    if surface == "Ingoing Beam" or "IB":
         if transition == "Q12":
             surface_out[0] = set
         elif transition == "Q13":

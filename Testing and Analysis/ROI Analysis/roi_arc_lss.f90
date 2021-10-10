@@ -74,7 +74,7 @@ program ralss
         do m = startImg, ((startImg + (2*numimg))-2), 2
             if (k == 1) then
                 
-                chc_index =  index(trim(sin_path), "AVERAGE_")
+                chc_index =  index(trim(sin_path), "AVERAGE_", back)
                 
                 write(filename,'(a,I0.3)') sin_path(1:chc_index + 7),m
                 open(10+m,file=trim(filename))

@@ -16,9 +16,9 @@ module inputs
             call CFG_add(inputs, "runNumber", 1 , "Position in run sequence")
 
             ! Experimental inputs
-            call CFG_add(inputs, "skimPos", 0.1730D0 , "Position of Skimmer in z direction")
-            call CFG_add(inputs, "valvePos", 0.2150D0 , "Position of Valve in z direction")
-            call CFG_add(inputs, "colPos", 0.1330D0 , "Position of Collimator in z direction")
+            call CFG_add(inputs, "skimPos", 0.1262D0 , "Position of Skimmer in z direction")
+            call CFG_add(inputs, "valvePos", 0.1702D0 , "Position of Valve in z direction")
+            call CFG_add(inputs, "colPos", 0.0787D0 , "Position of Collimator in z direction")
             call CFG_add(inputs, "skimRad", 0.001D0 , "Skimmer Radius")
             call CFG_add(inputs, "valveRad", 0.0015D0 , "Valve Radius")
             call CFG_add(inputs, "colRad", 0.0015D0 , "Collimator Radius")
@@ -26,11 +26,12 @@ module inputs
             call CFG_add(inputs, "halfSheetHeight", 0.002D0 , "Half height of laser sheet")
             call CFG_add(inputs, "sheetWidth", 0.0300D0 , "Full width of laser sheet")
             call CFG_add(inputs, "pulseLength", 10.0D-06 , "Discharge pulse length")
+            call CFG_add(inputs, "surface_z", 294 , "z-offset of surface position in pixels from top of image")
             
             ! Imaging inputs
             call CFG_add(inputs, "pxMmRatio", 0.25D-03 , "Pixel to mm ratio for imaging")
-            call CFG_add(inputs, "probeStart", 67.0D-06 , "Start of probe time (imaging time)")
-            call CFG_add(inputs, "probeEnd", 180.0D-06 , "End of probe time (imaging time)")
+            call CFG_add(inputs, "probeStart", 56.0D-06 , "Start of probe time (imaging time)")
+            call CFG_add(inputs, "probeEnd", 160.0D-06 , "End of probe time (imaging time)")
             call CFG_add(inputs, "tStep", 1.0D-06 , "Time step between images")
             call CFG_add(inputs, "gaussDev", 2.0D0 , "Deviation parameter for gaussian blur routine")
             call CFG_add(inputs, "ksize", 27 , "Kernel size for SG routine")
@@ -75,7 +76,30 @@ module inputs
              "Path to SG matrix")
             call CFG_add(inputs, "ifPath", "../Real Images/09032021_Q12_Instrument Function_SUM_00",&
              "Path to instrument function image")
+
+            ! Fixed parameters for molecules
+            call CFG_add(inputs, "fixedIngoingSpeed", .FALSE. , "Want to fix ingoing speed?")
+            call CFG_add(inputs, "speedIn", 2000D0 , "Fixed ingoing speed")
+
+            call CFG_add(inputs, "fixedOutgoingSpeed", .FALSE. , "Want to fix outoging speed?")
+            call CFG_add(inputs, "speedIn", 1000D0 , "Fixed outgoing speed")
+
+            call CFG_add(inputs, "fixedStartPos", .FALSE. , "Want to fix starting position?")
+            call CFG_add(inputs, "startx", 0D0 , "Fixed start x position")
+            call CFG_add(inputs, "starty", 0D0 , "Fixed start y position")
+            call CFG_add(inputs, "startz", 0D0 , "Fixed start z position")
+
+            call CFG_add(inputs, "fixedScatterPos", .FALSE. , "Want to fix scattering position?")
+            call CFG_add(inputs, "scatterx", 0D0 , "Fixed scattering x position")
+            call CFG_add(inputs, "scattery", 0D0 , "Fixed scattering y position")
+            call CFG_add(inputs, "scatterz", 0D0 , "Fixed scattering z position")
             
+            call CFG_add(inputs, "fixedCreationTime", .FALSE. , "Want to fix creation time?")
+            call CFG_add(inputs, "creationTime", 0D0 , "Time at which molecules are created")
+
+            call CFG_add(inputs, "fixedScatterTime", .FALSE. , "Want to fix scattering time?")
+            call CFG_add(inputs, "scatterTime", 0D0 , "Time at which molecules scatter")
+
             ! Read .cfg file and parse for changes
             inquire(FILE="../Inputs/inputs.cfg", EXIST=file_exists)
 
