@@ -139,27 +139,27 @@ program MCScattering
 
     ! Fixed parameters
 
-    call CFG_add(input_param, "fixedIngoingSpeed", fixedIngoingSpeed)
-    call CFG_add(input_param, "speedIn", speedIn)
+    call CFG_get(input_param, "fixedIngoingSpeed", fixedIngoingSpeed)
+    call CFG_get(input_param, "speedIn", speedIn)
 
-    call CFG_add(input_param, "fixedOutgoingSpeed", fixedOutgoingSpeed)
-    call CFG_add(input_param, "speedIn", speedIn)
+    call CFG_get(input_param, "fixedOutgoingSpeed", fixedOutgoingSpeed)
+    call CFG_get(input_param, "speedIn", speedIn)
 
-    call CFG_add(input_param, "fixedStartPos", fixedStartPos)
-    call CFG_add(input_param, "startx", startx)
-    call CFG_add(input_param, "starty", starty)
-    call CFG_add(input_param, "startz", startz)
+    call CFG_get(input_param, "fixedStartPos", fixedStartPos)
+    call CFG_get(input_param, "startx", startx)
+    call CFG_get(input_param, "starty", starty)
+    call CFG_get(input_param, "startz", startz)
 
-    call CFG_add(input_param, "fixedScatterPos", fixedScatterPos)
-    call CFG_add(input_param, "scatterx", scatterx)
-    call CFG_add(input_param, "scattery", scattery)
-    call CFG_add(input_param, "scatterz", scatterz)
+    call CFG_get(input_param, "fixedScatterPos", fixedScatterPos)
+    call CFG_get(input_param, "scatterx", scatterx)
+    call CFG_get(input_param, "scattery", scattery)
+    call CFG_get(input_param, "scatterz", scatterz)
     
-    call CFG_add(input_param, "fixedCreationTime", fixedCreationTime)
-    call CFG_add(input_param, "creationTime", creationTime)
+    call CFG_get(input_param, "fixedCreationTime", fixedCreationTime)
+    call CFG_get(input_param, "creationTime", creationTime)
 
-    call CFG_add(input_param, "fixedScatterTime", fixedScatterTime)
-    call CFG_add(input_param, "scatterTime", scatterTime)
+    call CFG_get(input_param, "fixedScatterTime", fixedScatterTime)
+    call CFG_get(input_param, "scatterTime", scatterTime)
 
     !*****************************************************************************************************
     ! This section prepares a start message then allocate arrays as needed and other necessary parameters
@@ -216,7 +216,7 @@ program MCScattering
     !*****************************************************************************************************
 
     do i = 1, ncyc
-        ! For fixing paramters, hopefully modern science can find a better way of doing this
+        ! For fixing parameters, hopefully modern science can find a better way of doing this
         if (normalRun .eqv. .TRUE.) then
             ! sets the ingoing speed and start time
             call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))

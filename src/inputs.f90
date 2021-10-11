@@ -82,7 +82,7 @@ module inputs
             call CFG_add(inputs, "speedIn", 2000D0 , "Fixed ingoing speed")
 
             call CFG_add(inputs, "fixedOutgoingSpeed", .FALSE. , "Want to fix outoging speed?")
-            call CFG_add(inputs, "speedIn", 1000D0 , "Fixed outgoing speed")
+            call CFG_add(inputs, "speedOut", 1000D0 , "Fixed outgoing speed")
 
             call CFG_add(inputs, "fixedStartPos", .FALSE. , "Want to fix starting position?")
             call CFG_add(inputs, "startx", 0D0 , "Fixed start x position")
