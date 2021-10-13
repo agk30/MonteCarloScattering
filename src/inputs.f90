@@ -12,9 +12,6 @@ module inputs
 
             ! Build the variables used in the input file
 
-            ! Inputs for bash script running
-            call CFG_add(inputs, "runNumber", 1 , "Position in run sequence")
-
             ! Experimental inputs
             call CFG_add(inputs, "skimPos", 0.1262D0 , "Position of Skimmer in z direction")
             call CFG_add(inputs, "valvePos", 0.1702D0 , "Position of Valve in z direction")
@@ -78,6 +75,8 @@ module inputs
              "Path to instrument function image")
 
             ! Fixed parameters for molecules
+            call CFG_add(inputs, "normalRun", .TRUE. , ".FALSE. to run with fixed parameters")
+
             call CFG_add(inputs, "fixedIngoingSpeed", .FALSE. , "Want to fix ingoing speed?")
             call CFG_add(inputs, "speedIn", 2000D0 , "Fixed ingoing speed")
 

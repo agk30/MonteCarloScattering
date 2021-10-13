@@ -22,7 +22,7 @@ program MCScattering
     implicit none
 
     ! Variables concerning input parameters
-    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS, runNumber, xPx, zPx
+    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS, xPx, zPx
     double precision :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
     double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
@@ -47,8 +47,9 @@ program MCScattering
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
     logical :: correctDirection, normalRun, linux
-    character(200) :: time, date, runNumber_string, timeOutput
+    character(200) :: time, date, timeOutput
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
+    character(17) :: date_time
 
     ! Fixed parameter variables
     logical :: fixedIngoingSpeed, fixedOutgoingSpeed, fixedStartPos, fixedScatterPos, fixedCreationTime, fixedScatterTime
@@ -76,8 +77,7 @@ program MCScattering
     ! This section deals with matching input parameters from the inputs file to their respective variables
     !*****************************************************************************************************
 
-    !Inputs for bash script running
-    call CFG_get(input_param, "runNumber", runNumber)
+    call CFG_get(input_param, "normalRun", normalRun)
 
     !Experimental inputs
     call CFG_get(input_param, "skimPos", skimPos)
@@ -165,9 +165,8 @@ program MCScattering
     ! This section prepares a start message then allocate arrays as needed and other necessary parameters
     !*****************************************************************************************************
 
-    write(runNumber_string, '(i0)') runNumber
-
-    call directory_setup(imagePath, runNumber_string, input_param, linux)
+    call date_time_string(date_time)
+    call directory_setup(imagePath, date_time, input_param, linux)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -366,7 +365,7 @@ program MCScattering
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
-        call write_image(image, xPx, zPx, probeStart, probeEnd, tstep, NumberOfTimePoints, runNumber, imagePath)
+        call write_image(image, xPx, zPx, probeStart, probeEnd, tstep, NumberOfTimePoints, date_time, imagePath)
     end if
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)
