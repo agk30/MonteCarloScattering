@@ -88,7 +88,7 @@ program roiAnalysis
 
     !Open image file 
     do i = startImg, ((startImg + (2*numimg))-2), 2
-        write(filename,'("C:\Users\adam\Documents\Data\19072021_5_Q11_IB_TOF Profile\19072021_5_Q11_IB_TOF Profile_ChC",I0.3)') i
+        write(filename,'("D:\Scattering Images\2021-11-23_150521\Blurred Images",I0.3)') i
         open(10+i,file=trim(filename))
     end do
     !open(10+startImg, file="C:\Users\adam\Documents\Data\05072021_1_Q11_IB_TOF Profile\05072021_1_Q11_IB_TOF Profile_ChC098")

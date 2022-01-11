@@ -74,7 +74,7 @@ program ralss
         do m = startImg, ((startImg + (2*numimg))-2), 2
             if (k == 1) then
                 
-                chc_index =  index(trim(sin_path), "AVERAGE_", back)
+                chc_index =  index(trim(sin_path), "AVERAGE_", back=.TRUE.)
                 
                 write(filename,'(a,I0.3)') sin_path(1:chc_index + 7),m
                 open(10+m,file=trim(filename))
@@ -195,8 +195,8 @@ program ralss
             implicit none
         
             integer :: i, array_size
-            double precision, intent(in) :: low_limit, high_limit
-            double precision, intent(out) :: factor, tolerance
+            double precision, intent(in) :: low_limit, high_limit, tolerance
+            double precision, intent(out) :: factor
             double precision, intent(in), dimension(:) :: data_array, background_array
             double precision, dimension(3) :: bracket
             double precision :: sum_square_lower, sum_square_upper, upper, lower
@@ -248,56 +248,6 @@ program ralss
                 end if
             end do
         end subroutine least_squares_fit
-
-        subroutine least_squares_fit2 (data_array, background_array, low_limit, high_limit, tolerance, factor)
-           
-            integer :: i, array_size
-            double precision, intent(in) :: low_limit, high_limit
-            double precision, intent(out) :: factor, tolerance
-            double precision, intent(in), dimension(:) :: data_array, background_array
-            double precision, dimension(3) :: bracket
-            double precision :: x_bracket, sum_sqr_x, sum_sqr_2, left_dif, right_dif, gap
-            double precision, parameter :: golden = 0.38196601125
-            logical :: accepted
-
-            bracket(1) = low_limit
-            bracket(3) = high_limit
-
-            bracket(2) = bracket(1) + ((bracket(3) - bracket(1)) * golden)
-            x_bracket = bracket(3) - ((bracket(3) - bracket(1)) * golden)
-
-            do while (.not. accepted)
-                do i = 1, array_size
-                    sum_sqr_2 = sum_sqr_2 + ((data_array(i) - (bracket(2)*background_array(i)))**2.0)
-                    sum_sqr_x = sum_sqr_x + ((data_array(i) - (x_bracket*background_array(i)))**2.0)
-                end do
-
-                gap = bracket(3) - bracket(1)
-
-                if (sum_sqr_x .lt. sum_sqr_2) then
-                    bracket(3) = bracket(2)
-                    bracket(2) = x_bracket
-                else
-                    bracket(1) = x_bracket
-                end if
-
-                left_dif = bracket(2) - bracket(1)
-                right_dif = bracket(3) - bracket(2)
-
-                if (left_dif .gt. right_dif) then
-                    x_bracket = bracket(1) + ((bracket(3) - bracket(1)) * golden)
-                else
-                    x_bracket = bracket(3) - ((bracket(3) - bracket(1)) * golden)
-                end if
-
-                if (gap .gt. (3E-10*abs(x_bracket - bracket(2)))) then
-                    accepted = .TRUE.
-                    factor = x_bracket
-                end if
-            end do
-
-
-        end subroutine
 
         subroutine parse_path(path, transition_str, surface_str)
             implicit none
