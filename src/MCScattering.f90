@@ -56,9 +56,40 @@ program MCScattering
     double precision :: speedIn, speedOut, creationTime, scatterTime
     double precision :: startx, starty, startz, scatterx, scattery, scatterz
 
+    !New gaussian values
+    !parameters for guassians used in fit
+    double precision, dimension(:), allocatable :: m_s, w_s, std_s
+    double precision, dimension(:), allocatable :: m_t, w_t, std_t
+    double precision :: gauss_dist
+    logical :: gauss_time
+    !number of guassians to be used for time and speed calculations
+    integer :: n_t, n_s
+
+    double precision :: t, x, w_low, w_upper, w_sum
+    double precision :: arrivalTime
+
     integer, dimension(8) :: values
 
     type(CFG_t) :: input_param
+
+    allocate(m_s(1))
+    allocate(w_s(1))
+    allocate(std_s(1))
+    allocate(m_t(1))
+    allocate(w_t(1))
+    allocate(std_t(1))
+
+    m_s(1) = 95.7594
+    w_s(1) = 1
+    std_s(1) = 10.0
+    m_t(1) = 1
+    w_t(1) = 1
+    std_t(1) = 1
+    n_s = 1
+    n_t = 0
+
+    gauss_time = .FALSE.
+    gauss_dist = 0.149
 
     ! TODO put in licensing statement.
 
@@ -218,7 +249,11 @@ program MCScattering
         ! For fixing parameters, hopefully modern science can find a better way of doing this
         if (normalRun .eqv. .TRUE.) then
             ! sets the ingoing speed and start time
-            call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
+            !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
+            call ingoing_speed_from_Gauss&
+            (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
+
+            !print *, particleSpeed(1), particleTime(1)
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))

@@ -17,8 +17,8 @@ program roiAnalysis
 
     !Universal variables
     centrePx(1) = 206.0 ; centrePx(2) = 283.0   !Centrepoint of ingoing beam and liquid surface area of interaction
-    startImg = 10                               !Discharge-probe delay of the first image in the sequence
-    numimg = 28                                 !Number of images in the sequence
+    startImg = 38                               !Discharge-probe delay of the first image in the sequence
+    numimg = 56                                 !Number of images in the sequence
     timeStep = 2D-6                             !Timestep between images in the sequence in seconds
 
     !Mode 1 variables
@@ -58,7 +58,7 @@ program roiAnalysis
         arcradii(i) = radiiGap*i            !distance of each arc from the centrepoint
     end do
 
-    print *, arcradii * 0.00025
+    !print *, arcradii * 0.00025
 
     do j = 1, numWedges
         wedges(j) = wedgeAngle*j            !angle of each wedge
@@ -88,7 +88,11 @@ program roiAnalysis
 
     !Open image file 
     do i = startImg, ((startImg + (2*numimg))-2), 2
+<<<<<<< Updated upstream
         write(filename,'("D:\Scattering Images\2021-11-23_150521\Blurred Images",I0.3)') i
+=======
+        write(filename,'("C:\Users\adam\Documents\Data\08 07 data\08072021_3_Q11_IB_TOF Profile\08072021_ChC",I0.3)') i
+>>>>>>> Stashed changes
         open(10+i,file=trim(filename))
     end do
     !open(10+startImg, file="C:\Users\adam\Documents\Data\05072021_1_Q11_IB_TOF Profile\05072021_1_Q11_IB_TOF Profile_ChC098")
