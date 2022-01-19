@@ -66,30 +66,33 @@ program MCScattering
     integer :: n_t, n_s
 
     double precision :: t, x, w_low, w_upper, w_sum
-    double precision :: arrivalTime
+    double precision :: arrivalTime, running_total_speed
 
     integer, dimension(8) :: values
 
     type(CFG_t) :: input_param
 
-    allocate(m_s(1))
-    allocate(w_s(1))
-    allocate(std_s(1))
+    allocate(m_s(2))
+    allocate(w_s(2))
+    allocate(std_s(2))
     allocate(m_t(1))
     allocate(w_t(1))
     allocate(std_t(1))
 
-    m_s(1) = 95.7594
-    w_s(1) = 1
-    std_s(1) = 10.0
+    m_s(1) = 96.05006
+    m_s(2) = 105.06636
+    w_s(1) = 0.68493
+    w_s(2) = 0.51131
+    std_s(1) = 5.90616
+    std_s(2) = 8.8367
     m_t(1) = 1
     w_t(1) = 1
     std_t(1) = 1
-    n_s = 1
+    n_s = 2
     n_t = 0
 
     gauss_time = .FALSE.
-    gauss_dist = 0.149
+    gauss_dist = 0.15395
 
     ! TODO put in licensing statement.
 
@@ -122,6 +125,8 @@ program MCScattering
     call CFG_get(input_param, "sheetWidth", sheetWidth)
     call CFG_get(input_param, "pulseLength", pulseLength)
     call CFG_get(input_param, "surface_z", surface_z)
+
+    valvePos = valvePos + 80E-3
 
     ! Imaging inputs
     call CFG_get(input_param, "pxMmRatio", pxMmRatio)
@@ -245,6 +250,8 @@ program MCScattering
     ! Scattering calculations begin here
     !*****************************************************************************************************
 
+    running_total_speed = 0
+
     do i = 1, ncyc
         ! For fixing parameters, hopefully modern science can find a better way of doing this
         if (normalRun .eqv. .TRUE.) then
@@ -252,6 +259,8 @@ program MCScattering
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
             call ingoing_speed_from_Gauss&
             (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
+
+            running_total_speed = running_total_speed + particleSpeed(1)
 
             !print *, particleSpeed(1), particleTime(1)
 
@@ -397,6 +406,7 @@ program MCScattering
     call sg_array(xPx, zPx, ksize, matrixPath, ifinput, ifoutput)
     call sg_convolve(xPx, zPx, NumberOfTimePoints, image, ifoutput)
 
+    print *, running_total_speed/ncyc
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
@@ -406,5 +416,6 @@ program MCScattering
     totalTraj = real(ncyc)*real(vectorsPerParticle)
 
     print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
+
 
 end program MCScattering
