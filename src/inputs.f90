@@ -2,10 +2,23 @@ module inputs
     use mathConstants
     use m_config
 
+    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS, xPx, zPx, surface_z
+    double precision :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
+    double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
+     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
+      captureGateOpen, captureGateClose
+    logical :: scattering, testMods, writeImages, fullSim
+    logical :: correctDirection, normalRun, linux, hush
+    character(200) :: imagePath, matrixPath, ifPath
+        ! Fixed parameter variables
+    logical :: fixedIngoingSpeed, fixedOutgoingSpeed, fixedStartPos, fixedScatterPos, fixedCreationTime, fixedScatterTime
+    double precision :: speedIn, speedOut, creationTime, scatterTime
+    double precision :: startx, starty, startz, scatterx, scattery, scatterz
+
     contains
 
         ! Loads input parameters into the main section of code, MCScattering.f90
-        subroutine load_inputs(inputs)
+        subroutine load_inputs
             implicit none
             logical :: file_exists
             type(CFG_t) :: inputs
@@ -99,6 +112,8 @@ module inputs
             call CFG_add(inputs, "fixedScatterTime", .FALSE. , "Want to fix scattering time?")
             call CFG_add(inputs, "scatterTime", 0D0 , "Time at which molecules scatter")
 
+            call CFG_add(inputs, "hush", .FALSE., "shuts off console outputs except for filepath. This is to allow piping outputs to python code")
+
             ! Read .cfg file and parse for changes
             inquire(FILE="../Inputs/inputs.cfg", EXIST=file_exists)
 
@@ -115,6 +130,94 @@ module inputs
 
             ! Parse any command line arguments
             call CFG_update_from_arguments(inputs)
+
+            call CFG_get(inputs, "normalRun", normalRun)
+
+            !Experimental inputs
+            call CFG_get(inputs, "skimPos", skimPos)
+            call CFG_get(inputs, "valvePos", valvePos)
+            call CFG_get(inputs, "colPos", colPos)
+            call CFG_get(inputs, "skimRad", skimRad)
+            call CFG_get(inputs, "valveRad", valveRad)
+            call CFG_get(inputs, "colRad", colRad)
+            call CFG_get(inputs, "sheetCentre", sheetCentreZ)
+            call CFG_get(inputs, "halfSheetHeight", halfSheetHeight)
+            call CFG_get(inputs, "sheetWidth", sheetWidth)
+            call CFG_get(inputs, "pulseLength", pulseLength)
+            call CFG_get(inputs, "surface_z", surface_z)
+        
+            valvePos = valvePos! - 73E-3
+        
+            ! Imaging inputs
+            call CFG_get(inputs, "pxMmRatio", pxMmRatio)
+            call CFG_get(inputs, "probeStart", probeStart)
+            call CFG_get(inputs, "probeEnd", probeEnd)
+            call CFG_get(inputs, "tStep", tStep)
+            call CFG_get(inputs, "gaussDev", gaussDev)
+            call CFG_get(inputs, "ksize", ksize)
+            call CFG_get(inputs, "polyOrder", polyOrder)
+            call CFG_get(inputs, "scattering", scattering)
+            call CFG_get(inputs, "fullSim", fullSim)
+            call CFG_get(inputs, "testMods", testMods)
+            call CFG_get(inputs, "writeImages", writeImages)
+            call CFG_get(inputs, "scatterIntensity", scatterIntensity)
+            call CFG_get(inputs, "fLifeTime", fLifeTime)
+            call CFG_get(inputs, "captureGateOpen", captureGateOpen)
+            call CFG_get(inputs, "captureGateClose", captureGateClose)
+        
+            ! Mathematical Inputs
+            call CFG_get(inputs, "xPx", xPx)
+            call CFG_get(inputs, "zPx", zPx)
+            call CFG_get(inputs, "incidenceAngle", incidenceAngle)
+            call CFG_get(inputs, "cosinePowerTD", cosinePowerTD)
+            call CFG_get(inputs, "cosinePowerIS", cosinePowerIS)
+            call CFG_get(inputs, "x0", x0)
+            call CFG_get(inputs, "aMax", aMax)
+            call CFG_get(inputs, "aMin", aMin)
+            call CFG_get(inputs, "h", h)
+            call CFG_get(inputs, "s", s)
+            call CFG_get(inputs, "dist", dist)
+            call CFG_get(inputs, "mass", mass)
+            call CFG_get(inputs, "massMol", massMol)
+            call CFG_get(inputs, "energyTrans", energyTrans)
+            call CFG_get(inputs, "surfaceMass", surfaceMass)
+            call CFG_get(inputs, "exitAngle", exitAngle)
+            call CFG_get(inputs, "temp", temp)
+            call CFG_get(inputs, "ncyc", ncyc)
+            call CFG_get(inputs, "maxSpeed", maxSpeed)
+            call CFG_get(inputs, "scatterFraction", scatterFraction)
+        
+            ! File paths go here
+            call CFG_get(inputs, "linux", linux)
+            call CFG_get(inputs, "imagePath", imagePath)
+            call CFG_get(inputs, "matrixPath", matrixPath)
+            call CFG_get(inputs, "ifPath", ifPath)
+        
+            ! Fixed parameters
+        
+            call CFG_get(inputs, "fixedIngoingSpeed", fixedIngoingSpeed)
+            call CFG_get(inputs, "speedIn", speedIn)
+        
+            call CFG_get(inputs, "fixedOutgoingSpeed", fixedOutgoingSpeed)
+            call CFG_get(inputs, "speedIn", speedIn)
+        
+            call CFG_get(inputs, "fixedStartPos", fixedStartPos)
+            call CFG_get(inputs, "startx", startx)
+            call CFG_get(inputs, "starty", starty)
+            call CFG_get(inputs, "startz", startz)
+        
+            call CFG_get(inputs, "fixedScatterPos", fixedScatterPos)
+            call CFG_get(inputs, "scatterx", scatterx)
+            call CFG_get(inputs, "scattery", scattery)
+            call CFG_get(inputs, "scatterz", scatterz)
+            
+            call CFG_get(inputs, "fixedCreationTime", fixedCreationTime)
+            call CFG_get(inputs, "creationTime", creationTime)
+        
+            call CFG_get(inputs, "fixedScatterTime", fixedScatterTime)
+            call CFG_get(inputs, "scatterTime", scatterTime)
+        
+            call CFG_get(inputs, "hush", hush)
 
         end subroutine load_inputs
         

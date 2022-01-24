@@ -22,16 +22,9 @@ program MCScattering
     implicit none
 
     ! Variables concerning input parameters
-    integer :: ncyc, ksize, polyOrder, cosinePowerTD, cosinePowerIS, xPx, zPx
-    double precision :: incidenceAngle, x0, aMax, aMin, h, s, dist, pulseLength, mass, temp, skimPos, valvePos
-    double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
-     pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
-      captureGateOpen, captureGateClose
-    logical :: scattering, testMods, writeImages, fullSim
-    character(200) :: imagePath, matrixPath, ifPath
 
     integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
-    integer :: startVector, runTimeMin, tStepInt, surface_z
+    integer :: startVector, runTimeMin, tStepInt
     double precision :: tWheel, rand1, deflectionAngle
     double precision :: mostLikelyProbability, startTime, endTime, runTime, &
      entryTime, exitTime, totalTraj, runTimeSec
@@ -46,15 +39,12 @@ program MCScattering
     double precision, dimension(:,:), allocatable :: ifinput, ifoutput
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
-    logical :: correctDirection, normalRun, linux
-    character(200) :: time, date, timeOutput
+
+    character(:), allocatable :: time, date, timeOutput, output_image_path, cwd
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
     character(17) :: date_time
 
-    ! Fixed parameter variables
-    logical :: fixedIngoingSpeed, fixedOutgoingSpeed, fixedStartPos, fixedScatterPos, fixedCreationTime, fixedScatterTime
-    double precision :: speedIn, speedOut, creationTime, scatterTime
-    double precision :: startx, starty, startz, scatterx, scattery, scatterz
+
 
     !New gaussian values
     !parameters for guassians used in fit
@@ -105,113 +95,31 @@ program MCScattering
 
     ! Assigns all parameters from input files into main program variables
 
-    call load_inputs(input_param)
+    call load_inputs
     
     !*****************************************************************************************************
     ! This section deals with matching input parameters from the inputs file to their respective variables
     !*****************************************************************************************************
 
-    call CFG_get(input_param, "normalRun", normalRun)
 
-    !Experimental inputs
-    call CFG_get(input_param, "skimPos", skimPos)
-    call CFG_get(input_param, "valvePos", valvePos)
-    call CFG_get(input_param, "colPos", colPos)
-    call CFG_get(input_param, "skimRad", skimRad)
-    call CFG_get(input_param, "valveRad", valveRad)
-    call CFG_get(input_param, "colRad", colRad)
-    call CFG_get(input_param, "sheetCentre", sheetCentreZ)
-    call CFG_get(input_param, "halfSheetHeight", halfSheetHeight)
-    call CFG_get(input_param, "sheetWidth", sheetWidth)
-    call CFG_get(input_param, "pulseLength", pulseLength)
-    call CFG_get(input_param, "surface_z", surface_z)
-
-    valvePos = valvePos + 80E-3
-
-    ! Imaging inputs
-    call CFG_get(input_param, "pxMmRatio", pxMmRatio)
-    call CFG_get(input_param, "probeStart", probeStart)
-    call CFG_get(input_param, "probeEnd", probeEnd)
-    call CFG_get(input_param, "tStep", tStep)
-    call CFG_get(input_param, "gaussDev", gaussDev)
-    call CFG_get(input_param, "ksize", ksize)
-    call CFG_get(input_param, "polyOrder", polyOrder)
-    call CFG_get(input_param, "scattering", scattering)
-    call CFG_get(input_param, "fullSim", fullSim)
-    call CFG_get(input_param, "testMods", testMods)
-    call CFG_get(input_param, "writeImages", writeImages)
-    call CFG_get(input_param, "scatterIntensity", scatterIntensity)
-    call CFG_get(input_param, "fLifeTime", fLifeTime)
-    call CFG_get(input_param, "captureGateOpen", captureGateOpen)
-    call CFG_get(input_param, "captureGateClose", captureGateClose)
-
-    ! Mathematical Inputs
-    call CFG_get(input_param, "xPx", xPx)
-    call CFG_get(input_param, "zPx", zPx)
-    call CFG_get(input_param, "incidenceAngle", incidenceAngle)
-    call CFG_get(input_param, "cosinePowerTD", cosinePowerTD)
-    call CFG_get(input_param, "cosinePowerIS", cosinePowerIS)
-    call CFG_get(input_param, "x0", x0)
-    call CFG_get(input_param, "aMax", aMax)
-    call CFG_get(input_param, "aMin", aMin)
-    call CFG_get(input_param, "h", h)
-    call CFG_get(input_param, "s", s)
-    call CFG_get(input_param, "dist", dist)
-    call CFG_get(input_param, "mass", mass)
-    call CFG_get(input_param, "massMol", massMol)
-    call CFG_get(input_param, "energyTrans", energyTrans)
-    call CFG_get(input_param, "surfaceMass", surfaceMass)
-    call CFG_get(input_param, "exitAngle", exitAngle)
-    call CFG_get(input_param, "temp", temp)
-    call CFG_get(input_param, "ncyc", ncyc)
-    call CFG_get(input_param, "maxSpeed", maxSpeed)
-    call CFG_get(input_param, "scatterFraction", scatterFraction)
-
-    ! File paths go here
-    call CFG_get(input_param, "linux", linux)
-    call CFG_get(input_param, "imagePath", imagePath)
-    call CFG_get(input_param, "matrixPath", matrixPath)
-    call CFG_get(input_param, "ifPath", ifPath)
-
-    ! Fixed parameters
-
-    call CFG_get(input_param, "fixedIngoingSpeed", fixedIngoingSpeed)
-    call CFG_get(input_param, "speedIn", speedIn)
-
-    call CFG_get(input_param, "fixedOutgoingSpeed", fixedOutgoingSpeed)
-    call CFG_get(input_param, "speedIn", speedIn)
-
-    call CFG_get(input_param, "fixedStartPos", fixedStartPos)
-    call CFG_get(input_param, "startx", startx)
-    call CFG_get(input_param, "starty", starty)
-    call CFG_get(input_param, "startz", startz)
-
-    call CFG_get(input_param, "fixedScatterPos", fixedScatterPos)
-    call CFG_get(input_param, "scatterx", scatterx)
-    call CFG_get(input_param, "scattery", scattery)
-    call CFG_get(input_param, "scatterz", scatterz)
-    
-    call CFG_get(input_param, "fixedCreationTime", fixedCreationTime)
-    call CFG_get(input_param, "creationTime", creationTime)
-
-    call CFG_get(input_param, "fixedScatterTime", fixedScatterTime)
-    call CFG_get(input_param, "scatterTime", scatterTime)
 
     !*****************************************************************************************************
     ! This section prepares a start message then allocate arrays as needed and other necessary parameters
     !*****************************************************************************************************
 
     call date_time_string(date_time)
-    call directory_setup(imagePath, date_time, input_param, linux)
+    call directory_setup(imagePath, date_time, input_param, linux, output_image_path)
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
-    if (.not. fullSim) then
-        print "(a)", "Scattering only"
-    end if
-    
-    if (.not. writeImages) then
-        print "(a)", "Image writing disabled"
+    if (.not. hush) then
+        if (.not. fullSim) then
+            print "(a)", "Scattering only"
+        end if
+
+        if (.not. writeImages) then
+            print "(a)", "Image writing disabled"
+        end if
     end if
 
     ! allocates the image array, which is shared from the imaging class
@@ -244,7 +152,9 @@ program MCScattering
         startVector = 2
     end if
 
-    print "(a)", "Starting compute"
+    if (.not. hush) then
+        print "(a)", "Starting compute"
+    end if
 
     !*****************************************************************************************************
     ! Scattering calculations begin here
@@ -386,7 +296,10 @@ program MCScattering
             timeOutput = "Compute finished in "//trim(runTimeMin_string)//" minutes and "//trim(runTimeSec_string//" seconds.")
         end if
     end if
-    print "(a)", (trim(timeOutput))
+
+    if (.not. hush) then
+        print "(a)", (trim(timeOutput))
+    end if
 
     !*****************************************************************************************************
     ! Image processing begins, followed by writing out image files
@@ -406,7 +319,9 @@ program MCScattering
     call sg_array(xPx, zPx, ksize, matrixPath, ifinput, ifoutput)
     call sg_convolve(xPx, zPx, NumberOfTimePoints, image, ifoutput)
 
-    print *, running_total_speed/ncyc
+    if (.not. hush) then
+        print *, running_total_speed/ncyc
+    end if
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
@@ -415,7 +330,12 @@ program MCScattering
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)
 
-    print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
+    if (.not. hush) then
+        print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
+    else
+        call getcwd(cwd)
+        print *, cwd, output_image_path
+    end if
 
 
 end program MCScattering
