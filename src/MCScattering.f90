@@ -69,17 +69,30 @@ program MCScattering
     allocate(w_t(1))
     allocate(std_t(1))
 
-    m_s(1) = 96.05006
-    m_s(2) = 105.06636
-    w_s(1) = 0.68493
-    w_s(2) = 0.51131
-    std_s(1) = 5.90616
-    std_s(2) = 8.8367
+    !m_s(1) = 96.05006
+    !m_s(2) = 105.06636
+    !w_s(1) = 0.68493
+    !w_s(2) = 0.51131
+    !std_s(1) = 5.90616
+    !std_s(2) = 8.8367
+    !m_t(1) = 1
+    !w_t(1) = 1
+    !std_t(1) = 1
+    !n_s = 2
+    !n_t = 0
+
+    m_s(1) = 95.37
+    m_s(2) = 104.06
+    w_s(1) = 0.68
+    w_s(2) = 00.52
+    std_s(1) = 5.72
+    std_s(2) = 8.58
     m_t(1) = 1
     w_t(1) = 1
     std_t(1) = 1
     n_s = 2
     n_t = 0
+
 
     gauss_time = .FALSE.
     gauss_dist = 0.15395
@@ -109,6 +122,9 @@ program MCScattering
 
     call date_time_string(date_time)
     call directory_setup(imagePath, date_time, input_param, linux, output_image_path)
+
+    call getcwd(cwd)
+    print *, cwd, output_image_path
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -332,9 +348,6 @@ program MCScattering
 
     if (.not. hush) then
         print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
-    else
-        call getcwd(cwd)
-        print *, cwd, output_image_path
     end if
 
 

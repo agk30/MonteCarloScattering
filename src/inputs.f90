@@ -219,6 +219,10 @@ module inputs
         
             call CFG_get(inputs, "hush", hush)
 
+            skimPos = skimPos + 0.08
+            valvePos = valvePos  + 0.08
+            colPos = colPos  + 0.08
+
         end subroutine load_inputs
         
 end module inputs
