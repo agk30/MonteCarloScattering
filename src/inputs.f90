@@ -15,6 +15,12 @@ module inputs
     double precision :: speedIn, speedOut, creationTime, scatterTime
     double precision :: startx, starty, startz, scatterx, scattery, scatterz
 
+    integer :: n_s
+    double precision :: gauss_dist
+    logical :: gauss_time
+
+    double precision, allocatable, dimension(:) :: m_s, w_s, std_s
+
     contains
 
         ! Loads input parameters into the main section of code, MCScattering.f90
@@ -114,6 +120,15 @@ module inputs
 
             call CFG_add(inputs, "hush", .FALSE., "shuts off console outputs except for filepath. This is to allow piping outputs to python code")
 
+            ! For Gaussian beam creation
+
+            call CFG_add(inputs, "n_s", 2, "number of gaussians to sum for use in beam speed generation")
+            call CFG_add(inputs, "gauss_time", .FALSE., "generate creation time with guassians?")
+            call CFG_add(inputs, "gauss_dist", 0.15395D0, "distance used to convert arrival times to speeds")
+            call CFG_add(inputs, "m_s", [95.06981D0, 103.67911D0], "array of means of different gaussians to sum", dynamic_size=.TRUE.)
+            call CFG_add(inputs, "std_s", [5.2326D0, 8.53655D0], "array of sigmas of different gaussians to sum",dynamic_size=.TRUE.)
+            call CFG_add(inputs, "w_s", [0.63214D0, 0.61003D0], "array of weightings for gaussian summing",dynamic_size=.TRUE.)
+
             ! Read .cfg file and parse for changes
             inquire(FILE="../Inputs/inputs.cfg", EXIST=file_exists)
 
@@ -146,7 +161,7 @@ module inputs
             call CFG_get(inputs, "pulseLength", pulseLength)
             call CFG_get(inputs, "surface_z", surface_z)
         
-            valvePos = valvePos! - 73E-3
+            !valvePos = valvePos! - 73E-3
         
             ! Imaging inputs
             call CFG_get(inputs, "pxMmRatio", pxMmRatio)
@@ -219,9 +234,22 @@ module inputs
         
             call CFG_get(inputs, "hush", hush)
 
+            ! allocate gaussian speed arrays based on n_s
+            call CFG_get(inputs, "n_s", n_s)
+            allocate(w_s(n_s))
+            allocate(m_s(n_s))
+            allocate(std_s(n_s))
+
+            call CFG_get(inputs, "gauss_dist", gauss_dist)
+            call CFG_get(inputs, "gauss_time", gauss_time)
+            call CFG_get(inputs, "w_s", w_s)
+            call CFG_get(inputs, "m_s", m_s)
+            call CFG_get(inputs, "std_s", std_s)
+
             skimPos = skimPos! + 0.08
-            valvePos = valvePos!  + 0.08
-            colPos = colPos!  + 0.08
+            valvePos = valvePos! + 0.08
+            colPos = colPos! + 0.08
+            !colRad = 2.0
 
         end subroutine load_inputs
         

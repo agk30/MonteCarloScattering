@@ -48,12 +48,12 @@ program MCScattering
 
     !New gaussian values
     !parameters for guassians used in fit
-    double precision, dimension(:), allocatable :: m_s, w_s, std_s
+    !double precision, dimension(:), allocatable :: m_s, w_s, std_s
     double precision, dimension(:), allocatable :: m_t, w_t, std_t
-    double precision :: gauss_dist
-    logical :: gauss_time
+    !double precision :: gauss_dist
+    !logical :: gauss_time
     !number of guassians to be used for time and speed calculations
-    integer :: n_t, n_s
+    integer :: n_t
 
     double precision :: t, x, w_low, w_upper, w_sum
     double precision :: arrivalTime, running_total_speed
@@ -62,52 +62,14 @@ program MCScattering
 
     type(CFG_t) :: input_param
 
-    allocate(m_s(3))
-    allocate(w_s(3))
-    allocate(std_s(3))
     allocate(m_t(1))
     allocate(w_t(1))
     allocate(std_t(1))
 
-    !m_s(1) = 96.05006
-    !m_s(2) = 105.06636
-    !w_s(1) = 0.68493
-    !w_s(2) = 0.51131
-    !std_s(1) = 5.90616
-    !std_s(2) = 8.8367
-    !m_t(1) = 1
-    !w_t(1) = 1
-    !std_t(1) = 1
-    !n_s = 2
-    !n_t = 0
-
-    !m_s(1) = 93.45283
-    !m_s(2) = 103.4359
-    !w_s(1) = 0.56898
-    !w_s(2) = 0.59184
-    !std_s(1) = 6.8003
-    !std_s(2) = 9.89696
     m_t(1) = 1
     w_t(1) = 1
     std_t(1) = 1
-    n_s = 3
     n_t = 0
-
-    m_s(1) = 102.87693
-    std_s(1) = 7.35188
-    w_s(1) = 0.58482
-
-    m_s(2) = 95.86306
-    std_s(2) = 4.65086
-    w_s(2) = 0.40714
-
-    m_s(3) = 110.64427
-    std_s(3) = 10.73993
-    w_s(3) = 0.18829
-
-    gauss_time = .FALSE.
-    gauss_dist = 0.15395
-    !gauss_dist = 0.167878575
 
     ! TODO put in licensing statement.
 
@@ -121,12 +83,6 @@ program MCScattering
     ! Assigns all parameters from input files into main program variables
 
     call load_inputs
-    
-    !*****************************************************************************************************
-    ! This section deals with matching input parameters from the inputs file to their respective variables
-    !*****************************************************************************************************
-
-
 
     !*****************************************************************************************************
     ! This section prepares a start message then allocate arrays as needed and other necessary parameters
