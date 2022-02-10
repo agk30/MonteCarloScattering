@@ -21,10 +21,8 @@ program MCScattering
  
     implicit none
 
-    ! Variables concerning input parameters
-
     integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
-    integer :: startVector, runTimeMin, tStepInt
+    integer :: startVector, runTimeMin, tStepInt, max_int
     double precision :: tWheel, rand1, deflectionAngle
     double precision :: mostLikelyProbability, startTime, endTime, runTime, &
      entryTime, exitTime, totalTraj, runTimeSec
@@ -40,23 +38,19 @@ program MCScattering
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
 
-    character(:), allocatable :: time, date, timeOutput, output_image_path, cwd
+    character(:), allocatable :: time, date, timeOutput, output_image_path, cwd, proper_path
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
     character(17) :: date_time
-
-
 
     !New gaussian values
     !parameters for guassians used in fit
     !double precision, dimension(:), allocatable :: m_s, w_s, std_s
     double precision, dimension(:), allocatable :: m_t, w_t, std_t
-    !double precision :: gauss_dist
-    !logical :: gauss_time
     !number of guassians to be used for time and speed calculations
     integer :: n_t
 
     double precision :: t, x, w_low, w_upper, w_sum
-    double precision :: arrivalTime, running_total_speed
+    double precision :: arrivalTime
 
     integer, dimension(8) :: values
 
@@ -66,10 +60,10 @@ program MCScattering
     allocate(w_t(1))
     allocate(std_t(1))
 
-    m_t(1) = 1
-    w_t(1) = 1
-    std_t(1) = 1
-    n_t = 0
+    m_t(1) = 0.0D-6
+    w_t(1) = 1.0
+    std_t(1) = 1.5D-6
+    n_t = 1
 
     ! TODO put in licensing statement.
 
@@ -92,7 +86,14 @@ program MCScattering
     call directory_setup(imagePath, date_time, input_param, linux, output_image_path)
 
     call getcwd(cwd)
-    print *, cwd, output_image_path
+    print "(a)", "Writing to "//cwd//output_image_path
+
+    !allocate(proper_path(len(output_image_path)+2))
+
+    !proper_path = trim('"'//output_image_path//'"')
+
+    open (5, file='outputpath.txt')
+    write (5, "(a)") output_image_path
 
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
@@ -140,11 +141,11 @@ program MCScattering
         print "(a)", "Starting compute"
     end if
 
+    max_int = huge(startTimePoint)
+
     !*****************************************************************************************************
     ! Scattering calculations begin here
     !*****************************************************************************************************
-
-    running_total_speed = 0
 
     do i = 1, ncyc
         ! For fixing parameters, hopefully modern science can find a better way of doing this
@@ -154,9 +155,7 @@ program MCScattering
             call ingoing_speed_from_Gauss&
             (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
 
-            running_total_speed = running_total_speed + particleSpeed(1)
-
-            !print *, particleSpeed(1), particleTime(1)
+            particleTime(1) = -5D0
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
@@ -241,7 +240,6 @@ program MCScattering
             call sheet_intersection(particleVector(j,:), particleStartPos(j,:), sheetCentre,&
                 sheetDimensions, intersection(j,:,:))
             call within_sheet(intersection(j,:,:), sheetCentre, sheetDimensions, hitsSheet)
-
             if (ANY(hitsSheet)) then
                 ! If any sheet faces are hit, then intersection times are calculated
                 call intersection_time(hitsSheet, intersection(j,:,:), particleStartPos(j,:), particleVector(j,:), &
@@ -249,11 +247,17 @@ program MCScattering
                 ! Finds corresponding image timepoints for entry and exit times
                 call start_end_timepoints(NumberOfTimePoints, entryTime, exitTime, probeStart, probeEnd, tStep, &
                 startTimePoint, endTimePoint)
-                ! Finds where in the sheet the particle is located and writes position to image array
-                call position_in_probe(image(:,:,:,1), startTimePoint, &
-                endTimePoint, xPx, zPx, particleTime(j), &
-                probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
-                sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, surface_z)
+
+                ! if t0 is very large (in order of seconds) it can end up with a integer overflow for the start and end timepoints
+                ! to combat this, just have to find the max value you can get out of the int (see huge() function at start of program)
+                ! make sure startTimePoint is larger than the lowest possible int, and endTimePoint is less than the maximum possible int
+                if ((startTimePoint .gt. -max_int) .and. (endTimePoint .lt. max_int)) then
+                    ! Finds where in the sheet the particle is located and writes position to image array
+                    call position_in_probe(image(:,:,:,1), startTimePoint, &
+                    endTimePoint, xPx, zPx, particleTime(j), &
+                    probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
+                    sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, surface_z)
+                end if
             end if
         end do
     end do
@@ -264,7 +268,7 @@ program MCScattering
     if (runTime .lt. 60D0) then
         write (runTime_string, "(F7.2)") runTime
         !write (runTime_string, "(a,a,F7.2,a,a)") "Compute finished in"," ", runTime," ", "seconds"
-        timeOutput = "Compute finished in "//trim(runTime_string)//" seconds"
+        timeOutput = "Compute finished in "//trim(adjustl(runTime_string))//" seconds"
     else
         runTimeMin = floor(runTime/60D0)
         runTimeSec = mod(runTime,60D0)
@@ -272,12 +276,12 @@ program MCScattering
             write (runTimeMin_string, "(I1)") runTimeMin
             write (runTimeSec_string, "(F6.2)") runTimeSec
             !write (runTime_string, "(a,I1,a,F6.2,a)") "Compute finished in ", runTimeMin, " minute and ", runTimeSec, " seconds."
-            timeOutput = "Compute finished in "//trim(runTimeMin_string)//" minute and "//trim(runTimeSec_string//" seconds.")
+            timeOutput = "Compute finished in "//trim(adjustl(runTimeMin_string))//" minute and "//trim(adjustl(runTimeSec_string))//" seconds."
         else
             write (runTimeMin_string, "(I4)") runTimeMin
             write (runTimeSec_string, "(F6.2)") runTimeSec
             !write (runTime_string, "(a,I4,a,F6.2,a)") "Compute finished in ", runTimeMin, " minutes and ", runTimeSec, " seconds."
-            timeOutput = "Compute finished in "//trim(runTimeMin_string)//" minutes and "//trim(runTimeSec_string//" seconds.")
+            timeOutput = "Compute finished in "//trim(adjustl(runTimeMin_string))//" minutes and "//trim(adjustl(runTimeSec_string))//" seconds."
         end if
     end if
 
@@ -303,9 +307,6 @@ program MCScattering
     call sg_array(xPx, zPx, ksize, matrixPath, ifinput, ifoutput)
     call sg_convolve(xPx, zPx, NumberOfTimePoints, image, ifoutput)
 
-    if (.not. hush) then
-        print *, running_total_speed/ncyc
-    end if
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
