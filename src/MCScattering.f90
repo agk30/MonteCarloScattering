@@ -141,6 +141,7 @@ program MCScattering
         print "(a)", "Starting compute"
     end if
 
+    ! for prevention of int overflows when using very large times of origin
     max_int = huge(startTimePoint)
 
     !*****************************************************************************************************
@@ -154,8 +155,6 @@ program MCScattering
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
             call ingoing_speed_from_Gauss&
             (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
-
-            particleTime(1) = -5D0
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))

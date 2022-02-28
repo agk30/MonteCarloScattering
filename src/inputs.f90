@@ -246,9 +246,9 @@ module inputs
             call CFG_get(inputs, "m_s", m_s)
             call CFG_get(inputs, "std_s", std_s)
 
-            skimPos = skimPos! + 0.08
-            valvePos = valvePos! + 0.08
-            colPos = colPos! + 0.08
+            !skimPos = skimPos + 0.08
+            !valvePos = valvePos + 0.08
+            !colPos = colPos + 0.08
             !colRad = 2.0
 
         end subroutine load_inputs
