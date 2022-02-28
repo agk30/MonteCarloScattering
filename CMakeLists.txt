@@ -21,6 +21,7 @@ set (CMAKE_Fortran_FLAGS_RELEASE "-ffree-line-length-none")
 # Include Source Code Directory
 include_directories(src)
 # Add certain libraries
+add_library(inputs src/inputs.f90)
 add_library(mathConstants src/hwlib/mathConstants.f90)
 add_library(speeds src/hwlib/speeds.f90)
 add_library(directions src/hwlib/directions.f90)
