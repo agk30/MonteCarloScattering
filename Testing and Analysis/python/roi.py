@@ -71,61 +71,6 @@ def generate_radii(max_num_radii, max_radius):
 
     return radius
 
-def read_image(image_path):
-
-    with open(image_path, "r") as f:
-        image = numpy.loadtxt(f)
-
-    return image
-
-def parse_file_name(file_path):
-
-    name_list = file_path.split("_")
-    surface_list = ["SQA","SQE","IB","PFPE","OA","Bkg","InstrumFunc"]
-    transition_list = ["Q11","Q12","Q13","Q14","Q15"]
-
-    junk = []
-
-    for name in name_list:
-        if name in surface_list:
-            surface = name
-        elif name.isnumeric():
-            delay = name
-        elif name in transition_list:
-            transition = name
-        else:
-            junk.append(name)
-    
-    if 'surface' not in locals():
-        surface = -1
-
-    if 'delay' not in locals():
-        delay = -1
-
-    if 'transition' not in locals():
-        transition = -1
-
-    return surface, delay, transition
-
-def simple_split(file_path, delimiter):
-
-    file_path = file_path.split(".")
-    stem = file_path[0]
-    name_list = stem.split(delimiter)
-
-    found_delay = False
-
-    for name in name_list:
-        if name.isnumeric():
-            delay =  name
-            found_delay = True
-            
-    if found_delay:
-        return delay
-    else:
-        print ("No delay found in image file name, did you use the right delimiter?")
-        sys.exit()
-
 def residuals(x, sin, sout):
 
     resid = (sin*x) - sout

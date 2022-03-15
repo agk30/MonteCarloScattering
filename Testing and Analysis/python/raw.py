@@ -1,8 +1,8 @@
 import roi
+import filemanagement as fm
 import numpy
 import os
 import sys
-import shutil
 import matplotlib.pyplot as plt
 
 # get folder path from command line argument
@@ -41,12 +41,7 @@ bother_graphing = False
 # End of input parameters
 ################################################################
 
-# creates output folders if they do not already exist
-if not os.path.isdir(output_directory):
-    os.mkdir(output_directory)
-else:
-    shutil.rmtree(output_directory)
-    os.mkdir(output_directory)
+fm.filemandir_setup(output_directory)
 
 # this next bunch of stuff sets up appropriate working variables based on input parameters
 num_timepoints = int((endTime - startTime) / timeStep) + 1
