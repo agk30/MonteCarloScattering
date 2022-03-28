@@ -2,7 +2,7 @@
 # Compilation/Installation Instructions
 #
 # - mkdir build
-# - cmake ./ -B ./build/ -G "Unix Makefiles"
+# - cmake ./ -D CMAKE_Fortran_COMPILER=ifort -B ./build/ -G "Unix Makefiles"
 # - cd build
 # - make OR mingw32-make
 # ./MCScattering
@@ -14,7 +14,8 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 project(MonteCarloScattering Fortran)
 enable_language(Fortran)
 #add_compile_options(-fopenmp)
-set (CMAKE_Fortran_FLAGS_RELEASE "-ffree-line-length-none")
+#set (CMAKE_Fortran_FLAGS_RELEASE "-ffree-line-length-none")
+add_compile_options(-ffree-line-length-none)
 
 # Set Fortran .mod Directory (where they should be outputted)
 # set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/src)

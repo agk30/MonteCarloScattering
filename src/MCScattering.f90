@@ -38,7 +38,8 @@ program MCScattering
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
 
-    character(:), allocatable :: time, date, timeOutput, output_image_path, cwd, proper_path
+    character(:), allocatable :: time, date, timeOutput, output_image_path, proper_path
+    character(300) :: cwd
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
     character(17) :: date_time
 
@@ -85,7 +86,11 @@ program MCScattering
     call date_time_string(date_time)
     call directory_setup(imagePath, date_time, input_param, linux, output_image_path)
 
+    ! caution when using getcwd:
+    ! ifort handles this function just fine if you use a dynamic and unallocated string
+    ! but gfortran throws a fit if you try this, must use a properly allocated string
     call getcwd(cwd)
+    cwd = trim(cwd)
     print "(a)", "Writing to "//cwd//output_image_path
 
     !allocate(proper_path(len(output_image_path)+2))
@@ -153,8 +158,8 @@ program MCScattering
         if (normalRun .eqv. .TRUE.) then
             ! sets the ingoing speed and start time
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
-            call ingoing_speed_from_Gauss&
-            (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
+            !call ingoing_speed_from_Gauss&
+            !(w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
