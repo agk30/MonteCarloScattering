@@ -74,16 +74,18 @@ program MCScattering
 
     call cpu_time(startTime)
 
-    ! Assigns all parameters from input files into main program variables
+    call load_inputs(input_param)
 
-    call load_inputs
+    ! Assigns all parameters from input files into main program variables
 
     !*****************************************************************************************************
     ! This section prepares a start message then allocate arrays as needed and other necessary parameters
     !*****************************************************************************************************
 
     call date_time_string(date_time)
-    call directory_setup(imagePath, date_time, input_param, linux, output_image_path)
+    call directory_setup(imagePath, date_time, linux, output_image_path)
+
+    call CFG_write(input_param, trim(output_image_path)//"/"//trim(date_time)//"_input_values.cfg", .FALSE., .FALSE.)
 
     call getcwd(cwd)
     print "(a)", "Writing to "//cwd//output_image_path

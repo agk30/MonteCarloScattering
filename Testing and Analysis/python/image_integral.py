@@ -15,6 +15,8 @@ output_folder = "Output Data/Integral Intensities/"
 # limits for selecting region in image to integrate over
 x_lim = [100, 500]
 y_lim = [100, 500]
+surface_list = ["SQA","SQE","IB","PFPE","OA","Bkg","InstrumFunc","LOA"]
+transition_list = ["Q11","Q12","Q13","Q14","Q15"]
 
 # Sets up directory structure if it does not already exist
 fm.dir_setup(output_folder)
@@ -51,7 +53,7 @@ for dir in dir_list:
         delay = int(delay)
 
         # uses the meta data to find the right index in the image array this sequence should modify
-        surface_index, transition_index = fm.get_indices(surface, transition)
+        surface_index, transition_index = fm.get_indices(surface, transition, surface_list, transition_list)
 
         # since the data directories we typically create in the lab contain other stuff than just TOF profiles, gotta check that we only try to analyse the right things
         # check the get_indices function for how indices are assigned, but essentially -1 is assigned if a proper surface or transition is not found

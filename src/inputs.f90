@@ -24,7 +24,7 @@ module inputs
     contains
 
         ! Loads input parameters into the main section of code, MCScattering.f90
-        subroutine load_inputs
+        subroutine load_inputs(inputs)
             implicit none
             logical :: file_exists
             type(CFG_t) :: inputs
