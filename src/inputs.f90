@@ -10,6 +10,7 @@ module inputs
     logical :: scattering, testMods, writeImages, fullSim
     logical :: correctDirection, normalRun, linux, hush
     character(200) :: imagePath, matrixPath, ifPath
+    character(500) :: extra_info_comment
         ! Fixed parameter variables
     logical :: fixedIngoingSpeed, fixedOutgoingSpeed, fixedStartPos, fixedScatterPos, fixedCreationTime, fixedScatterTime
     double precision :: speedIn, speedOut, creationTime, scatterTime
@@ -129,6 +130,11 @@ module inputs
             call CFG_add(inputs, "std_s", [5.2326D0, 8.53655D0], "array of sigmas of different gaussians to sum",dynamic_size=.TRUE.)
             call CFG_add(inputs, "w_s", [0.63214D0, 0.61003D0], "array of weightings for gaussian summing",dynamic_size=.TRUE.)
 
+            ! Comment section of inputs (more for the output file)
+            ! If something has been changed for some kind of testing that requires editing something outside of designated inputs,
+            ! you should include it in the comment. This will be written to the output file at the end of the run to keep track of things
+            call CFG_add(inputs, "extra_info_comment", "", "additional information to be included for run to keep track of what the experiment entailed when referring back to it")
+
             ! Read .cfg file and parse for changes
             inquire(FILE="../Inputs/inputs.cfg", EXIST=file_exists)
 
@@ -245,6 +251,7 @@ module inputs
             call CFG_get(inputs, "w_s", w_s)
             call CFG_get(inputs, "m_s", m_s)
             call CFG_get(inputs, "std_s", std_s)
+            call CFG_get(inputs, "extra_info_comment", extra_info_comment)
 
             !skimPos = skimPos + 0.08
             !valvePos = valvePos + 0.08
