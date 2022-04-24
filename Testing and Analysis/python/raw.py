@@ -6,7 +6,9 @@ import sys
 import matplotlib.pyplot as plt
 
 # get folder path from command line argument
-folder_path = roi.get_args(sys.argv[1:])
+#folder_path = roi.get_args(sys.argv[1:])
+folder_path = fm.get_input_folder()
+print("Scanning "+ folder_path)
 
 ###############################################################
 # parameters (these should really be given via command line but
@@ -21,19 +23,19 @@ num_wedges = 12
 xPx = 420
 yPx = 420
 
-max_radius = 130
+max_radius = 140
 
 #startTime = 68
-startTime = 98
+startTime = 38
 #startTime = 38
 #endTime = 178
 endTime = 208
 #endTime = 148
-timeStep = 2
+timeStep = 1
 
 delimiter = "_"
 
-output_directory = "Output Data"
+output_directory = "Profiles"
 
 bother_graphing = False
 
@@ -41,7 +43,7 @@ bother_graphing = False
 # End of input parameters
 ################################################################
 
-fm.filemandir_setup(output_directory)
+fm.dir_setup(output_directory)
 
 # this next bunch of stuff sets up appropriate working variables based on input parameters
 num_timepoints = int((endTime - startTime) / timeStep) + 1
@@ -81,13 +83,13 @@ for root, dirs, files in os.walk(folder_path):
     for name in files:
         file_path = root + "/" + name
         #surface, delay, transition = parse_file_name(file_path)
-        delay = int(roi.simple_split(file_path, delimiter))
+        delay = int(fm.simple_split(file_path, delimiter))
         if (int(delay) <= endTime) and (int(delay) >= startTime):
             if (int(delay) - previous_value) == timeStep:
                 timepoint_list.append(delay)
                 print ('Processing '+name,end='\r')
                 # For each file, data are read into the image matrix
-                image = roi.read_image(file_path)
+                image = fm.read_image(file_path)
                 image = image - bg_image
                 # image goes to be processed, assigning the pixel intensity to the correct ROI
                 outputArray[:,:,int((int(delay)-startTime)/timeStep),1] = roi.roi_assign(xPx, yPx, centre_point, radius, wedge, num_arcs, num_wedges, image)
@@ -138,6 +140,10 @@ if num_arcs != num_wedges:
         largest = num_wedges
 else:
     largest = num_arcs
+
+half_radius_increment = max_radius/num_arcs
+for index, element in enumerate(radius):
+    radius[index] -= half_radius_increment
 
 array = numpy.zeros((largest,2))
 array[:,0] = radius

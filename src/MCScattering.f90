@@ -43,6 +43,8 @@ program MCScattering
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
     character(17) :: date_time
 
+    double precision :: speed_total
+
     !New gaussian values
     !parameters for guassians used in fit
     !double precision, dimension(:), allocatable :: m_s, w_s, std_s
@@ -93,7 +95,7 @@ program MCScattering
     ! but gfortran throws a fit if you try this, must use a properly allocated string
     call getcwd(cwd)
     cwd = trim(cwd)
-    print "(a)", "Writing to "//cwd//output_image_path
+    print "(a)", "Writing to "//trim(cwd)//trim(output_image_path)
 
     !allocate(proper_path(len(output_image_path)+2))
 
@@ -160,8 +162,8 @@ program MCScattering
         if (normalRun .eqv. .TRUE.) then
             ! sets the ingoing speed and start time
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
-            !call ingoing_speed_from_Gauss&
-            !(w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
+            call ingoing_speed_from_Gauss&
+            (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
@@ -173,6 +175,8 @@ program MCScattering
             ! changes the angle of incidence and starting point of the particle using a rotation matrix
             call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
             call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+
+            speed_total = speed_total + particleSpeed(1)
 
             ! time taken to travel to the wheel (NOT time of origin for scattered particle)
             tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
@@ -325,5 +329,6 @@ program MCScattering
         print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
     end if
 
+    print *, speed_total/ncyc
 
 end program MCScattering
