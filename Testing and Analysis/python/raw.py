@@ -43,6 +43,13 @@ bother_graphing = False
 # End of input parameters
 ################################################################
 
+temp_dir = os.path.split(folder_path)[0]
+print (temp_dir)
+
+output_directory = os.path.join(temp_dir, output_directory)
+
+print (output_directory)
+
 fm.dir_setup(output_directory)
 
 # this next bunch of stuff sets up appropriate working variables based on input parameters
@@ -57,6 +64,7 @@ outputArray = numpy.zeros((num_arcs,num_wedges,int((endTime-startTime)/timeStep)
 
 # generates lists of radius boundaries and wedge boundaries
 radius = roi.generate_radii(num_arcs, max_radius)
+print (radius)
 wedge = roi.generate_wedges(num_wedges)
 
 # takes a first look at the files in the given folder, finds out how many are in there
