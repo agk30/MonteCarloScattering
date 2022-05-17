@@ -54,6 +54,7 @@ program MCScattering
 
     double precision :: t, x, w_low, w_upper, w_sum
     double precision :: arrivalTime
+    double precision :: avg_speed_counter
 
     integer, dimension(8) :: values
 
@@ -169,8 +170,8 @@ program MCScattering
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
             ! adds a transverse speed to the molcule as it exits the final apperture.
-            call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
-            particleStartPos(1,:), particleVector(1,:))
+            !call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+            !particleStartPos(1,:), particleVector(1,:))
 
             ! changes the angle of incidence and starting point of the particle using a rotation matrix
             call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
@@ -182,9 +183,16 @@ program MCScattering
             tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
             
             ! Establishes scattered particle parameters based on ingoing beam particle
-            particleTime(2) = particleTime(1) + tWheel
-            particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
-            particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
+            !particleTime(2) = particleTime(1) + tWheel
+            !particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
+            !particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
+            !particleStartPos(2,3) = 0
+
+            
+            call disc_pick(particleStartPos(2,1), particleStartPos(2,2))
+
+            particleStartPos(2,:) = particleStartPos(2,:)*0
+
             particleStartPos(2,3) = 0
 
             ! Decides whicih scattering regime to simulate
@@ -194,8 +202,12 @@ program MCScattering
                 ! first case: TD scattering
                 if (rand1 .gt. scatterFraction) then
                     ! Obtains Maxwell Boltzmann speed as well as scattered direction
-                    call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                    !call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                    call ingoing_speed_from_Gauss&
+                    (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(2), particleTime(2))
                     call cosine_distribution(cosinePowerTD, particleVector(2,:))
+                    particleTime(2) = 100E-6
+                    avg_speed_counter = avg_speed_counter + particleSpeed(2)
                 ! second case: IS scattering
                 else 
                     correctDirection = .false.
@@ -329,6 +341,6 @@ program MCScattering
         print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
     end if
 
-    print *, speed_total/ncyc
+    print *, avg_speed_counter/ncyc
 
 end program MCScattering
