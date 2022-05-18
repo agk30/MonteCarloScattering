@@ -4,6 +4,7 @@ import numpy
 import sys
 from tkinter import Tk     # from Tkinter import Tk for earlier than Python 3.x
 from tkinter.filedialog import askdirectory, askopenfilename
+import re
 
 def read_image(image_path):
 
@@ -127,3 +128,7 @@ def get_regex_string(surface_list, transition_list, version_list):
     final_string = surface_string+"_"+transition_string+"_"+version_string+"_"+"ChC([0-9]{3})"
 
     return final_string
+
+def grab_number(string):
+
+    return re.findall(r'-?\d+', string)

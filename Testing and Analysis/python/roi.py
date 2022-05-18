@@ -3,6 +3,7 @@ import math
 import sys
 import getopt
 import os
+import scipy.interpolate
 
 def arc_wedge(dist_from_centre, column, centre_point, max_num_radii, max_num_wedges, radius, wedge):
     # finds the arc in which the pixel lies
@@ -163,3 +164,21 @@ def sum_tofs(path_list, delimiter):
                 summed_images[:,:,delay_list.index(delay)] = summed_images[:,:,delay_list.index(delay)] + image
 
     return summed_images, delay_list
+
+# Fits a 4th order polynomial to the data, spline's derivative is found, then its roots are found. Root with highest y-value is returned
+def find_peak(x_data, y_data):
+
+    fit = scipy.interpolate.InterpolatedUnivariateSpline(x_data,y_data, k=4)
+
+    roots = fit.derivative().roots()
+
+    fit_vals = fit(roots)
+
+    if fit_vals.any():
+        print(fit_vals)
+        max_index = numpy.argmax(fit_vals)
+        max_val = roots[max_index]
+    else:
+        max_val = 0
+
+    return max_val
