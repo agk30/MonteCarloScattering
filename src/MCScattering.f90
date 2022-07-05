@@ -202,11 +202,8 @@ program MCScattering
                 ! first case: TD scattering
                 if (rand1 .gt. scatterFraction) then
                     ! Obtains Maxwell Boltzmann speed as well as scattered direction
-                    !call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
-                    call ingoing_speed_from_Gauss&
-                    (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(2), particleTime(2))
+                    call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
                     call cosine_distribution(cosinePowerTD, particleVector(2,:))
-                    !particleTime(2) = 100E-6
                     avg_speed_counter = avg_speed_counter + particleSpeed(2)
                 ! second case: IS scattering
                 else 
