@@ -170,8 +170,8 @@ program MCScattering
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
             ! adds a transverse speed to the molcule as it exits the final apperture.
-            !call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
-            !particleStartPos(1,:), particleVector(1,:))
+            call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
+            particleStartPos(1,:), particleVector(1,:))
 
             ! changes the angle of incidence and starting point of the particle using a rotation matrix
             call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
@@ -183,17 +183,17 @@ program MCScattering
             tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
             
             ! Establishes scattered particle parameters based on ingoing beam particle
-            !particleTime(2) = particleTime(1) + tWheel
-            !particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
-            !particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
-            !particleStartPos(2,3) = 0
+            particleTime(2) = particleTime(1) + tWheel
+            particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
+            particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
+            particleStartPos(2,3) = 0
 
             
-            call disc_pick(particleStartPos(2,1), particleStartPos(2,2))
+            !call disc_pick(particleStartPos(2,1), particleStartPos(2,2))
 
-            particleStartPos(2,:) = particleStartPos(2,:)*0
+            !particleStartPos(2,:) = particleStartPos(2,:)*0
 
-            particleStartPos(2,3) = 0
+            !particleStartPos(2,3) = 0
 
             ! Decides whicih scattering regime to simulate
             if (scattering) then
