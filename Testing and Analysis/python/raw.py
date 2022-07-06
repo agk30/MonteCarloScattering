@@ -29,7 +29,7 @@ max_radius = 140
 startTime = 38
 #startTime = 38
 #endTime = 178
-endTime = 208
+endTime = 350
 #endTime = 148
 timeStep = 1
 
@@ -42,6 +42,13 @@ bother_graphing = False
 ################################################################
 # End of input parameters
 ################################################################
+
+temp_dir = os.path.split(folder_path)[0]
+print (temp_dir)
+
+output_directory = os.path.join(temp_dir, output_directory)
+
+print (output_directory)
 
 fm.dir_setup(output_directory)
 
@@ -90,6 +97,7 @@ for root, dirs, files in os.walk(folder_path):
                 print ('Processing '+name,end='\r')
                 # For each file, data are read into the image matrix
                 image = fm.read_image(file_path)
+                #print(numpy.where(numpy.isclose(image, -1000)))
                 image = image - bg_image
                 # image goes to be processed, assigning the pixel intensity to the correct ROI
                 outputArray[:,:,int((int(delay)-startTime)/timeStep),1] = roi.roi_assign(xPx, yPx, centre_point, radius, wedge, num_arcs, num_wedges, image)
@@ -97,7 +105,7 @@ for root, dirs, files in os.walk(folder_path):
 
 # comment here refers to comment that will go into output file.
 # the comment just contains all the of the radii used in processing the image for reference
-comment = str(radius)
+comment = str(radius-half_arc_step)
 
 delay_list = numpy.zeros((num_timepoints,1))
 
