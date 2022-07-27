@@ -5,6 +5,7 @@ import sys
 from tkinter import Tk     # from Tkinter import Tk for earlier than Python 3.x
 from tkinter.filedialog import askdirectory, askopenfilename
 import re
+from pathlib import Path
 
 def read_image(image_path):
 
@@ -46,8 +47,9 @@ def parse_file_name(file_path):
 
 def simple_split(file_path, delimiter):
 
-    file_path = file_path.split(".")
-    stem = file_path[0]
+    #file_path = file_path.split(".")
+    #stem = file_path[0]
+    stem = Path(file_path).stem
     name_list = stem.split(delimiter)
 
     found_delay = False

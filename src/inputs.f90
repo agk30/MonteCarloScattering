@@ -16,11 +16,11 @@ module inputs
     double precision :: speedIn, speedOut, creationTime, scatterTime
     double precision :: startx, starty, startz, scatterx, scattery, scatterz
 
-    integer :: n_s
-    double precision :: gauss_dist
-    logical :: gauss_time
+    integer :: n_s, n_s_scatter
+    double precision :: gauss_dist, gauss_dist_scatter, time_offset, time_offset_scatter
+    logical :: gauss_time, gauss_time_scatter, MB_scatter_speed
 
-    double precision, allocatable, dimension(:) :: m_s, w_s, std_s
+    double precision, allocatable, dimension(:) :: m_s, w_s, std_s, m_s_scatter, w_s_scatter, std_s_scatter
 
     contains
 
@@ -122,13 +122,24 @@ module inputs
             call CFG_add(inputs, "hush", .FALSE., "shuts off console outputs except for filepath. This is to allow piping outputs to python code")
 
             ! For Gaussian beam creation
-
+            call CFG_add(inputs, "time_offset", 23.0D0, "Time offset for Gaussian beam creation")
             call CFG_add(inputs, "n_s", 2, "number of gaussians to sum for use in beam speed generation")
             call CFG_add(inputs, "gauss_time", .FALSE., "generate creation time with guassians?")
             call CFG_add(inputs, "gauss_dist", 0.15395D0, "distance used to convert arrival times to speeds")
             call CFG_add(inputs, "m_s", [95.06981D0, 103.67911D0], "array of means of different gaussians to sum", dynamic_size=.TRUE.)
             call CFG_add(inputs, "std_s", [5.2326D0, 8.53655D0], "array of sigmas of different gaussians to sum",dynamic_size=.TRUE.)
             call CFG_add(inputs, "w_s", [0.63214D0, 0.61003D0], "array of weightings for gaussian summing",dynamic_size=.TRUE.)
+
+            ! Gaussian speed generation for scattered molecules
+            call CFG_add(inputs, "time_offset_scatter", 23.0D0, "Time offset for Gaussian beam creation")
+            call CFG_add(inputs, "n_s_scatter", 2, "number of gaussians to sum for use in beam speed generation (scattering molecules)")
+            call CFG_add(inputs, "gauss_time_scatter", .FALSE., "generate creation time with guassians? (scattering molecules)")
+            call CFG_add(inputs, "gauss_dist_scatter", 0.15395D0, "distance used to convert arrival times to speeds (scattering molecules)")
+            call CFG_add(inputs, "m_s_scatter", [95.06981D0, 103.67911D0], "array of means of different gaussians to sum (scattering molecules)", dynamic_size=.TRUE.)
+            call CFG_add(inputs, "std_s_scatter", [5.2326D0, 8.53655D0], "array of sigmas of different gaussians to sum (scattering molecules)",dynamic_size=.TRUE.)
+            call CFG_add(inputs, "w_s_scatter", [0.63214D0, 0.61003D0], "array of weightings for gaussian summing (scattering molecules)",dynamic_size=.TRUE.)
+
+            call CFG_add(inputs, "MB_scatter_speed", .TRUE., "Use MB speed generation?")
 
             ! Comment section of inputs (more for the output file)
             ! If something has been changed for some kind of testing that requires editing something outside of designated inputs,
@@ -242,15 +253,32 @@ module inputs
 
             ! allocate gaussian speed arrays based on n_s
             call CFG_get(inputs, "n_s", n_s)
+            call CFG_get(inputs, "n_s_scatter", n_s_scatter)
+
             allocate(w_s(n_s))
             allocate(m_s(n_s))
             allocate(std_s(n_s))
 
+            allocate(w_s_scatter(n_s_scatter))
+            allocate(m_s_scatter(n_s_scatter))
+            allocate(std_s_scatter(n_s_scatter))
+
+            call CFG_get(inputs, "time_offset", time_offset)
             call CFG_get(inputs, "gauss_dist", gauss_dist)
             call CFG_get(inputs, "gauss_time", gauss_time)
             call CFG_get(inputs, "w_s", w_s)
             call CFG_get(inputs, "m_s", m_s)
             call CFG_get(inputs, "std_s", std_s)
+
+            call CFG_get(inputs, "time_offset_scatter", time_offset_scatter)
+            call CFG_get(inputs, "gauss_dist_scatter", gauss_dist_scatter)
+            call CFG_get(inputs, "gauss_time_scatter", gauss_time_scatter)
+            call CFG_get(inputs, "w_s_scatter", w_s_scatter)
+            call CFG_get(inputs, "m_s_scatter", m_s_scatter)
+            call CFG_get(inputs, "std_s_scatter", std_s_scatter)
+
+            call CFG_get(inputs, "MB_scatter_speed", MB_scatter_speed)
+
             call CFG_get(inputs, "extra_info_comment", extra_info_comment)
 
             !skimPos = skimPos + 0.08

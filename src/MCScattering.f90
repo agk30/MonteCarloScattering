@@ -43,14 +43,14 @@ program MCScattering
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
     character(17) :: date_time
 
-    double precision :: speed_total
+    double precision :: speed_total, void_dump
 
     !New gaussian values
     !parameters for guassians used in fit
     !double precision, dimension(:), allocatable :: m_s, w_s, std_s
-    double precision, dimension(:), allocatable :: m_t, w_t, std_t
+    double precision, dimension(:), allocatable :: m_t, w_t, std_t, m_t_scatter, w_t_scatter, std_t_scatter
     !number of guassians to be used for time and speed calculations
-    integer :: n_t
+    integer :: n_t, n_t_scatter
 
     double precision :: t, x, w_low, w_upper, w_sum
     double precision :: arrivalTime
@@ -60,14 +60,35 @@ program MCScattering
 
     type(CFG_t) :: input_param
 
+    ! Bins
+    double precision :: bin_size
+    integer :: n_bins
+    double precision, dimension(2) :: bin_range
+    double precision, dimension(:), allocatable :: bin_list
+
+    bin_size = 10.0
+    bin_range(1) = 0
+    bin_range(2) = 3000
+    n_bins = int(( bin_range(2) - bin_range(1) ) / bin_size)
+    allocate(bin_list(n_bins))
+
     allocate(m_t(1))
     allocate(w_t(1))
     allocate(std_t(1))
+
+    allocate(m_t_scatter(1))
+    allocate(w_t_scatter(1))
+    allocate(std_t_scatter(1))
 
     m_t(1) = 0.0D-6
     w_t(1) = 1.0
     std_t(1) = 1.5D-6
     n_t = 1
+
+    m_t_scatter(1) = 0.0D-6
+    w_t_scatter(1) = 1.0
+    std_t_scatter(1) = 1.5D-6
+    n_t_scatter = 1
 
     ! TODO put in licensing statement.
 
@@ -164,7 +185,7 @@ program MCScattering
             ! sets the ingoing speed and start time
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
             call ingoing_speed_from_Gauss&
-            (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
+            (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
@@ -188,7 +209,6 @@ program MCScattering
             particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
             particleStartPos(2,3) = 0
 
-            
             !call disc_pick(particleStartPos(2,1), particleStartPos(2,2))
 
             !particleStartPos(2,:) = particleStartPos(2,:)*0
@@ -202,7 +222,19 @@ program MCScattering
                 ! first case: TD scattering
                 if (rand1 .gt. scatterFraction) then
                     ! Obtains Maxwell Boltzmann speed as well as scattered direction
-                    call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+
+                    if (MB_scatter_speed) then
+                        call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                    else
+                        call ingoing_speed_from_Gauss&
+                        (w_s_scatter, m_s_scatter, std_s_scatter, w_t_scatter, m_t_scatter, std_t_scatter, n_s_scatter, n_t_scatter, gauss_time_scatter, gauss_dist_scatter, pulseLength, particleSpeed(2), void_dump, time_offset_scatter)
+                    end if
+
+                    bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) = bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) + 1
+                    if (particleSpeed(2) .lt. 0) then
+                        print *, particleSpeed(2)
+                    end if
+
                     call cosine_distribution(cosinePowerTD, particleVector(2,:))
                     avg_speed_counter = avg_speed_counter + particleSpeed(2)
                 ! second case: IS scattering
@@ -339,5 +371,8 @@ program MCScattering
     end if
 
     print *, avg_speed_counter/ncyc
+
+    open(1000110010, file="bins.txt")
+    write(1000110010,'(ES12.5)') bin_list
 
 end program MCScattering
