@@ -4,7 +4,7 @@ import numpy
 file = fm.get_input_file()
 output_file = "slice.txt"
 
-row_range = [200, 220]
+row_range = [210, 215]
 column_range = [0, 419]
 
 with open(file,'r') as f:

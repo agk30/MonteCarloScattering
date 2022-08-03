@@ -22,6 +22,9 @@ module inputs
 
     double precision, allocatable, dimension(:) :: m_s, w_s, std_s, m_s_scatter, w_s_scatter, std_s_scatter
 
+    ! transverse speed parameters
+    double precision :: trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction
+
     contains
 
         ! Loads input parameters into the main section of code, MCScattering.f90
@@ -140,6 +143,12 @@ module inputs
             call CFG_add(inputs, "w_s_scatter", [0.63214D0, 0.61003D0], "array of weightings for gaussian summing (scattering molecules)",dynamic_size=.TRUE.)
 
             call CFG_add(inputs, "MB_scatter_speed", .TRUE., "Use MB speed generation?")
+
+            ! transverse speed parameters
+            call CFG_add(inputs, "trans_gauss_mean", 0D0, "mean speed in gaussian part of transverse speed modification")
+            call CFG_add(inputs, "trans_gauss_sigma", 40D0, "standard deviation in gaussian part of transverse speed modification")
+            call CFG_add(inputs, "trans_lor_gamma", 40D0, "gamma parameter for lorentzian part of transverse speed modification")
+            call CFG_add(inputs, "l_g_fraction", 0.5D0, "fraction of lorentzian to gaussian character in transverse speed modification")
 
             ! Comment section of inputs (more for the output file)
             ! If something has been changed for some kind of testing that requires editing something outside of designated inputs,
@@ -278,6 +287,13 @@ module inputs
             call CFG_get(inputs, "std_s_scatter", std_s_scatter)
 
             call CFG_get(inputs, "MB_scatter_speed", MB_scatter_speed)
+
+            !transverse speed parameters
+
+            call CFG_get(inputs, "trans_gauss_mean", trans_gauss_mean)
+            call CFG_get(inputs, "trans_gauss_sigma", trans_gauss_sigma)
+            call CFG_get(inputs, "trans_lor_gamma", trans_lor_gamma)
+            call CFG_get(inputs, "l_g_fraction", l_g_fraction)
 
             call CFG_get(inputs, "extra_info_comment", extra_info_comment)
 

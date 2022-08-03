@@ -15,19 +15,19 @@ project(MonteCarloScattering Fortran)
 enable_language(Fortran)
 #add_compile_options(-fopenmp)
 #set (CMAKE_Fortran_FLAGS_RELEASE "-ffree-line-length-none")
-add_compile_options(-ffree-line-length-none)
+#add_compile_options(-ffree-line-length-none)
 
 # Set Fortran .mod Directory (where they should be outputted)
 # set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 # Include Source Code Directory
 include_directories(src)
 # Add certain libraries
-add_library(inputs src/inputs.f90)
 add_library(mathConstants src/hwlib/mathConstants.f90)
 add_library(speeds src/hwlib/speeds.f90)
 add_library(directions src/hwlib/directions.f90)
 add_library(mod_tests src/hwlib/testingMods.f90)
 add_library(m_config src/hwlib/m_config.f90)
+add_library(inputs src/inputs.f90)
 
 # Create Executable
 add_executable(MCScattering src/MCScattering.f90)

@@ -181,6 +181,7 @@ program MCScattering
 
     do i = 1, ncyc
         ! For fixing parameters, hopefully modern science can find a better way of doing this
+
         if (normalRun .eqv. .TRUE.) then
             ! sets the ingoing speed and start time
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
@@ -191,8 +192,7 @@ program MCScattering
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
             ! adds a transverse speed to the molcule as it exits the final apperture.
-            call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
-            particleStartPos(1,:), particleVector(1,:))
+            call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
 
             ! changes the angle of incidence and starting point of the particle using a rotation matrix
             call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
@@ -209,12 +209,6 @@ program MCScattering
             particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
             particleStartPos(2,3) = 0
 
-            !call disc_pick(particleStartPos(2,1), particleStartPos(2,2))
-
-            !particleStartPos(2,:) = particleStartPos(2,:)*0
-
-            !particleStartPos(2,3) = 0
-
             ! Decides whicih scattering regime to simulate
             if (scattering) then
                 call random_number(rand1)
@@ -230,10 +224,10 @@ program MCScattering
                         (w_s_scatter, m_s_scatter, std_s_scatter, w_t_scatter, m_t_scatter, std_t_scatter, n_s_scatter, n_t_scatter, gauss_time_scatter, gauss_dist_scatter, pulseLength, particleSpeed(2), void_dump, time_offset_scatter)
                     end if
 
-                    bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) = bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) + 1
-                    if (particleSpeed(2) .lt. 0) then
-                        print *, particleSpeed(2)
-                    end if
+                    !bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) = bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) + 1
+                    !if (particleSpeed(2) .lt. 0) then
+                    !    print *, particleSpeed(2)
+                    !end if
 
                     call cosine_distribution(cosinePowerTD, particleVector(2,:))
                     avg_speed_counter = avg_speed_counter + particleSpeed(2)
