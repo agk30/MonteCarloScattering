@@ -180,8 +180,6 @@ program MCScattering
     !*****************************************************************************************************
 
     do i = 1, ncyc
-        ! For fixing parameters, hopefully modern science can find a better way of doing this
-
         if (normalRun .eqv. .TRUE.) then
             ! sets the ingoing speed and start time
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
@@ -191,12 +189,16 @@ program MCScattering
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
-            ! adds a transverse speed to the molcule as it exits the final apperture.
-            call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+            if (trans_speed_modify) then
+                ! adds a transverse speed to the molcule as it exits the final apperture.
+                call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+            end if
 
-            ! changes the angle of incidence and starting point of the particle using a rotation matrix
-            call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
-            call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+            if (incidenceAngle .ne. 0) then
+                ! changes the angle of incidence and starting point of the particle using a rotation matrix
+                call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
+                call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+            end if
 
             speed_total = speed_total + particleSpeed(1)
 

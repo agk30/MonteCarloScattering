@@ -18,7 +18,7 @@ module inputs
 
     integer :: n_s, n_s_scatter
     double precision :: gauss_dist, gauss_dist_scatter, time_offset, time_offset_scatter
-    logical :: gauss_time, gauss_time_scatter, MB_scatter_speed
+    logical :: gauss_time, gauss_time_scatter, MB_scatter_speed, trans_speed_modify
 
     double precision, allocatable, dimension(:) :: m_s, w_s, std_s, m_s_scatter, w_s_scatter, std_s_scatter
 
@@ -145,6 +145,7 @@ module inputs
             call CFG_add(inputs, "MB_scatter_speed", .TRUE., "Use MB speed generation?")
 
             ! transverse speed parameters
+            call CFG_add(inputs, "trans_speed_modify", .TRUE., "modify transverse speed?")
             call CFG_add(inputs, "trans_gauss_mean", 0D0, "mean speed in gaussian part of transverse speed modification")
             call CFG_add(inputs, "trans_gauss_sigma", 40D0, "standard deviation in gaussian part of transverse speed modification")
             call CFG_add(inputs, "trans_lor_gamma", 40D0, "gamma parameter for lorentzian part of transverse speed modification")
@@ -290,6 +291,7 @@ module inputs
 
             !transverse speed parameters
 
+            call CFG_get(inputs, "trans_speed_modify", trans_speed_modify)
             call CFG_get(inputs, "trans_gauss_mean", trans_gauss_mean)
             call CFG_get(inputs, "trans_gauss_sigma", trans_gauss_sigma)
             call CFG_get(inputs, "trans_lor_gamma", trans_lor_gamma)

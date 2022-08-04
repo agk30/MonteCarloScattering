@@ -36,3 +36,11 @@ Real Images/16022021_Q12_Squalane_SUM/
 !ImportSeriesTextImages.txt
 
 *.pyc
+
+.vs/MonteCarloScattering/FileContentIndex/
+
+.vs/MonteCarloScattering/v17/
+
+.vs/
+
+src/MCScattering.i90
