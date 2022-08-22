@@ -16,7 +16,7 @@ print("Scanning "+ folder_path)
 ###############################################################
 
 #centre_point = [283, 210]
-centre_point = [294, 210]
+centre_point = [294, 209.5]
 num_arcs = 7
 num_wedges = 12
 
