@@ -8,7 +8,7 @@ def replacement(file, previousw, nextw):
        line = line.replace(previousw, nextw)
        sys.stdout.write(line)
 
-old_line = "incidenceAngle =  -45.0"
+old_line = "incidenceAngle =  0.0000E+00"
 new_line = "incidenceAngle = -45.0"
 
 # opening the file in read mode

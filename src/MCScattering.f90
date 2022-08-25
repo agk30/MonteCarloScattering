@@ -18,6 +18,7 @@ program MCScattering
     use sgconv
     use mod_tests
     use m_config
+    use OMP_LIB
  
     implicit none
 
@@ -38,8 +39,8 @@ program MCScattering
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
 
-    character(:), allocatable :: time, date, timeOutput, output_image_path, proper_path
-    character(300) :: cwd
+    character(:), allocatable :: time, date, timeOutput, output_image_path, proper_path, raw_path, blur_path, if_path, input_string, parent_path
+    character(300) :: cwd, input_string_temp
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
     character(17) :: date_time
 
@@ -65,6 +66,8 @@ program MCScattering
     integer :: n_bins
     double precision, dimension(2) :: bin_range
     double precision, dimension(:), allocatable :: bin_list
+
+
 
     bin_size = 10.0
     bin_range(1) = 0
@@ -101,6 +104,11 @@ program MCScattering
 
     call load_inputs(input_param)
 
+    call get_command_argument(1, input_string_temp)
+    input_string = trim(input_string_temp)
+
+    print *, input_string
+
     ! Assigns all parameters from input files into main program variables
 
     !*****************************************************************************************************
@@ -108,9 +116,10 @@ program MCScattering
     !*****************************************************************************************************
 
     call date_time_string(date_time)
-    call directory_setup(imagePath, date_time, linux, output_image_path)
 
-    call CFG_write(input_param, trim(output_image_path)//"/"//trim(date_time)//"_input_values.cfg", .FALSE., .FALSE.)
+    call directory_setup(imagePath, date_time, linux, output_image_path, raw_path, blur_path, if_path, input_string, parent_path)
+
+    call CFG_write(input_param, trim(parent_path)//"/input_values.cfg", .FALSE., .FALSE.)
 
     ! caution when using getcwd:
     ! ifort handles this function just fine if you use a dynamic and unallocated string
@@ -179,6 +188,9 @@ program MCScattering
     ! Scattering calculations begin here
     !*****************************************************************************************************
 
+    !$OMP PARALLEL SHARED(image) PRIVATE(particleTime, particleSpeed, particleStartPos, particleVector)
+
+    !$OMP DO
     do i = 1, ncyc
         if (normalRun .eqv. .TRUE.) then
             ! sets the ingoing speed and start time
@@ -308,6 +320,11 @@ program MCScattering
             end if
         end do
     end do
+    !$OMP END DO
+
+    !$OMP END PARALLEL
+
+    !$OMP BARRIER
 
     call cpu_time(endTime)
     runTime = endTime - startTime
@@ -357,7 +374,7 @@ program MCScattering
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
-        call write_image(image, xPx, zPx, probeStart, probeEnd, tstep, NumberOfTimePoints, date_time, imagePath)
+        call write_image(image, xPx, zPx, probeStart, probeEnd, tstep, NumberOfTimePoints, date_time, raw_path, blur_path, if_path)
     end if
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)
