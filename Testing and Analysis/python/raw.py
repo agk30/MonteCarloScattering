@@ -15,7 +15,7 @@ print("Scanning "+ folder_path)
 # haven't gotten round to setting all that up yet ¯\_(ツ)_/¯ )
 ###############################################################
 
-#centre_point = [283, 210]
+#centre_point = [283, 209.5]
 centre_point = [294, 209.5]
 num_arcs = 7
 num_wedges = 12
@@ -26,8 +26,8 @@ yPx = 420
 max_radius = 140
 
 #startTime = 68
-startTime = 38
 #startTime = 38
+startTime = 38
 #endTime = 178
 endTime = 450
 #endTime = 148
@@ -86,6 +86,7 @@ timepoint_list = []
 previous_value = startTime - timeStep
 # Loops over every file in folder
 
+first_run = True
 for root, dirs, files in os.walk(folder_path):
     for name in files:
         file_path = root + "/" + name
@@ -97,6 +98,11 @@ for root, dirs, files in os.walk(folder_path):
                 print ('Processing '+name,end='\r')
                 # For each file, data are read into the image matrix
                 image = fm.read_image(file_path)
+
+                if first_run:
+                    bg_image = image
+                    first_run = False
+
                 #print(numpy.where(numpy.isclose(image, -1000)))
                 image = image - bg_image
                 # image goes to be processed, assigning the pixel intensity to the correct ROI
