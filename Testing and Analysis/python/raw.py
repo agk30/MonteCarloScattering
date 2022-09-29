@@ -15,8 +15,8 @@ print("Scanning "+ folder_path)
 # haven't gotten round to setting all that up yet ¯\_(ツ)_/¯ )
 ###############################################################
 
-#centre_point = [283, 209.5]
-centre_point = [294, 209.5]
+centre_point = [283, 209.5]
+#centre_point = [294, 209.5]
 num_arcs = 7
 num_wedges = 12
 
@@ -31,7 +31,7 @@ startTime = 38
 #endTime = 178
 endTime = 450
 #endTime = 148
-timeStep = 1
+timeStep = 2
 
 delimiter = "_"
 
