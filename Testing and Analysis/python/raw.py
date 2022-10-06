@@ -86,7 +86,8 @@ timepoint_list = []
 previous_value = startTime - timeStep
 # Loops over every file in folder
 
-first_run = True
+first_run = False
+bg_image = 0
 for root, dirs, files in os.walk(folder_path):
     for name in files:
         file_path = root + "/" + name
@@ -99,9 +100,9 @@ for root, dirs, files in os.walk(folder_path):
                 # For each file, data are read into the image matrix
                 image = fm.read_image(file_path)
 
-                if first_run:
-                    bg_image = image
-                    first_run = False
+                #if first_run:
+                #    bg_image = image
+                #    first_run = False
 
                 #print(numpy.where(numpy.isclose(image, -1000)))
                 image = image - bg_image

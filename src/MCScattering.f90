@@ -53,7 +53,7 @@ program MCScattering
     !number of guassians to be used for time and speed calculations
     integer :: n_t, n_t_scatter
 
-    double precision :: t, x, w_low, w_upper, w_sum
+    double precision :: t, x, w_low, w_upper, w_sum, rand
     double precision :: arrivalTime
     double precision :: avg_speed_counter
 
@@ -197,6 +197,12 @@ program MCScattering
             !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
             call ingoing_speed_from_Gauss&
             (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
+            
+            !call random_gauss_speed(2040D0, 150D0, particleSpeed(1))
+            !call gaussian_distribution(0D0, 4D-6, particleTime(1), particleTime(2))
+            !particleTime(1) = particleTime(1) + 22D-6
+            !call random_number(rand)
+            !particleTime(1) = 0
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
