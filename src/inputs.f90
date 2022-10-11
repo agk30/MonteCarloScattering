@@ -7,7 +7,7 @@ module inputs
     double precision :: colPos, skimRad, valveRad, colRad, sheetCentreZ, halfSheetHeight, sheetWidth, probeStart, probeEnd, tStep, &
      pxMmRatio, maxSpeed, gaussDev, massMol, energyTrans, surfaceMass, exitAngle, scatterFraction, scatterIntensity, fLifeTime, &
       captureGateOpen, captureGateClose
-    logical :: scattering, testMods, writeImages, fullSim
+    logical :: scattering, testMods, writeImages, show_beam
     logical :: correctDirection, normalRun, linux, hush
     character(200) :: imagePath, matrixPath, ifPath
     character(500) :: extra_info_comment
@@ -16,11 +16,11 @@ module inputs
     double precision :: speedIn, speedOut, creationTime, scatterTime
     double precision :: startx, starty, startz, scatterx, scattery, scatterz
 
-    integer :: n_s, n_s_scatter
+    integer :: n_s, n_s_scatter, n_t
     double precision :: gauss_dist, gauss_dist_scatter, time_offset, time_offset_scatter
     logical :: gauss_time, gauss_time_scatter, MB_scatter_speed, trans_speed_modify
 
-    double precision, allocatable, dimension(:) :: m_s, w_s, std_s, m_s_scatter, w_s_scatter, std_s_scatter
+    double precision, allocatable, dimension(:) :: m_s, w_s, std_s, m_s_scatter, w_s_scatter, std_s_scatter, m_t, w_t, std_t
 
     ! transverse speed parameters
     double precision :: trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction
@@ -57,7 +57,7 @@ module inputs
             call CFG_add(inputs, "ksize", 27 , "Kernel size for SG routine")
             call CFG_add(inputs, "polyOrder", 3 , "Polynomial order for SG routine")
             call CFG_add(inputs, "scattering", .TRUE. , "Image scattering as well as ingoing beam?")
-            call CFG_add(inputs, "fullSim", .TRUE. , "Image ingoing beam as well as scattering?")
+            call CFG_add(inputs, "show_beam", .TRUE. , "Image ingoing beam as well as scattering?")
             call CFG_add(inputs, "testMods", .FALSE. , "Including testing modules?")
             call CFG_add(inputs, "writeImages", .TRUE. , "Wirte images to files?")
             call CFG_add(inputs, "scatterIntensity", 3.0D0 , "Relative intensity of scattered signal to ingogin signal")
@@ -133,6 +133,11 @@ module inputs
             call CFG_add(inputs, "std_s", [5.2326D0, 8.53655D0], "array of sigmas of different gaussians to sum",dynamic_size=.TRUE.)
             call CFG_add(inputs, "w_s", [0.63214D0, 0.61003D0], "array of weightings for gaussian summing",dynamic_size=.TRUE.)
 
+            call CFG_add(inputs, "n_t", 1, "number of gaussians to sum for use time of creation generation")
+            call CFG_add(inputs, "m_t", [0D0], "means of guassians used in time of creation generation", dynamic_size=.TRUE.)
+            call CFG_add(inputs, "std_t", [0D0], "sigmas of gaussians used in time of creation generation", dynamic_size=.TRUE.)
+            call CFG_add(inputs, "w_t", [1D0], "weights of gaussians used in time of creation generation", dynamic_size=.TRUE.)
+
             ! Gaussian speed generation for scattered molecules
             call CFG_add(inputs, "time_offset_scatter", 23.0D0, "Time offset for Gaussian beam creation")
             call CFG_add(inputs, "n_s_scatter", 2, "number of gaussians to sum for use in beam speed generation (scattering molecules)")
@@ -199,7 +204,7 @@ module inputs
             call CFG_get(inputs, "ksize", ksize)
             call CFG_get(inputs, "polyOrder", polyOrder)
             call CFG_get(inputs, "scattering", scattering)
-            call CFG_get(inputs, "fullSim", fullSim)
+            call CFG_get(inputs, "show_beam", show_beam)
             call CFG_get(inputs, "testMods", testMods)
             call CFG_get(inputs, "writeImages", writeImages)
             call CFG_get(inputs, "scatterIntensity", scatterIntensity)
@@ -263,11 +268,16 @@ module inputs
 
             ! allocate gaussian speed arrays based on n_s
             call CFG_get(inputs, "n_s", n_s)
+            call CFG_get(inputs, "n_t", n_t)
             call CFG_get(inputs, "n_s_scatter", n_s_scatter)
 
             allocate(w_s(n_s))
             allocate(m_s(n_s))
             allocate(std_s(n_s))
+
+            allocate(w_t(n_t))
+            allocate(m_t(n_t))
+            allocate(std_t(n_t))
 
             allocate(w_s_scatter(n_s_scatter))
             allocate(m_s_scatter(n_s_scatter))
@@ -279,6 +289,11 @@ module inputs
             call CFG_get(inputs, "w_s", w_s)
             call CFG_get(inputs, "m_s", m_s)
             call CFG_get(inputs, "std_s", std_s)
+
+            call CFG_get(inputs, "w_t", w_t)
+            call CFG_get(inputs, "m_t", m_t)
+            call CFG_get(inputs, "std_t", std_t)
+
 
             call CFG_get(inputs, "time_offset_scatter", time_offset_scatter)
             call CFG_get(inputs, "gauss_dist_scatter", gauss_dist_scatter)

@@ -49,9 +49,9 @@ program MCScattering
     !New gaussian values
     !parameters for guassians used in fit
     !double precision, dimension(:), allocatable :: m_s, w_s, std_s
-    double precision, dimension(:), allocatable :: m_t, w_t, std_t, m_t_scatter, w_t_scatter, std_t_scatter
+    double precision, dimension(:), allocatable :: m_t_scatter, w_t_scatter, std_t_scatter
+    integer :: n_t_scatter
     !number of guassians to be used for time and speed calculations
-    integer :: n_t, n_t_scatter
 
     double precision :: t, x, w_low, w_upper, w_sum, rand
     double precision :: arrivalTime
@@ -75,18 +75,9 @@ program MCScattering
     n_bins = int(( bin_range(2) - bin_range(1) ) / bin_size)
     allocate(bin_list(n_bins))
 
-    allocate(m_t(1))
-    allocate(w_t(1))
-    allocate(std_t(1))
-
     allocate(m_t_scatter(1))
     allocate(w_t_scatter(1))
     allocate(std_t_scatter(1))
-
-    m_t(1) = 0.0D-6
-    w_t(1) = 1.0
-    std_t(1) = 1.5D-6
-    n_t = 1
 
     m_t_scatter(1) = 0.0D-6
     w_t_scatter(1) = 1.0
@@ -138,7 +129,7 @@ program MCScattering
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
     if (.not. hush) then
-        if (.not. fullSim) then
+        if (.not. show_beam) then
             print "(a)", "Scattering only"
         end if
 
@@ -171,7 +162,7 @@ program MCScattering
         vectorsPerParticle = 1
     end if
 
-    if (fullSim) then
+    if (show_beam) then
         startVector = 1
     else
         startVector = 2

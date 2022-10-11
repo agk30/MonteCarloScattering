@@ -16,7 +16,6 @@ enable_language(Fortran)
 #add_compile_options(-fopenmp)
 #set (CMAKE_Fortran_FLAGS_RELEASE "-ffree-line-length-none")
 #add_compile_options(-ffree-line-length-none)
-add_compile_options(-heap-arrays)
 
 # Set Fortran .mod Directory (where they should be outputted)
 # set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/src)

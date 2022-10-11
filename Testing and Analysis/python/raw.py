@@ -24,11 +24,11 @@ xPx = 420
 yPx = 420
 
 max_radius = 140
+#max_radius = 158
 
-#startTime = 68
-#startTime = 38
+#startTime = 98
 startTime = 38
-#endTime = 178
+#endTime = 208
 endTime = 450
 #endTime = 148
 timeStep = 2
@@ -38,6 +38,8 @@ delimiter = "_"
 output_directory = "Profiles"
 
 bother_graphing = False
+
+subtract_bg = False
 
 ################################################################
 # End of input parameters
