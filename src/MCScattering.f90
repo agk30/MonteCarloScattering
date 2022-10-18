@@ -38,6 +38,8 @@ program MCScattering
     double precision, dimension(:,:), allocatable :: ifinput, ifoutput
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
+    double precision, dimension(100,100) :: surface_heatmap
+    double precision :: heatmapx, heatmapy
 
     character(:), allocatable :: time, date, timeOutput, output_image_path, proper_path, raw_path, blur_path, if_path, input_string, parent_path
     character(300) :: cwd, input_string_temp
