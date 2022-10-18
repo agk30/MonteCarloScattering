@@ -22,7 +22,7 @@ program MCScattering
  
     implicit none
 
-    integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
+    integer :: i, j, k, l, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
     integer :: startVector, runTimeMin, tStepInt, max_int
     double precision :: tWheel, rand1, deflectionAngle
     double precision :: mostLikelyProbability, startTime, endTime, runTime, &
@@ -67,7 +67,15 @@ program MCScattering
     double precision, dimension(2) :: bin_range
     double precision, dimension(:), allocatable :: bin_list
 
+    integer, dimension(:,:), allocatable :: surface_grid
+    double precision :: surface_grid_interval
+    integer :: surface_grid_index_x, surface_grid_index_y, grid_size
+    logical :: x_found, y_found
 
+    surface_grid_interval = 1E-4
+    grid_size = 100
+
+    allocate(surface_grid(-grid_size:grid_size,-grid_size:grid_size))
 
     bin_size = 10.0
     bin_range(1) = 0
@@ -220,6 +228,28 @@ program MCScattering
             particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
             particleStartPos(2,3) = 0
 
+            x_found = .FALSE.
+            y_found = .FALSE.
+
+            inner1: do l = -grid_size, grid_size
+                if ((particleStartPos(2,1) .gt. l*surface_grid_interval) .and. (particleStartPos(2,1) .lt. (l+1)*surface_grid_interval)) then
+                   surface_grid_index_x = l
+                   x_found = .TRUE.
+                   EXIT inner1
+                end if
+            end do inner1
+
+            inner2: do l = -grid_size, grid_size
+                if ((particleStartPos(2,2) .gt. l*surface_grid_interval) .and. (particleStartPos(2,2) .lt. (l+1)*surface_grid_interval)) then
+                    surface_grid_index_y = l
+                    y_found = .TRUE.
+                    EXIT inner2
+                end if
+            end do inner2
+
+            if (x_found .and. y_found) then
+                surface_grid(surface_grid_index_x, surface_grid_index_y) = surface_grid(surface_grid_index_x, surface_grid_index_y) + 1
+            end if
             ! Decides whicih scattering regime to simulate
             if (scattering) then
                 call random_number(rand1)
@@ -326,6 +356,8 @@ program MCScattering
     call cpu_time(endTime)
     runTime = endTime - startTime
 
+    print *, "1"
+
     if (runTime .lt. 60D0) then
         write (runTime_string, "(F7.2)") runTime
         !write (runTime_string, "(a,a,F7.2,a,a)") "Compute finished in"," ", runTime," ", "seconds"
@@ -358,11 +390,12 @@ program MCScattering
     do k = 1, NumberOfTimePoints
         call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
     end do
-    ! prepares smoothed IF image
-    open(2000,file=trim(ifPath))
+
+     !prepares smoothed IF image
+    open(2001,file=trim(ifPath))
 
     do i = 1, xPx      
-        read(2000,*) (ifinput(i,j),j=1,420)       
+        read(2001,*) (ifinput(i,j),j=1,420)       
     end do
 
     call sg_array(xPx, zPx, ksize, matrixPath, ifinput, ifoutput)
@@ -380,9 +413,21 @@ program MCScattering
         print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
     end if
 
-    print *, avg_speed_counter/ncyc
+    !print *, avg_speed_counter/ncyc
 
     open(1000110010, file="bins.txt")
     write(1000110010,'(ES12.5)') bin_list
+
+    open(unit = 1102020, file = "surface_grid.txt")
+
+    do i = -grid_size,grid_size
+        do j = -grid_size,grid_size
+            write(1102020,'(I6,a)',advance='no') surface_grid(i,j)," "
+        end do
+
+        write(1102020,*)
+    end do
+
+    print *, SUM(surface_grid)
 
 end program MCScattering
