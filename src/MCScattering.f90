@@ -72,12 +72,15 @@ program MCScattering
     integer, dimension(:,:), allocatable :: surface_grid
     double precision :: surface_grid_interval
     integer :: surface_grid_index_x, surface_grid_index_y, grid_size
-    logical :: x_found, y_found
+    logical :: x_found, y_found, do_surf_grid
 
+    do_surf_grid = .FALSE.
     surface_grid_interval = 1E-4
-    grid_size = 100
+    grid_size = 200
 
-    allocate(surface_grid(-grid_size:grid_size,-grid_size:grid_size))
+    if (do_surf_grid) then
+        allocate(surface_grid(-grid_size:grid_size,-grid_size:grid_size))
+    end if
 
     bin_size = 10.0
     bin_range(1) = 0
@@ -230,27 +233,30 @@ program MCScattering
             particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
             particleStartPos(2,3) = 0
 
-            x_found = .FALSE.
-            y_found = .FALSE.
+            if (do_surf_grid) then
 
-            inner1: do l = -grid_size, grid_size
-                if ((particleStartPos(2,1) .gt. l*surface_grid_interval) .and. (particleStartPos(2,1) .lt. (l+1)*surface_grid_interval)) then
-                   surface_grid_index_x = l
-                   x_found = .TRUE.
-                   EXIT inner1
+                x_found = .FALSE.
+                y_found = .FALSE.
+
+                inner1: do l = -grid_size, grid_size
+                    if ((particleStartPos(2,1) .gt. l*surface_grid_interval) .and. (particleStartPos(2,1) .lt. (l+1)*surface_grid_interval)) then
+                    surface_grid_index_x = l
+                    x_found = .TRUE.
+                    EXIT inner1
+                    end if
+                end do inner1
+
+                inner2: do l = -grid_size, grid_size
+                    if ((particleStartPos(2,2) .gt. l*surface_grid_interval) .and. (particleStartPos(2,2) .lt. (l+1)*surface_grid_interval)) then
+                        surface_grid_index_y = l
+                        y_found = .TRUE.
+                        EXIT inner2
+                    end if
+                end do inner2
+
+                if (x_found .and. y_found) then
+                    surface_grid(surface_grid_index_x, surface_grid_index_y) = surface_grid(surface_grid_index_x, surface_grid_index_y) + 1
                 end if
-            end do inner1
-
-            inner2: do l = -grid_size, grid_size
-                if ((particleStartPos(2,2) .gt. l*surface_grid_interval) .and. (particleStartPos(2,2) .lt. (l+1)*surface_grid_interval)) then
-                    surface_grid_index_y = l
-                    y_found = .TRUE.
-                    EXIT inner2
-                end if
-            end do inner2
-
-            if (x_found .and. y_found) then
-                surface_grid(surface_grid_index_x, surface_grid_index_y) = surface_grid(surface_grid_index_x, surface_grid_index_y) + 1
             end if
             ! Decides whicih scattering regime to simulate
             if (scattering) then
@@ -422,14 +428,16 @@ program MCScattering
 
     open(unit = 1102020, file = "surface_grid.txt")
 
-    do i = -grid_size,grid_size
-        do j = -grid_size,grid_size
-            write(1102020,'(I6,a)',advance='no') surface_grid(i,j)," "
+    if (do_surf_grid) then
+        do i = -grid_size,grid_size
+            do j = -grid_size,grid_size
+                write(1102020,'(I6,a)',advance='no') surface_grid(i,j)," "
+            end do
+
+            write(1102020,*)
         end do
 
-        write(1102020,*)
-    end do
-
-    print *, SUM(surface_grid)
+        print *, SUM(surface_grid)
+    end if
 
 end program MCScattering
