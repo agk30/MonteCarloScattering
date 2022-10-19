@@ -74,6 +74,8 @@ program MCScattering
     integer :: surface_grid_index_x, surface_grid_index_y, grid_size
     logical :: x_found, y_found, do_surf_grid
 
+    double precision :: lor_pos_modifier
+
     do_surf_grid = .FALSE.
     surface_grid_interval = 1E-4
     grid_size = 200
@@ -214,6 +216,10 @@ program MCScattering
             if (trans_speed_modify) then
                 ! adds a transverse speed to the molcule as it exits the final apperture.
                 call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+                call lorentzian_distribution(3D-3, lor_pos_modifier)
+                particleStartPos(1,1) = particleStartPos(1,1) + lor_pos_modifier
+                call lorentzian_distribution(3D-3, lor_pos_modifier)
+                particleStartPos(1,2) = particleStartPos(1,2) + lor_pos_modifier
             end if
 
             if (incidenceAngle .ne. 0) then
