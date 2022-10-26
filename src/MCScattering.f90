@@ -213,16 +213,23 @@ program MCScattering
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
+            particleVector(1,1) = 0
+            particleVector(1,2) = 0
+            particleVector(1,3) = -1
+
+            particleStartPos(1,:) = 0
+            particleStartPos(1,3) = valvePos
+
             if (trans_speed_modify) then
                 ! adds a transverse speed to the molcule as it exits the final apperture.
                 call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
                 
                 call random_number(lor_rand)
 
-                if (lor_rand .lt. 1) then
-                    call lorentzian_distribution(2.5D-3, lor_pos_modifier)
+                if (lor_rand .lt. 0) then
+                    call lorentzian_distribution(3.5D-3, lor_pos_modifier)
                     particleStartPos(1,1) = particleStartPos(1,1) + lor_pos_modifier
-                    call lorentzian_distribution(2.5D-3, lor_pos_modifier)
+                    call lorentzian_distribution(3.5D-3, lor_pos_modifier)
                     particleStartPos(1,2) = particleStartPos(1,2) + lor_pos_modifier
                 end if
             end if
