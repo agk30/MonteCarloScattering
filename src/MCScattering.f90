@@ -230,11 +230,6 @@ program MCScattering
             if (trans_speed_modify) then
                 ! adds a transverse speed to the molcule as it exits the final apperture.
                 call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
-
-                call lorentzian_distribution(3.5D-3, lor_pos_modifier)
-                particleStartPos(1,1) = particleStartPos(1,1) + lor_pos_modifier
-                call lorentzian_distribution(3.5D-3, lor_pos_modifier)
-                particleStartPos(1,2) = particleStartPos(1,2) + lor_pos_modifier
             end if
 
             if (incidenceAngle .ne. 0) then
