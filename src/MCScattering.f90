@@ -76,6 +76,11 @@ program MCScattering
 
     double precision :: lor_pos_modifier, lor_rand
 
+    ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
+    logical :: cheat_beam
+
+    cheat_beam = .TRUE.
+
     do_surf_grid = .FALSE.
     surface_grid_interval = 1E-4
     grid_size = 200
@@ -211,27 +216,25 @@ program MCScattering
             !particleTime(1) = 0
 
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
-            call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+            if (.not. cheat_beam) then
+                call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+            else
+                particleVector(1,1) = 0
+                particleVector(1,2) = 0
+                particleVector(1,3) = -1
 
-            particleVector(1,1) = 0
-            particleVector(1,2) = 0
-            particleVector(1,3) = -1
-
-            particleStartPos(1,:) = 0
-            particleStartPos(1,3) = valvePos
+                particleStartPos(1,:) = 0
+                particleStartPos(1,3) = valvePos
+            end if
 
             if (trans_speed_modify) then
                 ! adds a transverse speed to the molcule as it exits the final apperture.
                 call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
-                
-                call random_number(lor_rand)
 
-                if (lor_rand .lt. 0) then
-                    call lorentzian_distribution(3.5D-3, lor_pos_modifier)
-                    particleStartPos(1,1) = particleStartPos(1,1) + lor_pos_modifier
-                    call lorentzian_distribution(3.5D-3, lor_pos_modifier)
-                    particleStartPos(1,2) = particleStartPos(1,2) + lor_pos_modifier
-                end if
+                call lorentzian_distribution(3.5D-3, lor_pos_modifier)
+                particleStartPos(1,1) = particleStartPos(1,1) + lor_pos_modifier
+                call lorentzian_distribution(3.5D-3, lor_pos_modifier)
+                particleStartPos(1,2) = particleStartPos(1,2) + lor_pos_modifier
             end if
 
             if (incidenceAngle .ne. 0) then
