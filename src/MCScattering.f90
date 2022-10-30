@@ -71,22 +71,22 @@ program MCScattering
 
     integer, dimension(:,:), allocatable :: surface_grid
     double precision :: surface_grid_interval
-    integer :: surface_grid_index_x, surface_grid_index_y, grid_size
+    integer :: surface_grid_index_x, surface_grid_index_y, half_grid_size
     logical :: x_found, y_found, do_surf_grid
 
-    double precision :: lor_pos_modifier, lor_rand
+    double precision :: lor_pos_modifier, lor_rand, lor_speed, lor_speed2
 
     ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
     logical :: cheat_beam
 
     cheat_beam = .TRUE.
 
-    do_surf_grid = .FALSE.
+    do_surf_grid = .TRUE.
     surface_grid_interval = 1E-4
-    grid_size = 200
+    half_grid_size = 200
 
     if (do_surf_grid) then
-        allocate(surface_grid(-grid_size:grid_size,-grid_size:grid_size))
+        allocate(surface_grid(-half_grid_size:half_grid_size,-half_grid_size:half_grid_size))
     end if
 
     bin_size = 10.0
@@ -137,7 +137,7 @@ program MCScattering
     ! but gfortran throws a fit if you try this, must use a properly allocated string
     call getcwd(cwd)
     cwd = trim(cwd)
-    print "(a)", "Writing to "//trim(cwd)//trim(output_image_path)
+    print "(a)", "Writing to "//trim(parent_path)
 
     !allocate(proper_path(len(output_image_path)+2))
 
@@ -218,18 +218,25 @@ program MCScattering
             ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
             if (.not. cheat_beam) then
                 call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+
+                if (trans_speed_modify) then
+                    ! adds a transverse speed to the molcule as it exits the final apperture.
+                    call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+                end if
+
             else
-                particleVector(1,1) = 0
-                particleVector(1,2) = 0
-                particleVector(1,3) = -1
 
                 particleStartPos(1,:) = 0
                 particleStartPos(1,3) = valvePos
-            end if
 
-            if (trans_speed_modify) then
-                ! adds a transverse speed to the molcule as it exits the final apperture.
+                particleVector(1,:) = 0
+                particleVector(1,3) = -1
+
                 call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+                call random_number(rand1)
+
+                call rotation_z(particleVector(1,:), (90*rand1), particleVector(1,:))
+
             end if
 
             if (incidenceAngle .ne. 0) then
@@ -254,15 +261,15 @@ program MCScattering
                 x_found = .FALSE.
                 y_found = .FALSE.
 
-                inner1: do l = -grid_size, grid_size
+                inner1: do l = -half_grid_size, half_grid_size
                     if ((particleStartPos(2,1) .gt. l*surface_grid_interval) .and. (particleStartPos(2,1) .lt. (l+1)*surface_grid_interval)) then
-                    surface_grid_index_x = l
-                    x_found = .TRUE.
-                    EXIT inner1
+                        surface_grid_index_x = l
+                        x_found = .TRUE.
+                        EXIT inner1
                     end if
                 end do inner1
 
-                inner2: do l = -grid_size, grid_size
+                inner2: do l = -half_grid_size, half_grid_size
                     if ((particleStartPos(2,2) .gt. l*surface_grid_interval) .and. (particleStartPos(2,2) .lt. (l+1)*surface_grid_interval)) then
                         surface_grid_index_y = l
                         y_found = .TRUE.
@@ -380,8 +387,6 @@ program MCScattering
     call cpu_time(endTime)
     runTime = endTime - startTime
 
-    print *, "1"
-
     if (runTime .lt. 60D0) then
         write (runTime_string, "(F7.2)") runTime
         !write (runTime_string, "(a,a,F7.2,a,a)") "Compute finished in"," ", runTime," ", "seconds"
@@ -442,11 +447,11 @@ program MCScattering
     open(1000110010, file="bins.txt")
     write(1000110010,'(ES12.5)') bin_list
 
-    open(unit = 1102020, file = "surface_grid.txt")
+    open(unit = 1102020, file = trim(parent_path)//"/surface_grid.txt")
 
     if (do_surf_grid) then
-        do i = -grid_size,grid_size
-            do j = -grid_size,grid_size
+        do i = -half_grid_size,half_grid_size
+            do j = -half_grid_size,half_grid_size
                 write(1102020,'(I6,a)',advance='no') surface_grid(i,j)," "
             end do
 
