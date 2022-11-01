@@ -27,7 +27,7 @@ max_radius = 140
 #max_radius = 158
 
 #startTime = 98
-startTime = 80
+startTime = 70
 #endTime = 208
 endTime = 500
 #endTime = 148

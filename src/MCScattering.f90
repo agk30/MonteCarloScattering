@@ -77,7 +77,10 @@ program MCScattering
     double precision :: lor_pos_modifier, lor_rand, lor_speed, lor_speed2
 
     ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
-    logical :: cheat_beam
+    logical :: cheat_beam, hits_surface
+    double precision :: circle_centre(3)
+
+    circle_centre = (/0D0,-1.5D-3,0D0/)
 
     cheat_beam = .TRUE.
 
@@ -204,57 +207,65 @@ program MCScattering
     !$OMP DO
     do i = 1, ncyc
         if (normalRun .eqv. .TRUE.) then
-            ! sets the ingoing speed and start time
-            !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
-            call ingoing_speed_from_Gauss&
-            (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
-            
-            !call random_gauss_speed(2040D0, 150D0, particleSpeed(1))
-            !call gaussian_distribution(0D0, 4D-6, particleTime(1), particleTime(2))
-            !particleTime(1) = particleTime(1) + 22D-6
-            !call random_number(rand)
-            !particleTime(1) = 0
 
-            ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
-            if (.not. cheat_beam) then
-                call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+            hits_surface = .FALSE.
+            do while (.not. hits_surface)
 
-                if (trans_speed_modify) then
-                    ! adds a transverse speed to the molcule as it exits the final apperture.
+                ! sets the ingoing speed and start time
+                !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
+                call ingoing_speed_from_Gauss&
+                (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
+                
+                !call random_gauss_speed(2040D0, 150D0, particleSpeed(1))
+                !call gaussian_distribution(0D0, 4D-6, particleTime(1), particleTime(2))
+                !particleTime(1) = particleTime(1) + 22D-6
+                !call random_number(rand)
+                !particleTime(1) = 0
+
+                ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
+                if (.not. cheat_beam) then
+                    call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+
+                    if (trans_speed_modify) then
+                        ! adds a transverse speed to the molcule as it exits the final apperture.
+                        call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+                    end if
+
+                else
+
+                    particleStartPos(1,:) = 0
+                    particleStartPos(1,3) = valvePos
+
+                    particleVector(1,:) = 0
+                    particleVector(1,3) = -1
+
                     call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+                    call random_number(rand1)
+
+                    call rotation_z(particleVector(1,:), (90*rand1), particleVector(1,:))
+
                 end if
 
-            else
+                if (incidenceAngle .ne. 0) then
+                    ! changes the angle of incidence and starting point of the particle using a rotation matrix
+                    call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
+                    call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+                end if
 
-                particleStartPos(1,:) = 0
-                particleStartPos(1,3) = valvePos
+                speed_total = speed_total + particleSpeed(1)
 
-                particleVector(1,:) = 0
-                particleVector(1,3) = -1
+                ! time taken to travel to the wheel (NOT time of origin for scattered particle)
+                tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
+                
+                ! Establishes scattered particle parameters based on ingoing beam particle
+                particleTime(2) = particleTime(1) + tWheel
+                particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
+                particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
+                particleStartPos(2,3) = 0
 
-                call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
-                call random_number(rand1)
+                call surface_selection(particleStartPos(2,:), circle_centre, 25D-3, -4D-3, hits_surface)
 
-                call rotation_z(particleVector(1,:), (90*rand1), particleVector(1,:))
-
-            end if
-
-            if (incidenceAngle .ne. 0) then
-                ! changes the angle of incidence and starting point of the particle using a rotation matrix
-                call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
-                call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
-            end if
-
-            speed_total = speed_total + particleSpeed(1)
-
-            ! time taken to travel to the wheel (NOT time of origin for scattered particle)
-            tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
-            
-            ! Establishes scattered particle parameters based on ingoing beam particle
-            particleTime(2) = particleTime(1) + tWheel
-            particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
-            particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
-            particleStartPos(2,3) = 0
+            end do
 
             if (do_surf_grid) then
 
