@@ -78,9 +78,9 @@ program MCScattering
 
     ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
     logical :: cheat_beam, hits_surface
-    double precision :: circle_centre(3)
+    !double precision :: circle_centre(3)
 
-    circle_centre = (/0D0,-1.5D-3,0D0/)
+    !circle_centre = (/0D0,-1.5D-3,0D0/)
 
     cheat_beam = .TRUE.
 
@@ -239,7 +239,7 @@ program MCScattering
                     particleVector(1,:) = 0
                     particleVector(1,3) = -1
 
-                    call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+                    call transverse_speed_two_lor(trans_lor_gamma, trans_lor_gamma_2, l_g_fraction, particleSpeed(1), particleVector(1,:))
                     call random_number(rand1)
 
                     call rotation_z(particleVector(1,:), (90*rand1), particleVector(1,:))
@@ -263,7 +263,8 @@ program MCScattering
                 particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
                 particleStartPos(2,3) = 0
 
-                call surface_selection(particleStartPos(2,:), circle_centre, 25D-3, -4D-3, hits_surface)
+                call surface_selection(particleStartPos(2,:), wheel_centre, wheel_rad, bath_height, hits_surface)
+                !call surface_selection(particleStartPos(2,:), circle_centre, 25D3, -4D3, hits_surface)
 
             end do
 
