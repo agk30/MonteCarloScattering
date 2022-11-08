@@ -18,7 +18,6 @@ program MCScattering
     use sgconv
     use mod_tests
     use m_config
-    use OMP_LIB
  
     implicit none
 
@@ -69,18 +68,14 @@ program MCScattering
     double precision, dimension(2) :: bin_range
     double precision, dimension(:), allocatable :: bin_list
 
+    ! variables for heatmap features
     integer, dimension(:,:), allocatable :: surface_grid
     double precision :: surface_grid_interval
     integer :: surface_grid_index_x, surface_grid_index_y, half_grid_size
     logical :: x_found, y_found, do_surf_grid
 
-    double precision :: lor_pos_modifier, lor_rand, lor_speed, lor_speed2
-
     ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
     logical :: cheat_beam, hits_surface
-    !double precision :: circle_centre(3)
-
-    !circle_centre = (/0D0,-1.5D-3,0D0/)
 
     cheat_beam = .TRUE.
 
@@ -142,10 +137,6 @@ program MCScattering
     cwd = trim(cwd)
     print "(a)", "Writing to "//trim(parent_path)
 
-    !allocate(proper_path(len(output_image_path)+2))
-
-    !proper_path = trim('"'//output_image_path//'"')
-
     open (5, file='outputpath.txt')
     write (5, "(a)") output_image_path
 
@@ -202,9 +193,6 @@ program MCScattering
     ! Scattering calculations begin here
     !*****************************************************************************************************
 
-    !$OMP PARALLEL SHARED(image) PRIVATE(particleTime, particleSpeed, particleStartPos, particleVector)
-
-    !$OMP DO
     do i = 1, ncyc
         if (normalRun .eqv. .TRUE.) then
 
@@ -212,15 +200,8 @@ program MCScattering
             do while (.not. hits_surface)
 
                 ! sets the ingoing speed and start time
-                !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
                 call ingoing_speed_from_Gauss&
                 (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
-                
-                !call random_gauss_speed(2040D0, 150D0, particleSpeed(1))
-                !call gaussian_distribution(0D0, 4D-6, particleTime(1), particleTime(2))
-                !particleTime(1) = particleTime(1) + 22D-6
-                !call random_number(rand)
-                !particleTime(1) = 0
 
                 ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
                 if (.not. cheat_beam) then
@@ -252,8 +233,6 @@ program MCScattering
                     call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
                 end if
 
-                speed_total = speed_total + particleSpeed(1)
-
                 ! time taken to travel to the wheel (NOT time of origin for scattered particle)
                 tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
                 
@@ -263,9 +242,11 @@ program MCScattering
                 particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
                 particleStartPos(2,3) = 0
 
-                call surface_selection(particleStartPos(2,:), wheel_centre, wheel_rad, bath_height, hits_surface)
-                !call surface_selection(particleStartPos(2,:), circle_centre, 25D3, -4D3, hits_surface)
-
+                if (scattering) then
+                    call surface_selection(particleStartPos(2,:), wheel_centre, wheel_rad, bath_height, hits_surface)
+                else
+                    hits_surface = .TRUE.
+                end if
             end do
 
             if (do_surf_grid) then
@@ -314,7 +295,6 @@ program MCScattering
                     !end if
 
                     call cosine_distribution(cosinePowerTD, particleVector(2,:))
-                    avg_speed_counter = avg_speed_counter + particleSpeed(2)
                 ! second case: IS scattering
                 else 
                     correctDirection = .false.
@@ -390,11 +370,6 @@ program MCScattering
             end if
         end do
     end do
-    !$OMP END DO
-
-    !$OMP END PARALLEL
-
-    !$OMP BARRIER
 
     call cpu_time(endTime)
     runTime = endTime - startTime
@@ -454,8 +429,6 @@ program MCScattering
         print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
     end if
 
-    !print *, avg_speed_counter/ncyc
-
     open(1000110010, file="bins.txt")
     write(1000110010,'(ES12.5)') bin_list
 
@@ -469,8 +442,5 @@ program MCScattering
 
             write(1102020,*)
         end do
-
-        print *, SUM(surface_grid)
     end if
-
 end program MCScattering

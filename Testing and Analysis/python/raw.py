@@ -24,12 +24,13 @@ xPx = 420
 yPx = 420
 
 max_radius = 140
-#max_radius = 158
+#max_radius = 160
 
 #startTime = 98
-startTime = 70
+startTime = 74
 #endTime = 208
-endTime = 500
+endTime = 250
+#endTime = 500
 #endTime = 148
 timeStep = 2
 
@@ -165,6 +166,15 @@ for index, element in enumerate(radius):
 array = numpy.zeros((largest,2))
 array[:,0] = radius
 array[:,1] = wedge
+"""
+print (" ")
+
+for j in range(num_arcs):
+    print("arc "+str(j))
+    print(" ")
+    for i in range(num_wedges):
+        print(outputArray[j,i,0,1])
+"""
 
 # finally writes the parameters file
 with open(output_directory+'/parameters.txt','wb') as f:

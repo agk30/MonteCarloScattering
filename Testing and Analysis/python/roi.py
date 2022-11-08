@@ -31,17 +31,18 @@ def roi_assign(xPx, yPx, centre_point, radius, wedge, max_num_radii, max_num_wed
     spillover = 0
 
     for row in range(xPx):
-        for column in range(yPx):
-            dist_from_centre = math.sqrt((row-centre_point[0])**2 + (column-centre_point[1])**2)
+        if row <= centre_point[0]:
+            for column in range(yPx):
+                dist_from_centre = math.sqrt((row-centre_point[0])**2 + (column-centre_point[1])**2)
 
-            # Pixel must lie within the largest semi-circle to be processed
-            if (dist_from_centre < radius[max_num_radii-1]) and (dist_from_centre != 0):
-                selected_arc, selected_wedge = arc_wedge(dist_from_centre, column, centre_point, max_num_radii, max_num_wedges, radius, wedge)
-                if selected_wedge == -1:
-                    #spillover
-                    spillover = spillover + image[row,column]
-                else:
-                    working_array[selected_arc,selected_wedge] = working_array[selected_arc,selected_wedge] + image[row,column]
+                # Pixel must lie within the largest semi-circle to be processed
+                if (dist_from_centre < radius[max_num_radii-1]) and (dist_from_centre != 0):
+                    selected_arc, selected_wedge = arc_wedge(dist_from_centre, column, centre_point, max_num_radii, max_num_wedges, radius, wedge)
+                    if selected_wedge == -1:
+                        #spillover
+                        spillover = spillover + image[row,column]
+                    else:
+                        working_array[selected_arc,selected_wedge] = working_array[selected_arc,selected_wedge] + image[row,column]
 
     return working_array
 
