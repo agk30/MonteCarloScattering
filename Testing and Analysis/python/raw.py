@@ -6,42 +6,54 @@ import sys
 import matplotlib.pyplot as plt
 
 # get folder path from command line argument
-folder_path = roi.get_args(sys.argv[1:])
+#folder_path = roi.get_args(sys.argv[1:])
+folder_path = fm.get_input_folder()
+print("Scanning "+ folder_path)
 
 ###############################################################
 # parameters (these should really be given via command line but
 # haven't gotten round to setting all that up yet ¯\_(ツ)_/¯ )
 ###############################################################
 
-#centre_point = [283, 210]
-centre_point = [294, 210]
+centre_point = [283, 209.5]
+#centre_point = [294, 209.5]
 num_arcs = 7
 num_wedges = 12
 
 xPx = 420
 yPx = 420
 
-max_radius = 130
+max_radius = 140
+#max_radius = 160
 
-#startTime = 68
-startTime = 98
-#startTime = 38
-#endTime = 178
-endTime = 208
+#startTime = 98
+startTime = 74
+#endTime = 208
+endTime = 250
+#endTime = 500
 #endTime = 148
 timeStep = 2
 
 delimiter = "_"
 
-output_directory = "Output Data"
+output_directory = "Profiles"
 
 bother_graphing = False
+
+subtract_bg = False
 
 ################################################################
 # End of input parameters
 ################################################################
 
-fm.filemandir_setup(output_directory)
+temp_dir = os.path.split(folder_path)[0]
+print (temp_dir)
+
+output_directory = os.path.join(temp_dir, output_directory)
+
+print (output_directory)
+
+fm.dir_setup(output_directory)
 
 # this next bunch of stuff sets up appropriate working variables based on input parameters
 num_timepoints = int((endTime - startTime) / timeStep) + 1
@@ -77,17 +89,25 @@ timepoint_list = []
 previous_value = startTime - timeStep
 # Loops over every file in folder
 
+first_run = False
+bg_image = 0
 for root, dirs, files in os.walk(folder_path):
     for name in files:
         file_path = root + "/" + name
         #surface, delay, transition = parse_file_name(file_path)
-        delay = int(roi.simple_split(file_path, delimiter))
+        delay = int(fm.simple_split(file_path, delimiter))
         if (int(delay) <= endTime) and (int(delay) >= startTime):
             if (int(delay) - previous_value) == timeStep:
                 timepoint_list.append(delay)
                 print ('Processing '+name,end='\r')
                 # For each file, data are read into the image matrix
-                image = roi.read_image(file_path)
+                image = fm.read_image(file_path)
+
+                #if first_run:
+                #    bg_image = image
+                #    first_run = False
+
+                #print(numpy.where(numpy.isclose(image, -1000)))
                 image = image - bg_image
                 # image goes to be processed, assigning the pixel intensity to the correct ROI
                 outputArray[:,:,int((int(delay)-startTime)/timeStep),1] = roi.roi_assign(xPx, yPx, centre_point, radius, wedge, num_arcs, num_wedges, image)
@@ -95,7 +115,7 @@ for root, dirs, files in os.walk(folder_path):
 
 # comment here refers to comment that will go into output file.
 # the comment just contains all the of the radii used in processing the image for reference
-comment = str(radius)
+comment = str(radius-half_arc_step)
 
 delay_list = numpy.zeros((num_timepoints,1))
 
@@ -139,9 +159,22 @@ if num_arcs != num_wedges:
 else:
     largest = num_arcs
 
+half_radius_increment = max_radius/num_arcs
+for index, element in enumerate(radius):
+    radius[index] -= half_radius_increment
+
 array = numpy.zeros((largest,2))
 array[:,0] = radius
 array[:,1] = wedge
+"""
+print (" ")
+
+for j in range(num_arcs):
+    print("arc "+str(j))
+    print(" ")
+    for i in range(num_wedges):
+        print(outputArray[j,i,0,1])
+"""
 
 # finally writes the parameters file
 with open(output_directory+'/parameters.txt','wb') as f:

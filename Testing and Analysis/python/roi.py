@@ -3,6 +3,7 @@ import math
 import sys
 import getopt
 import os
+import scipy.interpolate
 
 def arc_wedge(dist_from_centre, column, centre_point, max_num_radii, max_num_wedges, radius, wedge):
     # finds the arc in which the pixel lies
@@ -30,17 +31,18 @@ def roi_assign(xPx, yPx, centre_point, radius, wedge, max_num_radii, max_num_wed
     spillover = 0
 
     for row in range(xPx):
-        for column in range(yPx):
-            dist_from_centre = math.sqrt((row-centre_point[0])**2 + (column-centre_point[1])**2)
+        if row <= centre_point[0]:
+            for column in range(yPx):
+                dist_from_centre = math.sqrt((row-centre_point[0])**2 + (column-centre_point[1])**2)
 
-            # Pixel must lie within the largest semi-circle to be processed
-            if (dist_from_centre < radius[max_num_radii-1]) and (dist_from_centre != 0):
-                selected_arc, selected_wedge = arc_wedge(dist_from_centre, column, centre_point, max_num_radii, max_num_wedges, radius, wedge)
-                if selected_wedge == -1:
-                    #spillover
-                    spillover = spillover + image[row,column]
-                else:
-                    working_array[selected_arc,selected_wedge] = working_array[selected_arc,selected_wedge] + image[row,column]
+                # Pixel must lie within the largest semi-circle to be processed
+                if (dist_from_centre < radius[max_num_radii-1]) and (dist_from_centre != 0):
+                    selected_arc, selected_wedge = arc_wedge(dist_from_centre, column, centre_point, max_num_radii, max_num_wedges, radius, wedge)
+                    if selected_wedge == -1:
+                        #spillover
+                        spillover = spillover + image[row,column]
+                    else:
+                        working_array[selected_arc,selected_wedge] = working_array[selected_arc,selected_wedge] + image[row,column]
 
     return working_array
 
@@ -163,3 +165,21 @@ def sum_tofs(path_list, delimiter):
                 summed_images[:,:,delay_list.index(delay)] = summed_images[:,:,delay_list.index(delay)] + image
 
     return summed_images, delay_list
+
+# Fits a 4th order polynomial to the data, spline's derivative is found, then its roots are found. Root with highest y-value is returned
+def find_peak(x_data, y_data):
+
+    fit = scipy.interpolate.InterpolatedUnivariateSpline(x_data,y_data, k=4)
+
+    roots = fit.derivative().roots()
+
+    fit_vals = fit(roots)
+
+    if fit_vals.any():
+        print(fit_vals)
+        max_index = numpy.argmax(fit_vals)
+        max_val = roots[max_index]
+    else:
+        max_val = 0
+
+    return max_val

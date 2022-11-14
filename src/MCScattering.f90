@@ -21,7 +21,7 @@ program MCScattering
  
     implicit none
 
-    integer :: i, j, k, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
+    integer :: i, j, k, l, vectorsPerParticle, NumberOfTimePoints, startTimePoint, endTimePoint
     integer :: startVector, runTimeMin, tStepInt, max_int
     double precision :: tWheel, rand1, deflectionAngle
     double precision :: mostLikelyProbability, startTime, endTime, runTime, &
@@ -37,33 +37,70 @@ program MCScattering
     double precision, dimension(:,:), allocatable :: ifinput, ifoutput
     integer, dimension(:,:), allocatable :: angleSpeedDist
     logical, dimension(4) :: hitsSheet
+    double precision, dimension(100,100) :: surface_heatmap
+    double precision :: heatmapx, heatmapy
 
-    character(:), allocatable :: time, date, timeOutput, output_image_path, cwd, proper_path
+    character(:), allocatable :: time, date, timeOutput, output_image_path, proper_path, raw_path, blur_path, if_path, input_string, parent_path
+    character(300) :: cwd, input_string_temp
     character(10) :: runTime_string, runTimeSec_string, runTimeMin_string
     character(17) :: date_time
+
+    double precision :: speed_total, void_dump
 
     !New gaussian values
     !parameters for guassians used in fit
     !double precision, dimension(:), allocatable :: m_s, w_s, std_s
-    double precision, dimension(:), allocatable :: m_t, w_t, std_t
+    double precision, dimension(:), allocatable :: m_t_scatter, w_t_scatter, std_t_scatter
+    integer :: n_t_scatter
     !number of guassians to be used for time and speed calculations
-    integer :: n_t
 
-    double precision :: t, x, w_low, w_upper, w_sum
+    double precision :: t, x, w_low, w_upper, w_sum, rand
     double precision :: arrivalTime
+    double precision :: avg_speed_counter
 
     integer, dimension(8) :: values
 
     type(CFG_t) :: input_param
 
-    allocate(m_t(1))
-    allocate(w_t(1))
-    allocate(std_t(1))
+    ! Bins
+    double precision :: bin_size
+    integer :: n_bins
+    double precision, dimension(2) :: bin_range
+    double precision, dimension(:), allocatable :: bin_list
 
-    m_t(1) = 0.0D-6
-    w_t(1) = 1.0
-    std_t(1) = 1.5D-6
-    n_t = 1
+    ! variables for heatmap features
+    integer, dimension(:,:), allocatable :: surface_grid
+    double precision :: surface_grid_interval
+    integer :: surface_grid_index_x, surface_grid_index_y, half_grid_size
+    logical :: x_found, y_found, do_surf_grid
+
+    ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
+    logical :: cheat_beam, hits_surface
+
+    cheat_beam = .TRUE.
+
+    do_surf_grid = .TRUE.
+    surface_grid_interval = 1E-4
+    half_grid_size = 200
+
+    if (do_surf_grid) then
+        allocate(surface_grid(-half_grid_size:half_grid_size,-half_grid_size:half_grid_size))
+    end if
+
+    bin_size = 10.0
+    bin_range(1) = 0
+    bin_range(2) = 3000
+    n_bins = int(( bin_range(2) - bin_range(1) ) / bin_size)
+    allocate(bin_list(n_bins))
+
+    allocate(m_t_scatter(1))
+    allocate(w_t_scatter(1))
+    allocate(std_t_scatter(1))
+
+    m_t_scatter(1) = 0.0D-6
+    w_t_scatter(1) = 1.0
+    std_t_scatter(1) = 1.5D-6
+    n_t_scatter = 1
 
     ! TODO put in licensing statement.
 
@@ -74,23 +111,31 @@ program MCScattering
 
     call cpu_time(startTime)
 
-    ! Assigns all parameters from input files into main program variables
+    call load_inputs(input_param)
 
-    call load_inputs
+    call get_command_argument(1, input_string_temp)
+    input_string = trim(input_string_temp)
+
+    print *, input_string
+
+    ! Assigns all parameters from input files into main program variables
 
     !*****************************************************************************************************
     ! This section prepares a start message then allocate arrays as needed and other necessary parameters
     !*****************************************************************************************************
 
     call date_time_string(date_time)
-    call directory_setup(imagePath, date_time, input_param, linux, output_image_path)
 
+    call directory_setup(imagePath, date_time, linux, output_image_path, raw_path, blur_path, if_path, input_string, parent_path)
+
+    call CFG_write(input_param, trim(parent_path)//"/input_values.cfg", .FALSE., .FALSE.)
+
+    ! caution when using getcwd:
+    ! ifort handles this function just fine if you use a dynamic and unallocated string
+    ! but gfortran throws a fit if you try this, must use a properly allocated string
     call getcwd(cwd)
-    print "(a)", "Writing to "//cwd//output_image_path
-
-    !allocate(proper_path(len(output_image_path)+2))
-
-    !proper_path = trim('"'//output_image_path//'"')
+    cwd = trim(cwd)
+    print "(a)", "Writing to "//trim(parent_path)
 
     open (5, file='outputpath.txt')
     write (5, "(a)") output_image_path
@@ -98,7 +143,7 @@ program MCScattering
     NumberOfTimePoints = ((probeEnd - probeStart) / tStep) + 1
 
     if (.not. hush) then
-        if (.not. fullSim) then
+        if (.not. show_beam) then
             print "(a)", "Scattering only"
         end if
 
@@ -131,7 +176,7 @@ program MCScattering
         vectorsPerParticle = 1
     end if
 
-    if (fullSim) then
+    if (show_beam) then
         startVector = 1
     else
         startVector = 2
@@ -149,33 +194,86 @@ program MCScattering
     !*****************************************************************************************************
 
     do i = 1, ncyc
-        ! For fixing parameters, hopefully modern science can find a better way of doing this
         if (normalRun .eqv. .TRUE.) then
-            ! sets the ingoing speed and start time
-            !call ingoing_speed(x0, aMax, aMin, h, s, dist, pulseLength, particleSpeed(1), particleTime(1))
-            call ingoing_speed_from_Gauss&
-            (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1))
 
-            ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
-            call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
+            hits_surface = .FALSE.
+            do while (.not. hits_surface)
 
-            ! adds a transverse speed to the molcule as it exits the final apperture.
-            call transverse_temp(0D0, 40D0, 40D0, 0.5D0, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), &
-            particleStartPos(1,:), particleVector(1,:))
+                ! sets the ingoing speed and start time
+                call ingoing_speed_from_Gauss&
+                (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
 
-            ! changes the angle of incidence and starting point of the particle using a rotation matrix
-            call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
-            call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+                ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
+                if (.not. cheat_beam) then
+                    call ingoing_direction(valveRad, valvePos, skimRad, skimPos, colRad, colPos, particleVector(1,:), particleStartPos(1,:))
 
-            ! time taken to travel to the wheel (NOT time of origin for scattered particle)
-            tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
-            
-            ! Establishes scattered particle parameters based on ingoing beam particle
-            particleTime(2) = particleTime(1) + tWheel
-            particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
-            particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
-            particleStartPos(2,3) = 0
+                    if (trans_speed_modify) then
+                        ! adds a transverse speed to the molcule as it exits the final apperture.
+                        call transverse_speed(trans_gauss_mean, trans_gauss_sigma, trans_lor_gamma, l_g_fraction, colPos, (valvePos - colPos), particleTime(1), particleSpeed(1), particleStartPos(1,:), particleVector(1,:))
+                    end if
 
+                else
+
+                    particleStartPos(1,:) = 0
+                    particleStartPos(1,3) = valvePos
+
+                    particleVector(1,:) = 0
+                    particleVector(1,3) = -1
+
+                    call transverse_speed_two_lor(trans_lor_gamma, trans_lor_gamma_2, l_g_fraction, particleSpeed(1), particleVector(1,:))
+                    call random_number(rand1)
+
+                    call rotation_z(particleVector(1,:), (90*rand1), particleVector(1,:))
+
+                end if
+
+                if (incidenceAngle .ne. 0) then
+                    ! changes the angle of incidence and starting point of the particle using a rotation matrix
+                    call rotation(particleVector(1,:), incidenceAngle, particleVector(1,:))
+                    call rotation(particleStartPos(1,:), incidenceAngle, particleStartPos(1,:))
+                end if
+
+                ! time taken to travel to the wheel (NOT time of origin for scattered particle)
+                tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
+                
+                ! Establishes scattered particle parameters based on ingoing beam particle
+                particleTime(2) = particleTime(1) + tWheel
+                particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
+                particleStartPos(2,2) = particleStartPos(1,2) + (particleVector(1,2)*tWheel*particleSpeed(1))
+                particleStartPos(2,3) = 0
+
+                if (scattering) then
+                    call surface_selection(particleStartPos(2,:), wheel_centre, wheel_rad, bath_height, hits_surface)
+                else
+                    hits_surface = .TRUE.
+                end if
+            end do
+
+            if (do_surf_grid) then
+
+                x_found = .FALSE.
+                y_found = .FALSE.
+
+                inner1: do l = -half_grid_size, half_grid_size
+                    if ((particleStartPos(2,1) .gt. l*surface_grid_interval) .and. (particleStartPos(2,1) .lt. (l+1)*surface_grid_interval)) then
+                        surface_grid_index_x = l
+                        x_found = .TRUE.
+                        EXIT inner1
+                    end if
+                end do inner1
+
+                inner2: do l = -half_grid_size, half_grid_size
+                    if ((particleStartPos(2,2) .gt. l*surface_grid_interval) .and. (particleStartPos(2,2) .lt. (l+1)*surface_grid_interval)) then
+                        surface_grid_index_y = l
+                        y_found = .TRUE.
+                        EXIT inner2
+                    end if
+                end do inner2
+
+                if (x_found .and. y_found) then
+                    surface_grid(surface_grid_index_x, surface_grid_index_y) = surface_grid(surface_grid_index_x, surface_grid_index_y) + 1
+                end if
+            end if
             ! Decides whicih scattering regime to simulate
             if (scattering) then
                 call random_number(rand1)
@@ -183,7 +281,19 @@ program MCScattering
                 ! first case: TD scattering
                 if (rand1 .gt. scatterFraction) then
                     ! Obtains Maxwell Boltzmann speed as well as scattered direction
-                    call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+
+                    if (MB_scatter_speed) then
+                        call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                    else
+                        call ingoing_speed_from_Gauss&
+                        (w_s_scatter, m_s_scatter, std_s_scatter, w_t_scatter, m_t_scatter, std_t_scatter, n_s_scatter, n_t_scatter, gauss_time_scatter, gauss_dist_scatter, pulseLength, particleSpeed(2), void_dump, time_offset_scatter)
+                    end if
+
+                    !bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) = bin_list(find_bin_index(particleSpeed(2), bin_range, bin_size, n_bins)) + 1
+                    !if (particleSpeed(2) .lt. 0) then
+                    !    print *, particleSpeed(2)
+                    !end if
+
                     call cosine_distribution(cosinePowerTD, particleVector(2,:))
                 ! second case: IS scattering
                 else 
@@ -296,11 +406,12 @@ program MCScattering
     do k = 1, NumberOfTimePoints
         call convim(image(:,:,k,1), xPx, zPx, gaussDev, image(:,:,k,2))
     end do
-    ! prepares smoothed IF image
-    open(2000,file=trim(ifPath))
+
+     !prepares smoothed IF image
+    open(2001,file=trim(ifPath))
 
     do i = 1, xPx      
-        read(2000,*) (ifinput(i,j),j=1,420)       
+        read(2001,*) (ifinput(i,j),j=1,420)       
     end do
 
     call sg_array(xPx, zPx, ksize, matrixPath, ifinput, ifoutput)
@@ -309,7 +420,7 @@ program MCScattering
     ! writes image arrays out into files if writeimages is set to .true.
     if (writeImages) then
         tStepInt = int(tStep*1D6)
-        call write_image(image, xPx, zPx, probeStart, probeEnd, tstep, NumberOfTimePoints, date_time, imagePath)
+        call write_image(image, xPx, zPx, probeStart, probeEnd, tstep, NumberOfTimePoints, date_time, raw_path, blur_path, if_path)
     end if
 
     totalTraj = real(ncyc)*real(vectorsPerParticle)
@@ -318,5 +429,18 @@ program MCScattering
         print "(ES8.1E2,a,a)", totalTraj, " ", "Total trajectories"
     end if
 
+    open(1000110010, file="bins.txt")
+    write(1000110010,'(ES12.5)') bin_list
 
+    open(unit = 1102020, file = trim(parent_path)//"/surface_grid.txt")
+
+    if (do_surf_grid) then
+        do i = -half_grid_size,half_grid_size
+            do j = -half_grid_size,half_grid_size
+                write(1102020,'(I6,a)',advance='no') surface_grid(i,j)," "
+            end do
+
+            write(1102020,*)
+        end do
+    end if
 end program MCScattering

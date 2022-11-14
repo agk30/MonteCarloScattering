@@ -4,6 +4,8 @@ import numpy
 import sys
 from tkinter import Tk     # from Tkinter import Tk for earlier than Python 3.x
 from tkinter.filedialog import askdirectory, askopenfilename
+import re
+from pathlib import Path
 
 def read_image(image_path):
 
@@ -45,8 +47,9 @@ def parse_file_name(file_path):
 
 def simple_split(file_path, delimiter):
 
-    file_path = file_path.split(".")
-    stem = file_path[0]
+    #file_path = file_path.split(".")
+    #stem = file_path[0]
+    stem = Path(file_path).stem
     name_list = stem.split(delimiter)
 
     found_delay = False
@@ -89,10 +92,7 @@ def get_input_file():
 
     return input_path
 
-def get_indices(surface, transition):
-
-    surface_list = ["SQA","SQE","PFPE","OA","Bkg","InstrumFunc","LOA"]
-    transition_list = ["Q12","Q13","Q14","Q15"]
+def get_indices(surface, transition, surface_list, transition_list):
 
     if surface == "IB":
         surface_index = 0
@@ -107,3 +107,30 @@ def get_indices(surface, transition):
         transition_index = -1
 
     return surface_index, transition_index
+
+def get_regex_group(list):
+
+    string = "("
+    length = len(list)
+
+    for i, element in enumerate(list):
+        if i < length-1:
+            string += element+"|"
+        else:
+            string += element+")"
+
+    return string
+
+def get_regex_string(surface_list, transition_list, version_list):
+
+    surface_string = get_regex_group(surface_list)
+    transition_string = get_regex_group(transition_list)
+    version_string = get_regex_group(version_list)
+
+    final_string = surface_string+"_"+transition_string+"_"+version_string+"_"+"ChC([0-9]{3})"
+
+    return final_string
+
+def grab_number(string):
+
+    return re.findall(r'-?\d+', string)
