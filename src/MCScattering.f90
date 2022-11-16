@@ -46,6 +46,7 @@ program MCScattering
     character(17) :: date_time
 
     double precision :: speed_total, void_dump
+    integer :: mol_counter
 
     !New gaussian values
     !parameters for guassians used in fit
@@ -56,7 +57,8 @@ program MCScattering
 
     double precision :: t, x, w_low, w_upper, w_sum, rand
     double precision :: arrivalTime
-    double precision :: avg_speed_counter
+    double precision :: avg_speed_counter, test_angle
+    double precision :: speed_counter
 
     integer, dimension(8) :: values
 
@@ -76,6 +78,8 @@ program MCScattering
 
     ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
     logical :: cheat_beam, hits_surface
+    speed_counter = 0
+    speed_total = 0
 
     cheat_beam = .TRUE.
 
@@ -367,6 +371,18 @@ program MCScattering
                     probeStart, tStep, particleSpeed(j), pxMmRatio, particleVector(j,:), particleStartPos(j,:),&
                     sheetDimensions, testMods, scatterIntensity, fLifeTime, captureGateOpen, captureGateClose, surface_z)
                 end if
+                
+                !call two_vector_angle(particleVector(2,:), (/0D0,0D0,1D0/), test_angle)
+                !if ((test_angle .gt. 44) .and. (test_angle .lt. 46)) then
+                 !   if (particleVector(2,1) .lt. 0) then
+                 !       if (particleSpeed(2) .lt. 15000) then
+                 !           print *, (particleSpeed(2)/particleSpeed(1))**2
+                 !           speed_total = speed_total + particleSpeed(2)
+                 !           speed_counter = speed_counter + 1
+                 !       end if
+                 !   end if
+                !end if
+
             end if
         end do
     end do

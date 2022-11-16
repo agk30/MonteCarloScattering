@@ -18,19 +18,18 @@ print("Scanning "+ folder_path)
 centre_point = [283, 209.5]
 #centre_point = [294, 209.5]
 num_arcs = 7
-num_wedges = 12
+num_wedges = 24
 
 xPx = 420
 yPx = 420
 
-max_radius = 140
-#max_radius = 160
+#max_radius = 140
+max_radius = 160
 
-#startTime = 98
 startTime = 74
 #endTime = 208
-endTime = 250
-#endTime = 500
+#endTime = 250
+endTime = 500
 #endTime = 148
 timeStep = 2
 
@@ -166,6 +165,7 @@ for index, element in enumerate(radius):
 array = numpy.zeros((largest,2))
 array[:,0] = radius
 array[:,1] = wedge
+
 """
 print (" ")
 
@@ -178,7 +178,7 @@ for j in range(num_arcs):
 
 # finally writes the parameters file
 with open(output_directory+'/parameters.txt','wb') as f:
-    header_str = 'start time = '+str(startTime)+', end time = '+str(endTime)+', num radii = '+str(num_arcs)+', num angles = '+str(num_wedges)
+    header_str = 'start time = '+str(startTime)+', end time = '+str(endTime)+', num radii = '+str(num_arcs)+', num angles = '+str(num_wedges) + "max radius = " +str(max_radius)
     numpy.savetxt(f, array , fmt='%s', delimiter=',',header=header_str)
 
 if bother_graphing:
