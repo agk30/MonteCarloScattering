@@ -156,11 +156,11 @@ module inputs
             call CFG_add(inputs, "trans_speed_modify", .TRUE., "modify transverse speed?")
             call CFG_add(inputs, "trans_gauss_mean", 0D0, "mean speed in gaussian part of transverse speed modification")
             call CFG_add(inputs, "trans_gauss_sigma", 40D0, "standard deviation in gaussian part of transverse speed modification")
-            call CFG_add(inputs, "trans_lor_gamma", 40D0, "gamma parameter for lorentzian part of transverse speed modification")
+            call CFG_add(inputs, "trans_lor_gamma", 35D0, "gamma parameter for lorentzian part of transverse speed modification")
             call CFG_add(inputs, "trans_lor_gamma_2", 300D0, "gamma parameter for lorentzian part of transverse speed modification")
             call CFG_add(inputs, "l_g_fraction", 0.5D0, "fraction of lorentzian to gaussian character in transverse speed modification")
 
-            call CFG_add(inputs, "wheel_centre", [0D0, -1.5D-3, 0D0], "Centre of liquid surface wheel relative to origin")
+            call CFG_add(inputs, "wheel_centre", [0D0, -15D-3, 0D0], "Centre of liquid surface wheel relative to origin")
             call CFG_add(inputs, "wheel_rad", 25D-3, "radius of liquid surface wheel")
             call CFG_add(inputs, "bath_height", -4D-3, "position of top of bath relative to wheel centre")
 

@@ -23,13 +23,13 @@ num_wedges = 24
 xPx = 420
 yPx = 420
 
-#max_radius = 140
-max_radius = 160
+max_radius = 140
+#max_radius = 160
 
-startTime = 74
+startTime = 50
 #endTime = 208
 #endTime = 250
-endTime = 500
+endTime = 750
 #endTime = 148
 timeStep = 2
 

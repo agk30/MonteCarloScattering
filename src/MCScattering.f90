@@ -85,7 +85,7 @@ program MCScattering
 
     do_surf_grid = .TRUE.
     surface_grid_interval = 1E-4
-    half_grid_size = 200
+    half_grid_size = 300
 
     if (do_surf_grid) then
         allocate(surface_grid(-half_grid_size:half_grid_size,-half_grid_size:half_grid_size))
