@@ -78,6 +78,21 @@ program MCScattering
 
     ! cheat beam is where we ignore most molecular beam generating geometry. Basically, this gives us a good looking beam profile at the expense of cheating the system a bit.
     logical :: cheat_beam, hits_surface
+
+    integer, dimension(:), allocatable :: speed_bin
+    double precision :: speed_bin_size, speed_bin_range(2)
+    integer :: p
+
+    double precision, dimension(90) :: angle_bin
+    double precision, dimension(3) :: normal_vector, scratch_vector
+    double precision :: real_angle, theta
+
+    speed_bin_size = 10.0
+    speed_bin_range(1) = 0
+    speed_bin_range(2) = 10000
+
+    allocate(speed_bin( int((speed_bin_range(2) - speed_bin_range(1)) / speed_bin_size) ))
+
     speed_counter = 0
     speed_total = 0
 
@@ -203,9 +218,14 @@ program MCScattering
             hits_surface = .FALSE.
             do while (.not. hits_surface)
 
-                ! sets the ingoing speed and start time
-                call ingoing_speed_from_Gauss&
-                (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
+                if (gaussian_speeds) then
+                    call random_gauss_speed(speed_gauss_mean, speed_gauss_sigma, particleSpeed(1))
+                    particleTime(1) = 0.0D0
+                else
+                    ! sets the ingoing speed and start time
+                    call ingoing_speed_from_Gauss&
+                    (w_s, m_s, std_s, w_t, m_t, std_t, n_s, n_t, gauss_time, gauss_dist, pulseLength, particleSpeed(1), particleTime(1), time_offset)
+                end if
 
                 ! Generates the ingoing direction unit vector of the molecule, along with its start point in space.
                 if (.not. cheat_beam) then
@@ -239,7 +259,7 @@ program MCScattering
 
                 ! time taken to travel to the wheel (NOT time of origin for scattered particle)
                 tWheel = abs(particleStartPos(1,3) / (particleSpeed(1)*particleVector(1,3)))
-                
+
                 ! Establishes scattered particle parameters based on ingoing beam particle
                 particleTime(2) = particleTime(1) + tWheel
                 particleStartPos(2,1) = particleStartPos(1,1) + (particleVector(1,1)*tWheel*particleSpeed(1))
@@ -288,6 +308,7 @@ program MCScattering
 
                     if (MB_scatter_speed) then
                         call MB_speed(maxSpeed, temp, mass, mostLikelyProbability, particleSpeed(2))
+                        !particleSpeed(2) = 1500E0
                     else
                         call ingoing_speed_from_Gauss&
                         (w_s_scatter, m_s_scatter, std_s_scatter, w_t_scatter, m_t_scatter, std_t_scatter, n_s_scatter, n_t_scatter, gauss_time_scatter, gauss_dist_scatter, pulseLength, particleSpeed(2), void_dump, time_offset_scatter)
@@ -298,7 +319,7 @@ program MCScattering
                     !    print *, particleSpeed(2)
                     !end if
 
-                    call cosine_distribution(cosinePowerTD, particleVector(2,:))
+                    call cosine_distribution(cosinePowerTD, particleVector(2,:), theta)
                 ! second case: IS scattering
                 else 
                     correctDirection = .false.
@@ -306,7 +327,7 @@ program MCScattering
                     ! rejects parrticles not scattering in positive z-direction from surface
                     do while (correctDirection .eqv. .false.)
                         ! sets impulsive scattering direction based on some cosine distribution in IS subroutine
-                        call cosine_distribution(cosinePowerIS, particleVector(2,:))
+                        call cosine_distribution(cosinePowerIS, particleVector(2,:), theta)
                         ! rotates scattered vector about the y-axis (this may not respresent scattered distribution properly)
                         call rotation(particleVector(2,:), exitAngle, particleVector(2,:))
 
@@ -318,7 +339,14 @@ program MCScattering
                     ! sets IS speed based on scattered direction using soft sphere model
                     call deflection_angle(particleVector(1,:), particleVector(2,:), deflectionAngle)
                     call soft_sphere_speed(massMol, energyTrans, surfaceMass, particleSpeed(1), deflectionAngle, particleSpeed(2))
+                end if 
+                
+                theta = acosd(dot_product(particleVector(2,:), (/0D0,0D0,1D0/))/((norm2(particleVector(2,:))*norm2((/0D0,0D0,1D0/)))))
+                if (particleVector(2,1) .lt. 0) then
+                    theta = -theta
                 end if
+
+                particleSpeed(2) = 1000 +(1000*((theta+90)/180))
             end if
         ! Fixed run parameters
         else
@@ -346,6 +374,23 @@ program MCScattering
                 particleTime(2) = scatterTime
             end if
         end if
+
+
+        particleStartPos(2,:) = 0
+        normal_vector = (/0,0,1/)
+
+        do k = 1, 90
+
+            call rotation(normal_vector, dble(k), scratch_vector)
+
+            real_angle = acos(dot_product(particleVector(2,:), scratch_vector)/(norm2(particleVector(2,:))*norm2(scratch_vector)))
+
+            if ((real_angle*180/pi) .lt. 0.5) then
+                angle_bin(k) = angle_bin(k) + 1
+                EXIT
+            end if
+
+        end do
 
         ! Loops through ingoing trajectories (j=1) then scattered trajectories (j=2)
         do j = startVector, vectorsPerParticle
@@ -459,4 +504,9 @@ program MCScattering
             write(1102020,*)
         end do
     end if
+!
+ !   do i = 1, 90
+ !       print *, angle_bin(i)
+!    end do
+
 end program MCScattering

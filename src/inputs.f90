@@ -28,6 +28,9 @@ module inputs
     double precision, dimension(3) :: wheel_centre
     double precision :: bath_height, wheel_rad
 
+    logical :: gaussian_speeds
+    double precision :: speed_gauss_mean, speed_gauss_sigma
+
     contains
 
         ! Loads input parameters into the main section of code, MCScattering.f90
@@ -163,6 +166,10 @@ module inputs
             call CFG_add(inputs, "wheel_centre", [0D0, -15D-3, 0D0], "Centre of liquid surface wheel relative to origin")
             call CFG_add(inputs, "wheel_rad", 25D-3, "radius of liquid surface wheel")
             call CFG_add(inputs, "bath_height", -4D-3, "position of top of bath relative to wheel centre")
+
+            call CFG_add(inputs, "gaussian_speeds", .FALSE., "Use true gaussian speed generation?")
+            call CFG_add(inputs, "speed_gauss_mean", 2000D0, "mean speed in true gaussian generation")
+            call CFG_add(inputs, "speed_gauss_sigma", 40D0, "standard deviation in true gaussian generation")
 
             ! Comment section of inputs (more for the output file)
             ! If something has been changed for some kind of testing that requires editing something outside of designated inputs,
@@ -324,6 +331,10 @@ module inputs
             call CFG_get(inputs, "wheel_centre", wheel_centre)
             call CFG_get(inputs, "wheel_rad", wheel_rad)
             call CFG_get(inputs, "bath_height", bath_height)
+
+            call CFG_get(inputs, "gaussian_speeds", gaussian_speeds)
+            call CFG_get(inputs, "speed_gauss_mean", speed_gauss_mean)
+            call CFG_get(inputs, "speed_gauss_sigma", speed_gauss_sigma)
 
             call CFG_get(inputs, "extra_info_comment", extra_info_comment)
 
