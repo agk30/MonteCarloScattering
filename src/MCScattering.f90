@@ -346,7 +346,19 @@ program MCScattering
                     theta = -theta
                 end if
 
-                particleSpeed(2) = 1000 +(1000*((theta+90)/180))
+                if (1 .eq. 2) then
+
+                    call random_number(rand1)
+
+                    if (rand1 .gt. 0.5) then
+                        call cosine_distribution_fixed_phi(dble(0), particleVector(2,:), theta)
+                    else
+                        call cosine_distribution_fixed_phi(dble(180), particleVector(2,:), theta)
+                    end if
+
+                end if
+                particleSpeed(2) = (theta*(3.9425)) + 1663.63986
+                call random_gauss_speed(particleSpeed(2), 500D0, particleSpeed(2))
             end if
         ! Fixed run parameters
         else
@@ -376,7 +388,7 @@ program MCScattering
         end if
 
 
-        particleStartPos(2,:) = 0
+        !particleStartPos(2,:) = 0
         normal_vector = (/0,0,1/)
 
         do k = 1, 90
